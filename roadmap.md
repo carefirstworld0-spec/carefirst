@@ -1,0 +1,6 @@
+- [x] Build the single-page CareFirst marketing website from the supplied brief.
+- [x] Add responsive product mockups, sections, interactive tabs, pricing toggle, and FAQ.
+- [x] Keep enquiry form honest until a real submission destination is supplied.
+- [x] Tighten page spacing and implement the chosen compact, image-led hero with refined headings and subtle motion.
+- [x] Validate and securely save clinic enquiries with honest confirmation and failure states.
+- [ ] Deliver enquiries to the clinic inbox (blocked until sending domain is set up and destination inbox is provided).

@@ -10,6 +10,7 @@ export const submitEnquiry = createServerFn({ method: "POST" })
 
 
     
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { count, error: countError } = await supabaseAdmin
       .from("clinic_enquiries")

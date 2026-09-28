@@ -144,3 +144,5 @@ function HomePage() {
     <div className="fixed bottom-5 right-5 z-40">{whatsOpen&&<div className="mb-3 w-64 rounded-lg border border-border bg-background p-4 soft-shadow"><div className="flex items-center justify-between"><strong className="text-sm text-navy">Chat on WhatsApp</strong><Button variant="ghost" size="icon" className="size-6" aria-label="Close WhatsApp message" onClick={()=>setWhatsOpen(false)}><X size={14}/></Button></div><p className="mt-2 text-xs leading-5 text-muted-foreground">A WhatsApp number hasn't been connected yet. Please use the enquiry form for now.</p><a href="#trial" onClick={()=>setWhatsOpen(false)} className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-primary">Go to form <ArrowRight size={13}/></a></div>}<button aria-label="WhatsApp chat" title="WhatsApp chat" onClick={()=>setWhatsOpen(!whatsOpen)} className="size-12 rounded-full shadow-lg transition-transform hover:-translate-y-1 focus:outline-none"><img width="48" height="48" src="https://img.icons8.com/color/48/whatsapp--v1.png" alt="whatsapp--v1" className="size-full" /></button></div>
   </div>;
 }
+
+

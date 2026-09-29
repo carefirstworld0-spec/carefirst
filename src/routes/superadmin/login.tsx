@@ -4,3 +4,5 @@ import { SuperAdminLogin } from '@/superadmin/pages/Login'
 export const Route = createFileRoute('/superadmin/login')({
   component: SuperAdminLogin,
 })
+
+

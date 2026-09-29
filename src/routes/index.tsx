@@ -61,7 +61,6 @@ function HomePage() {
   const [preview, setPreview] = useState("Dashboard");
   const [yearly, setYearly] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
-  const [whatsOpen, setWhatsOpen] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [sending, setSending] = useState(false);
   const [formError, setFormError] = useState("");
@@ -143,7 +142,18 @@ function HomePage() {
     <section className="bg-navy py-14"><div className="section-wrap flex flex-col items-start justify-between gap-6 md:flex-row md:items-center"><div><h2 className="display-title text-2xl text-primary-foreground md:text-3xl">Make every day a better day for care.</h2><p className="mt-2 text-sm text-primary-foreground/70">Let's find a simpler way forward, together.</p></div><Button variant="orange" size="lg" asChild><a href="#trial">Start Your Free Trial <ArrowRight /></a></Button></div></section>
 
     <footer className="bg-foreground py-14 text-primary-foreground"><div className="section-wrap grid gap-10 border-b border-primary-foreground/15 pb-12 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1.2fr]"><div><Brand inverse /><p className="mt-5 max-w-xs text-sm leading-6 text-primary-foreground/60">CareFirst Software Solutions builds intuitive, reliable tools for clinics and hospitals—simplifying everyday patient care, records, and operations.</p><div className="mt-5 flex gap-2">{[[Linkedin, "LinkedIn"], [Instagram, "Instagram"], [Facebook, "Facebook"]].map(([Icon, label]) => <span key={String(label)} title={`${label} profile coming soon`} className="grid size-8 place-items-center rounded border border-primary-foreground/20 text-primary-foreground/60">{Icon && createElement(Icon as typeof Plus, { size: 15 })}</span>)}</div></div><div><h3 className="font-display text-sm font-bold">Product</h3><div className="mt-5 flex flex-col gap-3 text-sm text-primary-foreground/60"><a href="#features" className="hover:text-primary-foreground">Features</a><a href="#solutions" className="hover:text-primary-foreground">Solutions</a><a href="#pricing" className="hover:text-primary-foreground">Pricing</a><a href="#preview" className="hover:text-primary-foreground">Product preview</a></div></div><div><h3 className="font-display text-sm font-bold">Company</h3><div className="mt-5 flex flex-col gap-3 text-sm text-primary-foreground/60"><a href="#about" className="hover:text-primary-foreground">About Us</a><a href="#why" className="hover:text-primary-foreground">Why CareFirst</a><a href="#faq" className="hover:text-primary-foreground">FAQs</a><a href="#contact" className="hover:text-primary-foreground">Contact Us</a></div></div><div><h3 className="font-display text-sm font-bold">Contact Us</h3><div className="mt-5 space-y-3 text-sm text-primary-foreground/60"><a href="#contact" className="inline-flex items-center gap-1.5 font-semibold text-orange hover:text-orange/90 transition-colors"><Mail size={16} className="shrink-0" /> Send an enquiry <ArrowRight size={13} /></a><p className="flex gap-2"><Phone size={16} className="shrink-0" /> Phone number coming soon</p><p className="flex gap-2"><Mail size={16} className="shrink-0" /> Email address coming soon</p><p className="flex gap-2"><MapPin size={16} className="shrink-0" /> Office address coming soon</p></div></div></div><div className="section-wrap flex flex-wrap justify-between gap-3 pt-6 text-xs text-primary-foreground/45"><span>© {new Date().getFullYear()} CareFirst Software Solutions. All rights reserved.</span><span>Made for better care.</span></div></footer>
-    <div className="fixed bottom-5 right-5 z-40">{whatsOpen && <div className="mb-3 w-64 rounded-lg border border-border bg-background p-4 soft-shadow"><div className="flex items-center justify-between"><strong className="text-sm text-navy">Chat on WhatsApp</strong><Button variant="ghost" size="icon" className="size-6" aria-label="Close WhatsApp message" onClick={() => setWhatsOpen(false)}><X size={14} /></Button></div><p className="mt-2 text-xs leading-5 text-muted-foreground">A WhatsApp number hasn't been connected yet. Please use the enquiry form for now.</p><a href="#trial" onClick={() => setWhatsOpen(false)} className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-primary">Go to form <ArrowRight size={13} /></a></div>}<button aria-label="WhatsApp chat" title="WhatsApp chat" onClick={() => setWhatsOpen(!whatsOpen)} className="size-12 rounded-full shadow-lg transition-transform hover:-translate-y-1 focus:outline-none"><img width="48" height="48" src="https://img.icons8.com/color/48/whatsapp--v1.png" alt="whatsapp--v1" className="size-full" /></button></div>
+    <div className="fixed bottom-5 right-5 z-40">
+      <a
+        href="https://wa.me/917201069892?text=I%20am%20interested"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="WhatsApp chat"
+        title="WhatsApp chat"
+        className="flex size-12 items-center justify-center rounded-full shadow-lg transition-transform hover:-translate-y-1 focus:outline-none"
+      >
+        <img width="48" height="48" src="https://img.icons8.com/color/48/whatsapp--v1.png" alt="WhatsApp" className="size-full" />
+      </a>
+    </div>
   </div>;
 }
 

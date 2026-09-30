@@ -10,17 +10,21 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as SuperadminLayoutRouteImport } from './routes/superadmin/_layout'
+import { Route as SuperadminLoginRouteImport } from './routes/superadmin/login'
+import { Route as SuperadminLayoutIndexRouteImport } from './routes/superadmin/_layout/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignupRoute = SignupRouteImport.update({
@@ -28,35 +32,90 @@ const SignupRoute = SignupRouteImport.update({
   path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperadminLayoutRoute = SuperadminLayoutRouteImport.update({
+  id: '/superadmin/_layout',
+  path: '/superadmin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperadminLoginRoute = SuperadminLoginRouteImport.update({
+  id: '/superadmin/login',
+  path: '/superadmin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperadminLayoutIndexRoute = SuperadminLayoutIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SuperadminLayoutRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
+  '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
+  '/terms': typeof TermsRoute
+  '/superadmin': typeof SuperadminLayoutRouteWithChildren
+  '/superadmin/login': typeof SuperadminLoginRoute
+  '/superadmin/': typeof SuperadminLayoutIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
+  '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
+  '/terms': typeof TermsRoute
+  '/superadmin/login': typeof SuperadminLoginRoute
+  '/superadmin': typeof SuperadminLayoutIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
+  '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
+  '/terms': typeof TermsRoute
+  '/superadmin/_layout': typeof SuperadminLayoutRouteWithChildren
+  '/superadmin/login': typeof SuperadminLoginRoute
+  '/superadmin/_layout/': typeof SuperadminLayoutIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/signup'
+  fullPaths:
+    | '/'
+    | '/privacy'
+    | '/signup'
+    | '/terms'
+    | '/superadmin'
+    | '/superadmin/login'
+    | '/superadmin/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/signup'
-  id: '__root__' | '/' | '/dashboard' | '/signup'
+  to:
+    | '/'
+    | '/privacy'
+    | '/signup'
+    | '/terms'
+    | '/superadmin/login'
+    | '/superadmin'
+  id:
+    | '__root__'
+    | '/'
+    | '/privacy'
+    | '/signup'
+    | '/terms'
+    | '/superadmin/_layout'
+    | '/superadmin/login'
+    | '/superadmin/_layout/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  DashboardRoute: typeof DashboardRoute
+  PrivacyRoute: typeof PrivacyRoute
   SignupRoute: typeof SignupRoute
+  TermsRoute: typeof TermsRoute
+  SuperadminLayoutRoute: typeof SuperadminLayoutRouteWithChildren
+  SuperadminLoginRoute: typeof SuperadminLoginRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -68,11 +127,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/signup': {
@@ -82,13 +141,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/superadmin/_layout': {
+      id: '/superadmin/_layout'
+      path: '/superadmin'
+      fullPath: '/superadmin'
+      preLoaderRoute: typeof SuperadminLayoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/superadmin/login': {
+      id: '/superadmin/login'
+      path: '/superadmin/login'
+      fullPath: '/superadmin/login'
+      preLoaderRoute: typeof SuperadminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/superadmin/_layout/': {
+      id: '/superadmin/_layout/'
+      path: '/'
+      fullPath: '/superadmin/'
+      preLoaderRoute: typeof SuperadminLayoutIndexRouteImport
+      parentRoute: typeof SuperadminLayoutRoute
+    }
   }
 }
 
+interface SuperadminLayoutRouteChildren {
+  SuperadminLayoutIndexRoute: typeof SuperadminLayoutIndexRoute
+}
+
+const SuperadminLayoutRouteChildren: SuperadminLayoutRouteChildren = {
+  SuperadminLayoutIndexRoute: SuperadminLayoutIndexRoute,
+}
+
+const SuperadminLayoutRouteWithChildren =
+  SuperadminLayoutRoute._addFileChildren(SuperadminLayoutRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  DashboardRoute: DashboardRoute,
+  PrivacyRoute: PrivacyRoute,
   SignupRoute: SignupRoute,
+  TermsRoute: TermsRoute,
+  SuperadminLayoutRoute: SuperadminLayoutRouteWithChildren,
+  SuperadminLoginRoute: SuperadminLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

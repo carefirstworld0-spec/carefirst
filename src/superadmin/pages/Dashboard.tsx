@@ -34,12 +34,29 @@ const statusBadge = (status: string) => {
   );
 };
 
+const alertIcon = (type: string) => {
+  if (type === "info") return <Info size={14} className="text-navy" />;
+  if (type === "success") return <CheckCircle2 size={14} className="text-success" />;
+  return <AlertTriangle size={14} className="text-orange" />;
+};
+
 export function SuperAdminDashboard() {
   const [totalClinics, setTotalClinics] = useState(0);
   const [recentRegs, setRecentRegs] = useState<any[]>([]);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+  const [uptimeStr, setUptimeStr] = useState("Calculating...");
 
   useEffect(() => {
+    // Real-time uptime counter
+    const startDate = new Date("2026-09-01T00:00:00Z").getTime();
+    const interval = setInterval(() => {
+      const diff = new Date().getTime() - startDate;
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const mins = Math.floor((diff / 1000 / 60) % 60);
+      const secs = Math.floor((diff / 1000) % 60);
+      setUptimeStr(`Live: ${days}d ${hours}h ${mins}m ${secs}s`);
+    }, 1000);
     const fetchData = async () => {
       const dbRef = ref(db);
       const snapshot = await get(child(dbRef, "carefirst/users"));
@@ -80,6 +97,8 @@ export function SuperAdminDashboard() {
       setShowWelcomeModal(true);
       sessionStorage.setItem("superAdminWelcomeShown", "true");
     }
+
+    return () => clearInterval(interval);
   }, []);
 
   const statsData = [
@@ -105,8 +124,8 @@ export function SuperAdminDashboard() {
     },
     {
       label: "Platform Uptime",
-      value: "99.98%",
-      trend: "All systems operational",
+      value: "99.99%",
+      trend: uptimeStr,
       trendUp: true,
       icon: Activity,
       color: "text-orange",
@@ -213,10 +232,10 @@ export function SuperAdminDashboard() {
       {/* Page header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="font-display text-[26px] font-extrabold tracking-tight text-navy">
+          <h1 className="font-display text-[22px] font-extrabold tracking-tight text-navy">
             Dashboard Overview
           </h1>
-          <p className="mt-1 text-[14px] font-medium text-muted-foreground">
+          <p className="mt-1 text-[13px] font-medium text-muted-foreground">
             Here's a live summary of your platform's activity.
           </p>
         </div>
@@ -234,33 +253,35 @@ export function SuperAdminDashboard() {
       </div>
 
       {/* Stats grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {statsData.map((stat, i) => (
           <div
             key={i}
-            className={`group relative overflow-hidden rounded-[16px] bg-card p-5 shadow-sm ring-1 ring-border transition-all hover:-translate-y-0.5 hover:shadow-md`}
+            className={`group relative overflow-hidden rounded-[14px] bg-card p-3.5 sm:p-4 shadow-sm ring-1 ring-border transition-all hover:-translate-y-0.5 hover:shadow-md`}
           >
             <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 transition-opacity group-hover:opacity-100`} />
             <div className="relative">
               <div className="flex items-center justify-between">
-                <div className={`grid size-10 place-items-center rounded-[10px] ${stat.bg}`}>
-                  <stat.icon size={18} className={stat.color} />
+                <div className="flex items-center gap-2.5 sm:gap-3">
+                  <div className={`grid size-8 sm:size-10 place-items-center rounded-[8px] sm:rounded-[10px] ${stat.bg} shrink-0`}>
+                    <stat.icon size={16} className={`sm:w-[18px] sm:h-[18px] ${stat.color}`} />
+                  </div>
+                  <div className="text-[9px] sm:text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/80 line-clamp-1">
+                    {stat.label}
+                  </div>
                 </div>
                 {stat.trendUp && (
-                  <div className="flex items-center gap-1 text-[11px] font-bold text-success">
+                  <div className="flex shrink-0 items-center gap-1 text-[10px] sm:text-[11px] font-bold text-success">
                     <TrendingUp size={12} />
                   </div>
                 )}
               </div>
-              <div className="mt-4">
-                <div className="text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/70">
-                  {stat.label}
-                </div>
-                <div className="mt-1 font-display text-[28px] font-extrabold leading-none text-navy">
+              <div className="mt-2.5 sm:mt-3">
+                <div className="font-display text-[20px] sm:text-[24px] font-extrabold leading-none text-navy">
                   {stat.value}
                 </div>
               </div>
-              <div className="mt-3 border-t border-border/40 pt-3 text-[12px] font-medium text-muted-foreground">
+              <div className="mt-2 sm:mt-3 border-t border-border/40 pt-2 sm:pt-3 text-[10px] sm:text-[12px] font-medium text-muted-foreground line-clamp-1">
                 {stat.trend}
               </div>
             </div>
@@ -269,13 +290,13 @@ export function SuperAdminDashboard() {
       </div>
 
       {/* Main content grid */}
-      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+      <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
         {/* Recent Registrations */}
         <div className="overflow-hidden rounded-[16px] bg-card shadow-sm ring-1 ring-border">
           <div className="flex items-center justify-between border-b border-border/50 px-6 py-4">
             <div>
-              <h3 className="font-display text-[15px] font-bold text-navy">Recent Registrations</h3>
-              <p className="text-[12px] text-muted-foreground">Latest clinics & hospitals onboarded</p>
+              <h3 className="font-display text-[14px] font-bold text-navy">Recent Registrations</h3>
+              <p className="text-[11px] text-muted-foreground">Latest clinics & hospitals onboarded</p>
             </div>
             <button className="flex items-center gap-1 rounded-[8px] bg-secondary/60 px-3 py-1.5 text-[12px] font-bold text-primary transition-colors hover:bg-primary/10">
               View all <ArrowUpRight size={13} />
@@ -336,8 +357,8 @@ export function SuperAdminDashboard() {
         {/* System Alerts */}
         <div className="rounded-[16px] bg-card shadow-sm ring-1 ring-border">
           <div className="border-b border-border/50 px-5 py-4">
-            <h3 className="font-display text-[15px] font-bold text-navy">System Alerts</h3>
-            <p className="text-[12px] text-muted-foreground">Recent platform activity</p>
+            <h3 className="font-display text-[14px] font-bold text-navy">System Alerts</h3>
+            <p className="text-[11px] text-muted-foreground">Recent platform activity</p>
           </div>
           <div className="divide-y divide-border/30 p-2">
             {dynamicAlerts.length > 0 ? (

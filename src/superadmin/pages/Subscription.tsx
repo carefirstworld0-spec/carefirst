@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
-import { ref, get, child, remove, onValue, off } from "firebase/database";
+import { ref, get, child, remove, update, onValue, off, set } from "firebase/database";
 import {
   Search,
   Calendar,
@@ -12,10 +12,14 @@ import {
   X,
   ChevronUp,
   ChevronDown,
-  Building2,
-  Clock,
-  CheckCircle2,
-  AlertTriangle,
+  Building,
+  Timer,
+  UserCheck,
+  UserX,
+  MoreVertical,
+  Eye,
+  Ban,
+  Play
 } from "lucide-react";
 
 type UserRecord = {
@@ -24,6 +28,7 @@ type UserRecord = {
   userName: string;
   phone: string;
   email: string;
+  password?: string;
   plan: string;
   createdAt: string;
   createdAtMs: number;
@@ -42,6 +47,12 @@ const statusBadge = (status: string) => {
     return (
       <span className="inline-flex items-center gap-1.5 rounded-full bg-success/15 px-2.5 py-1 text-[11px] font-bold text-success">
         <span className="size-1.5 rounded-full bg-success" /> Active
+      </span>
+    );
+  if (status === "Suspended")
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive/15 px-2.5 py-1 text-[11px] font-bold text-destructive">
+        <span className="size-1.5 rounded-full bg-destructive" /> Suspended
       </span>
     );
   return (
@@ -69,12 +80,52 @@ export function Subscription() {
   const [deleteTarget, setDeleteTarget] = useState<UserRecord | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [activeTab, setActiveTab] = useState<"all" | "trial">("all");
+  const [editTarget, setEditTarget] = useState<UserRecord | null>(null);
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [editForm, setEditForm] = useState({
+    clinicName: "",
+    userName: "",
+    phone: "",
+    email: "",
+    password: ""
+  });
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
+  const [addForm, setAddForm] = useState({
+    clinicName: "",
+    userName: "",
+    phone: "",
+    email: "",
+    password: "",
+    status: "Trial"
+  });
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [suspendTarget, setSuspendTarget] = useState<UserRecord | null>(null);
+  const [suspending, setSuspending] = useState(false);
+  const suspendReasons = [
+    "Payment Overdue",
+    "Violation of Terms",
+    "Security Concern",
+    "Requested by Owner",
+    "Other"
+  ];
+  const [suspendForm, setSuspendForm] = useState({
+    reason: "Payment Overdue",
+    description: "Your account has been suspended due to an overdue payment. Please clear the pending dues to restore access."
+  });
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const fetchUsers = async () => {
-    setLoading(true);
-    const dbRef = ref(db);
-    const snapshot = await get(child(dbRef, "carefirst/users"));
-    parseSnapshot(snapshot);
+    setIsRefreshing(true);
+    try {
+      const dbRef = ref(db);
+      const snapshot = await get(child(dbRef, "carefirst/users"));
+      parseSnapshot(snapshot);
+    } catch (err) {
+      console.error("Failed to fetch users manually:", err);
+    } finally {
+      setTimeout(() => setIsRefreshing(false), 600); // Give a visual delay to show something happened
+    }
   };
 
   const parseSnapshot = (snapshot: any) => {
@@ -91,12 +142,17 @@ export function Subscription() {
             userName: sd.name || "N/A",
             phone: sd.phone || "N/A",
             email: sd.email || "N/A",
+            password: sd.password || "",
             plan: "7-Day Trial",
             createdAt: sd.createdAt || "",
             createdAtMs: sd.createdAt ? new Date(sd.createdAt).getTime() : 0,
             trialExpires: sd.trialExpires || "",
             status:
-              sd.trialExpires && new Date(sd.trialExpires) > new Date()
+              sd.suspended === true
+                ? "Suspended"
+                : sd.isActive === true
+                ? "Active"
+                : sd.trialExpires && new Date(sd.trialExpires) > new Date()
                 ? "Trial"
                 : "Expired",
           });
@@ -129,6 +185,47 @@ export function Subscription() {
     }
   };
 
+  const handleAddUser = async () => {
+    if (!addForm.clinicName || !addForm.email || !addForm.password || !addForm.userName || !addForm.phone) return;
+    setIsAdding(true);
+    try {
+      const { initializeApp, deleteApp } = await import("firebase/app");
+      const { getAuth, createUserWithEmailAndPassword, updateProfile } = await import("firebase/auth");
+      const { firebaseConfig } = await import("@/lib/firebase");
+      
+      const secondaryApp = initializeApp(firebaseConfig, "Secondary");
+      const secondaryAuth = getAuth(secondaryApp);
+      
+      const userCredential = await createUserWithEmailAndPassword(secondaryAuth, addForm.email, addForm.password);
+      await updateProfile(userCredential.user, { displayName: addForm.userName });
+      
+      const safeClinicName = addForm.clinicName.replace(/[.#$\[\]\/]/g, '').trim();
+      const now = new Date();
+      
+      await set(ref(db, `carefirst/users/${safeClinicName}/signup`), {
+        name: addForm.userName,
+        email: addForm.email,
+        phone: addForm.phone,
+        password: addForm.password,
+        clinic: addForm.clinicName,
+        uid: userCredential.user.uid,
+        createdAt: now.toISOString(),
+        trialExpires: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        isActive: addForm.status === "Active"
+      });
+      
+      await deleteApp(secondaryApp);
+      setShowAddModal(false);
+      setAddForm({ clinicName: "", userName: "", phone: "", email: "", password: "", status: "Trial" });
+      fetchUsers();
+    } catch (e: any) {
+      console.error(e);
+      alert(e.message || "Failed to add user.");
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
   const handleDelete = async () => {
     if (!deleteTarget) return;
     setDeleting(true);
@@ -140,6 +237,61 @@ export function Subscription() {
       console.error(e);
     }
     setDeleting(false);
+  };
+
+  const handleEditClick = (user: UserRecord) => {
+    setEditTarget(user);
+    setEditForm({
+      clinicName: user.clinicName,
+      userName: user.userName,
+      phone: user.phone,
+      email: user.email,
+      password: user.password || ""
+    });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editTarget) return;
+    setSavingEdit(true);
+    try {
+      const userRef = ref(db, `carefirst/users/${editTarget.clinicKey}/signup`);
+      const updates: any = {
+        clinic: editForm.clinicName,
+        name: editForm.userName,
+        phone: editForm.phone,
+        email: editForm.email
+      };
+      
+      if (editForm.password.trim() !== "") {
+        updates.password = editForm.password;
+      }
+      
+      await update(userRef, updates);
+      setEditTarget(null);
+    } catch (error) {
+      console.error("Failed to update user:", error);
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  const handleSuspend = async () => {
+    if (!suspendTarget) return;
+    setSuspending(true);
+    try {
+      const userRef = ref(db, `carefirst/users/${suspendTarget.clinicKey}/signup`);
+      await update(userRef, { 
+        suspended: true,
+        suspendReason: suspendForm.reason,
+        suspendDescription: suspendForm.description,
+        suspendDate: new Date().toISOString()
+      });
+      setSuspendTarget(null);
+    } catch (error) {
+      console.error("Failed to suspend user:", error);
+    } finally {
+      setSuspending(false);
+    }
   };
 
   const filtered = users
@@ -178,7 +330,7 @@ export function Subscription() {
     {
       label: "Total Clinics",
       value: users.length.toString(),
-      icon: Building2,
+      icon: Building,
       color: "text-primary",
       bg: "bg-primary/10",
       gradient: "from-primary/5 to-primary/0",
@@ -186,7 +338,7 @@ export function Subscription() {
     {
       label: "Trial Users",
       value: users.filter((u) => u.status === "Trial").length.toString(),
-      icon: Clock,
+      icon: Timer,
       color: "text-orange",
       bg: "bg-orange/10",
       gradient: "from-orange/5 to-orange/0",
@@ -194,7 +346,7 @@ export function Subscription() {
     {
       label: "Active Users",
       value: users.filter((u) => u.status === "Active").length.toString(),
-      icon: CheckCircle2,
+      icon: UserCheck,
       color: "text-success",
       bg: "bg-success/10",
       gradient: "from-success/5 to-success/0",
@@ -202,7 +354,7 @@ export function Subscription() {
     {
       label: "Closed / Expired",
       value: users.filter((u) => u.status === "Expired").length.toString(),
-      icon: AlertTriangle,
+      icon: UserX,
       color: "text-destructive",
       bg: "bg-destructive/10",
       gradient: "from-destructive/5 to-destructive/0",
@@ -224,12 +376,16 @@ export function Subscription() {
         <div className="flex w-full sm:w-auto items-center gap-3">
           <button
             onClick={fetchUsers}
-            className="flex flex-1 sm:flex-none justify-center items-center gap-2 rounded-[10px] bg-secondary/60 px-4 py-2.5 text-[12px] sm:text-[13px] font-semibold text-navy/80 transition-colors hover:bg-secondary"
+            disabled={isRefreshing}
+            className="flex flex-1 sm:flex-none justify-center items-center gap-2 rounded-[10px] bg-secondary/60 px-4 py-2.5 text-[12px] sm:text-[13px] font-semibold text-navy/80 transition-colors hover:bg-secondary disabled:opacity-70"
           >
-            <RefreshCw size={14} />
+            <RefreshCw size={14} className={isRefreshing ? "animate-spin" : ""} />
             Refresh
           </button>
-          <button className="flex flex-1 sm:flex-none justify-center items-center gap-2 rounded-[10px] bg-primary px-4 py-2.5 text-[12px] sm:text-[13px] font-bold text-white shadow-md transition-all hover:bg-primary/90 hover:-translate-y-0.5">
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="flex flex-1 sm:flex-none justify-center items-center gap-2 rounded-[10px] bg-primary px-4 py-2.5 text-[12px] sm:text-[13px] font-bold text-white shadow-md transition-all hover:bg-primary/90 hover:-translate-y-0.5"
+          >
             <UserPlus size={14} />
             Add User
           </button>
@@ -237,24 +393,22 @@ export function Subscription() {
       </div>
 
       {/* Stats grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {statsData.map((stat, i) => (
           <div
             key={i}
-            className={`group relative overflow-hidden rounded-[16px] bg-card p-5 shadow-sm ring-1 ring-border transition-all hover:-translate-y-0.5 hover:shadow-md`}
+            className={`group relative overflow-hidden rounded-[14px] bg-card p-4 shadow-sm ring-1 ring-border transition-all hover:-translate-y-0.5 hover:shadow-md`}
           >
             <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 transition-opacity group-hover:opacity-100`} />
-            <div className="relative">
-              <div className="flex items-center justify-between">
-                <div className={`grid size-10 place-items-center rounded-[10px] ${stat.bg}`}>
-                  <stat.icon size={18} className={stat.color} />
-                </div>
+            <div className="relative flex items-center gap-3.5">
+              <div className={`grid size-10 shrink-0 place-items-center rounded-[10px] ${stat.bg}`}>
+                <stat.icon size={18} className={stat.color} />
               </div>
-              <div className="mt-4">
-                <div className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/70">
+              <div>
+                <div className="text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground/70">
                   {stat.label}
                 </div>
-                <div className="mt-1 font-display text-[24px] sm:text-[28px] font-extrabold leading-none text-navy/90">
+                <div className="mt-0.5 font-display text-[20px] font-extrabold leading-none text-navy">
                   {stat.value}
                 </div>
               </div>
@@ -351,44 +505,47 @@ export function Subscription() {
           </span>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto min-h-[350px]">
           <table className="w-full">
             <thead>
               <tr className="border-b border-border/30 bg-secondary/20">
-                <th className="px-5 py-3.5 text-left text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/70">
+                <th className="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/70">
                   Sr No.
                 </th>
                 <th
-                  className="cursor-pointer px-5 py-3.5 text-left text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/70 hover:text-navy"
+                  className="whitespace-nowrap cursor-pointer px-5 py-3.5 text-left text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/70 hover:text-navy"
                   onClick={() => handleSort("clinicName")}
                 >
-                  Clinic Name <SortIcon field="clinicName" />
+                  <div className="flex items-center gap-1.5">Clinic Name <SortIcon field="clinicName" /></div>
                 </th>
                 <th
-                  className="cursor-pointer px-5 py-3.5 text-left text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/70 hover:text-navy"
+                  className="whitespace-nowrap cursor-pointer px-5 py-3.5 text-left text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/70 hover:text-navy"
                   onClick={() => handleSort("userName")}
                 >
-                  User Name <SortIcon field="userName" />
+                  <div className="flex items-center gap-1.5">Name <SortIcon field="userName" /></div>
                 </th>
-                <th className="px-5 py-3.5 text-left text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/70">
+                <th className="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/70">
                   Mobile Number
                 </th>
-                <th className="px-5 py-3.5 text-left text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/70">
+                <th className="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/70">
                   Email
                 </th>
-                <th className="px-5 py-3.5 text-left text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/70">
+                <th className="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/70">
                   Plan
                 </th>
-                <th className="px-5 py-3.5 text-left text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/70">
+                <th className="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/70">
                   Status
                 </th>
                 <th
-                  className="cursor-pointer px-5 py-3.5 text-left text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/70 hover:text-navy"
+                  className="whitespace-nowrap cursor-pointer px-5 py-3.5 text-left text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/70 hover:text-navy"
                   onClick={() => handleSort("createdAtMs")}
                 >
-                  Joined <SortIcon field="createdAtMs" />
+                  <div className="flex items-center gap-1.5">Joined <SortIcon field="createdAtMs" /></div>
                 </th>
-                <th className="px-5 py-3.5 text-center text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/70">
+                <th className="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/70">
+                  Expires
+                </th>
+                <th className="whitespace-nowrap px-5 py-3.5 text-center text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/70">
                   Actions
                 </th>
               </tr>
@@ -397,7 +554,7 @@ export function Subscription() {
               {loading ? (
                 Array.from({ length: 4 }).map((_, i) => (
                   <tr key={i} className="border-b border-border/20 last:border-0">
-                    {Array.from({ length: 9 }).map((_, j) => (
+                    {Array.from({ length: 10 }).map((_, j) => (
                       <td key={j} className="px-5 py-4">
                         <div className="h-3.5 w-full animate-pulse rounded-full bg-secondary/80" />
                       </td>
@@ -406,7 +563,7 @@ export function Subscription() {
                 ))
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-6 py-16 text-center">
+                  <td colSpan={10} className="px-6 py-16 text-center">
                     <div className="flex flex-col items-center gap-3">
                       <div className="flex size-12 items-center justify-center rounded-full bg-secondary/60">
                         <Search size={20} className="text-muted-foreground" />
@@ -461,9 +618,21 @@ export function Subscription() {
                       </div>
                     </td>
                     <td className="px-5 py-4">
-                      <div className="flex items-center justify-center gap-2">
+                      <div className={`text-[12px] font-bold ${user.status === "Expired" ? "text-destructive" : "text-navy/80"}`}>
+                        {user.trialExpires
+                          ? new Date(user.trialExpires).toLocaleDateString("en-IN", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })
+                          : "N/A"}
+                      </div>
+                    </td>
+                    <td className="px-5 py-4">
+                      <div className="flex items-center justify-center gap-1.5 relative">
                         <button
                           title="Edit"
+                          onClick={() => handleEditClick(user)}
                           className="flex size-8 items-center justify-center rounded-[8px] bg-primary/10 text-primary transition-all hover:bg-primary hover:text-white"
                         >
                           <Pencil size={13} />
@@ -475,6 +644,77 @@ export function Subscription() {
                         >
                           <Trash2 size={13} />
                         </button>
+                        <div className="relative">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveDropdown(activeDropdown === user.clinicKey ? null : user.clinicKey);
+                            }}
+                            className="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-all hover:bg-secondary hover:text-navy"
+                          >
+                            <MoreVertical size={16} />
+                          </button>
+                          
+                          {activeDropdown === user.clinicKey && (
+                            <>
+                              <div 
+                                className="fixed inset-0 z-40" 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveDropdown(null);
+                                }}
+                              />
+                              <div className="absolute right-8 top-0 z-50 w-48 rounded-xl border border-border bg-card p-1.5 shadow-lg animate-in fade-in zoom-in-95">
+                                <button 
+                                  onClick={() => setActiveDropdown(null)}
+                                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium text-navy transition-colors hover:bg-secondary"
+                                >
+                                  <Eye size={14} className="text-muted-foreground" /> View Details
+                                </button>
+                                
+                                {user.status !== "Suspended" ? (
+                                  <button 
+                                    onClick={() => {
+                                      setActiveDropdown(null);
+                                      setSuspendTarget(user);
+                                      setSuspendForm({
+                                        reason: suspendReasons[0],
+                                        description: "Your account has been suspended due to an overdue payment. Please clear the pending dues to restore access."
+                                      });
+                                    }}
+                                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium text-orange transition-colors hover:bg-orange/10 hover:text-orange"
+                                  >
+                                    <Ban size={14} className="opacity-70" /> Suspend Account
+                                  </button>
+                                ) : (
+                                  <button 
+                                    onClick={async () => {
+                                      setActiveDropdown(null);
+                                      const userRef = ref(db, `carefirst/users/${user.clinicKey}/signup`);
+                                      await update(userRef, { 
+                                        suspended: false,
+                                        suspendReason: null,
+                                        suspendDescription: null,
+                                        suspendDate: null,
+                                        lastActivatedAt: new Date().getTime()
+                                      });
+                                    }}
+                                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium text-success transition-colors hover:bg-success/10 hover:text-success"
+                                  >
+                                    <Play size={14} className="opacity-70" /> Activate Account
+                                  </button>
+                                )}
+                                
+                                <button 
+                                  onClick={() => setActiveDropdown(null)}
+                                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium text-primary transition-colors hover:bg-primary/10 hover:text-primary"
+                                >
+                                  <RefreshCw size={14} className="opacity-70" /> Manual Renewal
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </td>
                   </tr>
@@ -516,6 +756,271 @@ export function Subscription() {
                 className="flex-1 rounded-[12px] bg-destructive py-2.5 text-[14px] font-bold text-white transition-all hover:bg-destructive/90 disabled:opacity-60"
               >
                 {deleting ? "Deleting..." : "Yes, Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Suspend Confirmation Modal */}
+      {suspendTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-navy/40 backdrop-blur-sm"
+            onClick={() => setSuspendTarget(null)}
+          />
+          <div className="relative w-full max-w-[420px] overflow-hidden rounded-[20px] bg-card shadow-2xl">
+            <div className="bg-gradient-to-br from-orange/5 to-orange/0 p-8 text-center">
+              <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-orange/10">
+                <Ban size={22} className="text-orange" />
+              </div>
+              <h3 className="font-display text-[20px] font-extrabold text-navy/90">Suspend Account?</h3>
+              <p className="mt-2 text-[14px] font-medium text-muted-foreground">
+                Are you sure you want to suspend{" "}
+                <span className="font-bold text-navy/90">{suspendTarget.clinicName}</span>?
+              </p>
+            </div>
+            
+            <div className="p-6 pt-2 space-y-4 text-left">
+              <div className="space-y-1.5">
+                <label className="text-[13px] font-semibold text-navy">Select Reason</label>
+                <select
+                  value={suspendForm.reason}
+                  onChange={(e) => {
+                    const r = e.target.value;
+                    let desc = "";
+                    if (r === "Payment Overdue") desc = "Your account has been suspended due to an overdue payment. Please clear the pending dues to restore access.";
+                    else if (r === "Violation of Terms") desc = "Your account has been suspended due to a violation of our terms of service.";
+                    else if (r === "Security Concern") desc = "Your account has been temporarily suspended due to suspicious activity. Please contact support.";
+                    else if (r === "Requested by Owner") desc = "Your account has been suspended at the request of the clinic owner.";
+                    else desc = "Your account has been suspended. Please contact CareFirst support for more information.";
+                    
+                    setSuspendForm({ reason: r, description: desc });
+                  }}
+                  className="w-full rounded-[10px] border border-border bg-background px-4 py-2.5 text-[14px] text-navy focus:border-orange focus:outline-none focus:ring-1 focus:ring-orange"
+                >
+                  {suspendReasons.map(r => (
+                    <option key={r} value={r}>{r}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[13px] font-semibold text-navy">Description (Visible to user)</label>
+                <textarea
+                  rows={3}
+                  value={suspendForm.description}
+                  onChange={(e) => setSuspendForm(prev => ({ ...prev, description: e.target.value }))}
+                  className="w-full resize-none rounded-[10px] border border-border bg-background px-4 py-3 text-[14px] text-navy focus:border-orange focus:outline-none focus:ring-1 focus:ring-orange"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 p-6 pt-0">
+              <button
+                onClick={() => setSuspendTarget(null)}
+                className="flex-1 rounded-[12px] border border-border py-2.5 text-[14px] font-semibold text-navy/70 transition-colors hover:bg-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSuspend}
+                disabled={suspending}
+                className="flex-1 rounded-[12px] bg-orange py-2.5 text-[14px] font-bold text-white transition-all hover:bg-orange/90 disabled:opacity-60"
+              >
+                {suspending ? "Suspending..." : "Yes, Suspend"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Edit Modal */}
+      {editTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-navy/40 backdrop-blur-sm"
+            onClick={() => setEditTarget(null)}
+          />
+          <div className="relative w-full max-w-[500px] overflow-hidden rounded-[20px] bg-card shadow-2xl">
+            <div className="flex items-center justify-between border-b border-border/60 px-6 py-4">
+              <h3 className="font-display text-[18px] font-extrabold text-navy">Edit Clinic Profile</h3>
+              <button
+                onClick={() => setEditTarget(null)}
+                className="rounded-full p-2 text-muted-foreground hover:bg-secondary hover:text-navy transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-[13px] font-semibold text-navy">Clinic Name</label>
+                <input
+                  type="text"
+                  value={editForm.clinicName}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, clinicName: e.target.value }))}
+                  className="w-full rounded-[10px] border border-border bg-background px-4 py-2 text-[14px] text-navy focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[13px] font-semibold text-navy">User Name</label>
+                <input
+                  type="text"
+                  value={editForm.userName}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, userName: e.target.value }))}
+                  className="w-full rounded-[10px] border border-border bg-background px-4 py-2 text-[14px] text-navy focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[13px] font-semibold text-navy">Mobile Number</label>
+                <input
+                  type="text"
+                  value={editForm.phone}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
+                  className="w-full rounded-[10px] border border-border bg-background px-4 py-2 text-[14px] text-navy focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[13px] font-semibold text-navy">Email Address</label>
+                <input
+                  type="email"
+                  value={editForm.email}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, email: e.target.value }))}
+                  className="w-full rounded-[10px] border border-border bg-background px-4 py-2 text-[14px] text-navy focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[13px] font-semibold text-navy">Password</label>
+                <input
+                  type="text"
+                  placeholder="Enter password"
+                  value={editForm.password}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, password: e.target.value }))}
+                  className="w-full rounded-[10px] border border-border bg-background px-4 py-2 text-[14px] text-navy focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  Note: Updating this will save to the database, but Firebase Auth requires a backend Cloud Function to securely apply password changes.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-3 border-t border-border/60 p-6 bg-secondary/20">
+              <button
+                onClick={() => setEditTarget(null)}
+                className="flex-1 rounded-[12px] border border-border py-2.5 text-[14px] font-semibold text-navy/70 transition-colors hover:bg-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                disabled={savingEdit}
+                className="flex-1 rounded-[12px] bg-primary py-2.5 text-[14px] font-bold text-white transition-all hover:bg-primary/90 disabled:opacity-60"
+              >
+                {savingEdit ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add User Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-navy/40 backdrop-blur-sm"
+            onClick={() => setShowAddModal(false)}
+          />
+          <div className="relative w-full max-w-2xl overflow-hidden rounded-[24px] bg-card shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-border/50 px-6 py-4">
+              <h3 className="font-display text-[18px] font-extrabold text-navy">Add New User</h3>
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="rounded-full p-2 text-muted-foreground hover:bg-secondary hover:text-navy transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            
+            <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 max-h-[70vh] overflow-y-auto">
+              <div className="space-y-1.5 sm:col-span-2">
+                <label className="text-[13px] font-semibold text-navy">Clinic Name</label>
+                <input
+                  type="text"
+                  value={addForm.clinicName}
+                  onChange={(e) => setAddForm(prev => ({ ...prev, clinicName: e.target.value }))}
+                  className="w-full rounded-[10px] border border-border bg-background px-4 py-2 text-[14px] text-navy focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[13px] font-semibold text-navy">User Name</label>
+                <input
+                  type="text"
+                  value={addForm.userName}
+                  onChange={(e) => setAddForm(prev => ({ ...prev, userName: e.target.value }))}
+                  className="w-full rounded-[10px] border border-border bg-background px-4 py-2 text-[14px] text-navy focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[13px] font-semibold text-navy">Mobile Number</label>
+                <input
+                  type="text"
+                  value={addForm.phone}
+                  onChange={(e) => setAddForm(prev => ({ ...prev, phone: e.target.value }))}
+                  className="w-full rounded-[10px] border border-border bg-background px-4 py-2 text-[14px] text-navy focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[13px] font-semibold text-navy">Email Address</label>
+                <input
+                  type="email"
+                  value={addForm.email}
+                  onChange={(e) => setAddForm(prev => ({ ...prev, email: e.target.value }))}
+                  className="w-full rounded-[10px] border border-border bg-background px-4 py-2 text-[14px] text-navy focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[13px] font-semibold text-navy">Password</label>
+                <input
+                  type="text"
+                  value={addForm.password}
+                  onChange={(e) => setAddForm(prev => ({ ...prev, password: e.target.value }))}
+                  className="w-full rounded-[10px] border border-border bg-background px-4 py-2 text-[14px] text-navy focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[13px] font-semibold text-navy">Status</label>
+                <select
+                  value={addForm.status}
+                  onChange={(e) => setAddForm(prev => ({ ...prev, status: e.target.value }))}
+                  className="w-full rounded-[10px] border border-border bg-background px-4 py-2 text-[14px] text-navy focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                >
+                  <option value="Trial">Trial</option>
+                  <option value="Active">Active User</option>
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[13px] font-semibold text-navy">Created Date</label>
+                <input
+                  type="text"
+                  disabled
+                  value={new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                  className="w-full rounded-[10px] border border-border bg-secondary/50 px-4 py-2 text-[14px] text-muted-foreground cursor-not-allowed focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 border-t border-border/60 p-6 bg-secondary/20">
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="flex-1 rounded-[12px] border border-border py-2.5 text-[14px] font-semibold text-navy/70 transition-colors hover:bg-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddUser}
+                disabled={isAdding}
+                className="flex-1 rounded-[12px] bg-primary py-2.5 text-[14px] font-bold text-white transition-all hover:bg-primary/90 disabled:opacity-60"
+              >
+                {isAdding ? "Adding..." : "Add User"}
               </button>
             </div>
           </div>

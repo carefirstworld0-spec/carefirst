@@ -86,6 +86,11 @@ function SignupPage() {
         trialExpires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       });
 
+      // Set local storage session data
+      localStorage.setItem("user_uid", user.uid);
+      localStorage.setItem("user_clinic", safeClinicName);
+      localStorage.setItem("user_name", name);
+
       // Redirect directly to the admin dashboard
       navigate({ to: "/admin" });
     } catch (err: any) {

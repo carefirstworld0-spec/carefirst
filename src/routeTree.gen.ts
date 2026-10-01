@@ -18,7 +18,11 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SuperadminRouteImport } from './routes/superadmin'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminSplatRouteImport } from './routes/admin/$'
+import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
+import { Route as AdminTrashRouteImport } from './routes/admin/trash'
 import { Route as SuperadminIndexRouteImport } from './routes/superadmin/index'
+import { Route as SuperadminSplatRouteImport } from './routes/superadmin/$'
 import { Route as SuperadminSubscriptionRouteImport } from './routes/superadmin/subscription'
 import { Route as SuperadminWhiteLabelRouteImport } from './routes/superadmin/white-label'
 import { Route as SuperadminLoginRouteImport } from './routes/superadmin_.login'
@@ -68,9 +72,29 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminSplatRoute = AdminSplatRouteImport.update({
+  id: '/$',
+  path: '/$',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminTrashRoute = AdminTrashRouteImport.update({
+  id: '/trash',
+  path: '/trash',
+  getParentRoute: () => AdminRoute,
+} as any)
 const SuperadminIndexRoute = SuperadminIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminSplatRoute = SuperadminSplatRouteImport.update({
+  id: '/$',
+  path: '/$',
   getParentRoute: () => SuperadminRoute,
 } as any)
 const SuperadminSubscriptionRoute = SuperadminSubscriptionRouteImport.update({
@@ -98,6 +122,10 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/superadmin': typeof SuperadminRouteWithChildren
   '/terms': typeof TermsRoute
+  '/admin/$': typeof AdminSplatRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/trash': typeof AdminTrashRoute
+  '/superadmin/$': typeof SuperadminSplatRoute
   '/superadmin/subscription': typeof SuperadminSubscriptionRoute
   '/superadmin/white-label': typeof SuperadminWhiteLabelRoute
   '/superadmin/login': typeof SuperadminLoginRoute
@@ -111,6 +139,10 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/admin/$': typeof AdminSplatRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/trash': typeof AdminTrashRoute
+  '/superadmin/$': typeof SuperadminSplatRoute
   '/superadmin/subscription': typeof SuperadminSubscriptionRoute
   '/superadmin/white-label': typeof SuperadminWhiteLabelRoute
   '/superadmin/login': typeof SuperadminLoginRoute
@@ -127,6 +159,10 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/superadmin': typeof SuperadminRouteWithChildren
   '/terms': typeof TermsRoute
+  '/admin/$': typeof AdminSplatRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/trash': typeof AdminTrashRoute
+  '/superadmin/$': typeof SuperadminSplatRoute
   '/superadmin/subscription': typeof SuperadminSubscriptionRoute
   '/superadmin/white-label': typeof SuperadminWhiteLabelRoute
   '/superadmin_/login': typeof SuperadminLoginRoute
@@ -144,6 +180,10 @@ export interface FileRouteTypes {
     | '/signup'
     | '/superadmin'
     | '/terms'
+    | '/admin/$'
+    | '/admin/settings'
+    | '/admin/trash'
+    | '/superadmin/$'
     | '/superadmin/subscription'
     | '/superadmin/white-label'
     | '/superadmin/login'
@@ -157,6 +197,10 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/signup'
     | '/terms'
+    | '/admin/$'
+    | '/admin/settings'
+    | '/admin/trash'
+    | '/superadmin/$'
     | '/superadmin/subscription'
     | '/superadmin/white-label'
     | '/superadmin/login'
@@ -172,6 +216,10 @@ export interface FileRouteTypes {
     | '/signup'
     | '/superadmin'
     | '/terms'
+    | '/admin/$'
+    | '/admin/settings'
+    | '/admin/trash'
+    | '/superadmin/$'
     | '/superadmin/subscription'
     | '/superadmin/white-label'
     | '/superadmin_/login'
@@ -256,11 +304,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/$': {
+      id: '/admin/$'
+      path: '/$'
+      fullPath: '/admin/$'
+      preLoaderRoute: typeof AdminSplatRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/trash': {
+      id: '/admin/trash'
+      path: '/trash'
+      fullPath: '/admin/trash'
+      preLoaderRoute: typeof AdminTrashRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/superadmin/': {
       id: '/superadmin/'
       path: '/'
       fullPath: '/superadmin/'
       preLoaderRoute: typeof SuperadminIndexRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/$': {
+      id: '/superadmin/$'
+      path: '/$'
+      fullPath: '/superadmin/$'
+      preLoaderRoute: typeof SuperadminSplatRouteImport
       parentRoute: typeof SuperadminRoute
     }
     '/superadmin/subscription': {
@@ -288,22 +364,30 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminSplatRoute: typeof AdminSplatRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminTrashRoute: typeof AdminTrashRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminSplatRoute: AdminSplatRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
+  AdminTrashRoute: AdminTrashRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface SuperadminRouteChildren {
+  SuperadminSplatRoute: typeof SuperadminSplatRoute
   SuperadminSubscriptionRoute: typeof SuperadminSubscriptionRoute
   SuperadminWhiteLabelRoute: typeof SuperadminWhiteLabelRoute
   SuperadminIndexRoute: typeof SuperadminIndexRoute
 }
 
 const SuperadminRouteChildren: SuperadminRouteChildren = {
+  SuperadminSplatRoute: SuperadminSplatRoute,
   SuperadminSubscriptionRoute: SuperadminSubscriptionRoute,
   SuperadminWhiteLabelRoute: SuperadminWhiteLabelRoute,
   SuperadminIndexRoute: SuperadminIndexRoute,

@@ -1326,14 +1326,7 @@ function HomePage() {
         </div>
       </footer>
       <div className="fixed bottom-5 right-5 z-40">
-        <a
-          href="https://wa.me/917201069892?text=I%20am%20interested"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="WhatsApp chat"
-          title="WhatsApp chat"
-          className="flex size-12 items-center justify-center rounded-full shadow-lg transition-transform hover:-translate-y-1 focus:outline-none"
-        >
+     
           <img
             width="48"
             height="48"

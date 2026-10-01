@@ -1,6 +1,8 @@
 <!-- LOVABLE:BEGIN -->
+
 > [!IMPORTANT]
 > This project is connected to Lovable. Avoid rewriting published git history.
+
 <!-- LOVABLE:END -->
 
 - Keep the marketing experience on the single index route because the supplied brief explicitly specifies one scrolling page with section anchors.

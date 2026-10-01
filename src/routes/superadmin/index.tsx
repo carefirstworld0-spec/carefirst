@@ -1,6 +1,6 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { SuperAdminDashboard } from '@/superadmin/pages/Dashboard'
+import { createFileRoute } from "@tanstack/react-router";
+import { SuperAdminDashboard } from "@/superadmin/pages/Dashboard";
 
-export const Route = createFileRoute('/superadmin/')({
+export const Route = createFileRoute("/superadmin/")({
   component: SuperAdminDashboard,
-})
+});

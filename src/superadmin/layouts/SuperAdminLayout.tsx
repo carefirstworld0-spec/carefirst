@@ -7,12 +7,14 @@ import {
   LogOut,
   Bell,
   ChevronRight,
+  ChevronLeft,
   ShieldCheck,
   Menu,
   X,
   BarChart3,
   PanelLeftClose,
-  PanelLeftOpen
+  PanelLeftOpen,
+  Globe
 } from "lucide-react";
 import { useState } from "react";
 
@@ -21,7 +23,7 @@ const navItems = [
     group: "Overview",
     items: [
       { label: "Dashboard", icon: LayoutDashboard, to: "/superadmin" },
-      { label: "Analytics", icon: BarChart3, to: "/superadmin" },
+      { label: "Analytics", icon: BarChart3, to: "/superadmin/analytics" },
     ],
   },
   {
@@ -35,13 +37,13 @@ const navItems = [
           { label: "White Label", to: "/superadmin/white-label" },
         ]
       },
-      { label: "Users & Staff", icon: Users, to: "/superadmin" },
+      { label: "Users & Staff", icon: Users, to: "/superadmin/users-staff" },
     ],
   },
   {
     group: "System",
     items: [
-      { label: "Settings", icon: Settings, to: "/superadmin" },
+      { label: "Settings", icon: Settings, to: "/superadmin/settings" },
     ],
   },
 ];
@@ -63,7 +65,7 @@ export function SuperAdminLayout() {
   };
 
   return (
-    <div className="flex min-h-screen bg-background font-sans">
+    <div className="flex h-screen overflow-hidden bg-background font-sans">
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
@@ -74,10 +76,16 @@ export function SuperAdminLayout() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-40 flex h-full flex-col bg-card border-r border-border shadow-[4px_0_24px_rgba(15,23,42,0.02)] transition-all duration-300 lg:static lg:z-auto lg:translate-x-0 ${
+        className={`fixed top-0 left-0 z-40 flex h-full flex-col bg-card border-r border-border shadow-[4px_0_24px_rgba(15,23,42,0.02)] transition-all duration-300 lg:static lg:z-auto lg:translate-x-0 relative ${
           mobileOpen ? "translate-x-0 w-[260px]" : "-translate-x-full"
         } ${isCollapsed ? "lg:w-[80px]" : "lg:w-[260px]"}`}
       >
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="absolute -right-3 top-[26px] z-50 hidden lg:flex size-6 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-sm hover:text-navy hover:bg-secondary focus:outline-none transition-transform hover:scale-110"
+        >
+          {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+        </button>
         {/* Logo */}
         <div className={`flex h-[76px] shrink-0 items-center border-b border-border overflow-hidden whitespace-nowrap transition-all duration-300 ${isCollapsed ? 'px-0 justify-center' : 'px-6 gap-3'}`}>
           <img
@@ -219,13 +227,6 @@ export function SuperAdminLayout() {
               <LogOut size={16} />
               {!isCollapsed && <span>Sign out</span>}
             </button>
-            <button
-              onClick={() => setIsCollapsed(!isCollapsed)}
-              className={`hidden lg:flex items-center justify-center rounded-[10px] text-muted-foreground transition-colors hover:bg-secondary hover:text-navy ${isCollapsed ? 'size-10' : 'w-full gap-2.5 px-3 py-2 text-[13px] font-semibold bg-secondary/50'}`}
-              title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            >
-              {isCollapsed ? <PanelLeftOpen size={18} /> : <><PanelLeftClose size={18} /><span>Collapse Sidebar</span></>}
-            </button>
           </div>
         </div>
       </aside>
@@ -241,12 +242,26 @@ export function SuperAdminLayout() {
             <Menu size={22} />
           </button>
 
-          <div className="hidden text-[13px] font-medium text-muted-foreground lg:block">
-            CareFirst &rsaquo; Super Admin Console
+          <div className="hidden text-[13px] font-semibold text-muted-foreground lg:block">
+            {new Date().toLocaleDateString("en-IN", {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
           </div>
 
           <div className="ml-auto flex items-center gap-3">
-            <button className="relative flex size-9 items-center justify-center rounded-[10px] bg-secondary text-navy transition-colors hover:bg-secondary/80">
+            <a
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Visit Website"
+              className="flex size-9 items-center justify-center rounded-full bg-secondary text-navy transition-colors hover:bg-secondary/80"
+            >
+              <Globe size={17} />
+            </a>
+            <button className="relative flex size-9 items-center justify-center rounded-full bg-secondary text-navy transition-colors hover:bg-secondary/80">
               <Bell size={17} />
               <span className="absolute right-1.5 top-1.5 size-2 rounded-full bg-orange ring-2 ring-white" />
             </button>

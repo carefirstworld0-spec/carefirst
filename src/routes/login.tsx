@@ -50,6 +50,13 @@ function AdminLogin() {
       if (userFound) {
         localStorage.setItem('user_uid', user.uid);
         localStorage.setItem('user_clinic', userClinic);
+        
+        // Cache user name for instant UI rendering
+        const clinicData = (await get(child(ref(db), `carefirst/users/${userClinic}/signup`))).val();
+        if (clinicData && clinicData.name) {
+          localStorage.setItem('user_name', clinicData.name);
+        }
+
         navigate({ to: "/admin" });
       } else {
         setErrorMsg("User data not found in database.");

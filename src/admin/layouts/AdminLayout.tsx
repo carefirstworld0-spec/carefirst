@@ -13,6 +13,10 @@ import {
   Trash2,
   Ban,
   CheckCircle2,
+  Pill,
+  FlaskConical,
+  Activity,
+  ScrollText,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
@@ -204,6 +208,46 @@ export function AdminLayout() {
             >
               <FileText size={18} className="shrink-0" />
               {!isCollapsed && <span className="whitespace-nowrap">Billing</span>}
+            </Link>
+
+            <Link
+              to="/admin/prescriptions"
+              className={`flex items-center rounded-[8px] text-[14px] font-medium text-navy/70 transition-colors hover:bg-secondary hover:text-navy ${isCollapsed ? "justify-center size-[42px] mx-auto" : "gap-3 px-3 py-2.5 w-full"}`}
+              activeProps={{ className: "!text-primary !bg-primary/10 !font-semibold" }}
+              title={isCollapsed ? "Prescriptions" : undefined}
+            >
+              <ScrollText size={18} className="shrink-0" />
+              {!isCollapsed && <span className="whitespace-nowrap">Prescriptions</span>}
+            </Link>
+
+            <Link
+              to="/admin/pharmacy"
+              className={`flex items-center rounded-[8px] text-[14px] font-medium text-navy/70 transition-colors hover:bg-secondary hover:text-navy ${isCollapsed ? "justify-center size-[42px] mx-auto" : "gap-3 px-3 py-2.5 w-full"}`}
+              activeProps={{ className: "!text-primary !bg-primary/10 !font-semibold" }}
+              title={isCollapsed ? "Pharmacy" : undefined}
+            >
+              <Pill size={18} className="shrink-0" />
+              {!isCollapsed && <span className="whitespace-nowrap">Pharmacy</span>}
+            </Link>
+
+            <Link
+              to="/admin/lab"
+              className={`flex items-center rounded-[8px] text-[14px] font-medium text-navy/70 transition-colors hover:bg-secondary hover:text-navy ${isCollapsed ? "justify-center size-[42px] mx-auto" : "gap-3 px-3 py-2.5 w-full"}`}
+              activeProps={{ className: "!text-primary !bg-primary/10 !font-semibold" }}
+              title={isCollapsed ? "Lab" : undefined}
+            >
+              <FlaskConical size={18} className="shrink-0" />
+              {!isCollapsed && <span className="whitespace-nowrap">Lab</span>}
+            </Link>
+
+            <Link
+              to="/admin/reports"
+              className={`flex items-center rounded-[8px] text-[14px] font-medium text-navy/70 transition-colors hover:bg-secondary hover:text-navy ${isCollapsed ? "justify-center size-[42px] mx-auto" : "gap-3 px-3 py-2.5 w-full"}`}
+              activeProps={{ className: "!text-primary !bg-primary/10 !font-semibold" }}
+              title={isCollapsed ? "Reports" : undefined}
+            >
+              <Activity size={18} className="shrink-0" />
+              {!isCollapsed && <span className="whitespace-nowrap">Reports</span>}
             </Link>
 
             <Link

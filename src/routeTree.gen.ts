@@ -19,6 +19,8 @@ import { Route as SuperadminRouteImport } from './routes/superadmin'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminSplatRouteImport } from './routes/admin/$'
+import { Route as AdminAppointmentsRouteImport } from './routes/admin/appointments'
+import { Route as AdminNewTokenRouteImport } from './routes/admin/new-token'
 import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
 import { Route as AdminTrashRouteImport } from './routes/admin/trash'
 import { Route as SuperadminIndexRouteImport } from './routes/superadmin/index'
@@ -77,6 +79,16 @@ const AdminSplatRoute = AdminSplatRouteImport.update({
   path: '/$',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAppointmentsRoute = AdminAppointmentsRouteImport.update({
+  id: '/appointments',
+  path: '/appointments',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminNewTokenRoute = AdminNewTokenRouteImport.update({
+  id: '/new-token',
+  path: '/new-token',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminSettingsRoute = AdminSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -123,6 +135,8 @@ export interface FileRoutesByFullPath {
   '/superadmin': typeof SuperadminRouteWithChildren
   '/terms': typeof TermsRoute
   '/admin/$': typeof AdminSplatRoute
+  '/admin/appointments': typeof AdminAppointmentsRoute
+  '/admin/new-token': typeof AdminNewTokenRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/trash': typeof AdminTrashRoute
   '/superadmin/$': typeof SuperadminSplatRoute
@@ -140,6 +154,8 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/admin/$': typeof AdminSplatRoute
+  '/admin/appointments': typeof AdminAppointmentsRoute
+  '/admin/new-token': typeof AdminNewTokenRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/trash': typeof AdminTrashRoute
   '/superadmin/$': typeof SuperadminSplatRoute
@@ -160,6 +176,8 @@ export interface FileRoutesById {
   '/superadmin': typeof SuperadminRouteWithChildren
   '/terms': typeof TermsRoute
   '/admin/$': typeof AdminSplatRoute
+  '/admin/appointments': typeof AdminAppointmentsRoute
+  '/admin/new-token': typeof AdminNewTokenRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/trash': typeof AdminTrashRoute
   '/superadmin/$': typeof SuperadminSplatRoute
@@ -181,6 +199,8 @@ export interface FileRouteTypes {
     | '/superadmin'
     | '/terms'
     | '/admin/$'
+    | '/admin/appointments'
+    | '/admin/new-token'
     | '/admin/settings'
     | '/admin/trash'
     | '/superadmin/$'
@@ -198,6 +218,8 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/admin/$'
+    | '/admin/appointments'
+    | '/admin/new-token'
     | '/admin/settings'
     | '/admin/trash'
     | '/superadmin/$'
@@ -217,6 +239,8 @@ export interface FileRouteTypes {
     | '/superadmin'
     | '/terms'
     | '/admin/$'
+    | '/admin/appointments'
+    | '/admin/new-token'
     | '/admin/settings'
     | '/admin/trash'
     | '/superadmin/$'
@@ -311,6 +335,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSplatRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/appointments': {
+      id: '/admin/appointments'
+      path: '/appointments'
+      fullPath: '/admin/appointments'
+      preLoaderRoute: typeof AdminAppointmentsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/new-token': {
+      id: '/admin/new-token'
+      path: '/new-token'
+      fullPath: '/admin/new-token'
+      preLoaderRoute: typeof AdminNewTokenRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/settings': {
       id: '/admin/settings'
       path: '/settings'
@@ -365,6 +403,8 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminSplatRoute: typeof AdminSplatRoute
+  AdminAppointmentsRoute: typeof AdminAppointmentsRoute
+  AdminNewTokenRoute: typeof AdminNewTokenRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminTrashRoute: typeof AdminTrashRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -372,6 +412,8 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminSplatRoute: AdminSplatRoute,
+  AdminAppointmentsRoute: AdminAppointmentsRoute,
+  AdminNewTokenRoute: AdminNewTokenRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminTrashRoute: AdminTrashRoute,
   AdminIndexRoute: AdminIndexRoute,

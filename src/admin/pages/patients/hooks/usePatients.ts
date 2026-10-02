@@ -73,7 +73,7 @@ export function usePatients(clinicKey: string) {
         // Fallback and auto-migration for legacy data
         const legacyRef = ref(db, `carefirst/users/${clinicKey}/patients`);
         const legacySnap = await get(legacyRef);
-        
+
         if (legacySnap.exists()) {
           const data = legacySnap.val();
           const { update } = await import("firebase/database");
@@ -116,19 +116,17 @@ export function usePatients(clinicKey: string) {
               createdAt: summary.createdAt,
             };
           }
-          
+
           // Silently run the migration to fix the database going forward
-          update(ref(db, `carefirst/users/${clinicKey}`), migrationUpdates).catch(e => console.error("Auto-migration failed:", e));
+          update(ref(db, `carefirst/users/${clinicKey}`), migrationUpdates).catch((e) =>
+            console.error("Auto-migration failed:", e),
+          );
         }
       }
 
       if (list.length > 0) {
-
         // Sort by createdAt descending
-        list.sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
+        list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
         allPatientsRef.current = list;
         setTotalCount(list.length);
@@ -150,49 +148,43 @@ export function usePatients(clinicKey: string) {
   }, [fetchPatients]);
 
   // Search filter (client-side for speed)
-  const search = useCallback(
-    (term: string) => {
-      const t = term.toLowerCase().trim();
-      if (!t) {
-        setPatients(allPatientsRef.current.slice(0, PAGE_SIZE));
-        setTotalCount(allPatientsRef.current.length);
-        setPage(1);
-        return;
-      }
-
-      const filtered = allPatientsRef.current.filter(
-        (p) =>
-          p.name.toLowerCase().includes(t) ||
-          p.mobile.includes(t) ||
-          p.uhid.toLowerCase().includes(t)
-      );
-
-      setPatients(filtered.slice(0, PAGE_SIZE));
-      setTotalCount(filtered.length);
+  const search = useCallback((term: string) => {
+    const t = term.toLowerCase().trim();
+    if (!t) {
+      setPatients(allPatientsRef.current.slice(0, PAGE_SIZE));
+      setTotalCount(allPatientsRef.current.length);
       setPage(1);
-    },
-    []
-  );
+      return;
+    }
+
+    const filtered = allPatientsRef.current.filter(
+      (p) =>
+        p.name.toLowerCase().includes(t) ||
+        p.mobile.includes(t) ||
+        p.uhid.toLowerCase().includes(t),
+    );
+
+    setPatients(filtered.slice(0, PAGE_SIZE));
+    setTotalCount(filtered.length);
+    setPage(1);
+  }, []);
 
   // Go to a specific page
-  const goToPage = useCallback(
-    (p: number, searchTerm = "") => {
-      const t = searchTerm.toLowerCase().trim();
-      const source = t
-        ? allPatientsRef.current.filter(
-            (pt) =>
-              pt.name.toLowerCase().includes(t) ||
-              pt.mobile.includes(t) ||
-              pt.uhid.toLowerCase().includes(t)
-          )
-        : allPatientsRef.current;
+  const goToPage = useCallback((p: number, searchTerm = "") => {
+    const t = searchTerm.toLowerCase().trim();
+    const source = t
+      ? allPatientsRef.current.filter(
+          (pt) =>
+            pt.name.toLowerCase().includes(t) ||
+            pt.mobile.includes(t) ||
+            pt.uhid.toLowerCase().includes(t),
+        )
+      : allPatientsRef.current;
 
-      const start = (p - 1) * PAGE_SIZE;
-      setPatients(source.slice(start, start + PAGE_SIZE));
-      setPage(p);
-    },
-    []
-  );
+    const start = (p - 1) * PAGE_SIZE;
+    setPatients(source.slice(start, start + PAGE_SIZE));
+    setPage(p);
+  }, []);
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 

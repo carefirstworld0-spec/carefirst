@@ -75,7 +75,7 @@ export function useDuplicateChecker(clinicKey: string) {
         }
       }, 300);
     },
-    [clinicKey]
+    [clinicKey],
   );
 
   const clearMatches = useCallback(() => {

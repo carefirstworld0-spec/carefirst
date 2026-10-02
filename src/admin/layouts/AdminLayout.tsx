@@ -13,17 +13,14 @@ import {
   Trash2,
   Ban,
   CheckCircle2,
-<<<<<<< Updated upstream
   Pill,
   FlaskConical,
+
+  
   Activity,
   ScrollText,
   Menu,
-  X
-=======
-  Menu,
   X,
->>>>>>> Stashed changes
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";

@@ -2,19 +2,32 @@ import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "@tanstack/react-router";
 import { db } from "@/lib/firebase";
 import { ref, get, child, update } from "firebase/database";
-import { ArrowLeft, User, Box, BarChart2, CreditCard, Calendar, Activity, CheckCircle2 } from "lucide-react";
+import {
+  ArrowLeft,
+  User,
+  Box,
+  BarChart2,
+  CreditCard,
+  Calendar,
+  Activity,
+  CheckCircle2,
+} from "lucide-react";
 
 export function SubscriptionDetails() {
-  const { clinicId } = useParams({ from: '/superadmin/subscription/$clinicId' });
+  const { clinicId } = useParams({ from: "/superadmin/subscription/$clinicId" });
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<"details" | "modules" | "analytics" | "plan">("details");
+  const [activeTab, setActiveTab] = useState<"details" | "modules" | "analytics" | "plan">(
+    "details",
+  );
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
-  
+
   // Subscription form state
   const [amount, setAmount] = useState("");
-  const [planType, setPlanType] = useState<"monthly" | "quarterly" | "half_year" | "yearly">("monthly");
-  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
+  const [planType, setPlanType] = useState<"monthly" | "quarterly" | "half_year" | "yearly">(
+    "monthly",
+  );
+  const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]);
   const [renewDate, setRenewDate] = useState("");
   const [savingPlan, setSavingPlan] = useState(false);
 
@@ -39,7 +52,7 @@ export function SubscriptionDetails() {
     if (!startDate) return;
     const start = new Date(startDate);
     const renew = new Date(start);
-    
+
     switch (planType) {
       case "monthly":
         renew.setMonth(renew.getMonth() + 1);
@@ -54,7 +67,7 @@ export function SubscriptionDetails() {
         renew.setFullYear(renew.getFullYear() + 1);
         break;
     }
-    setRenewDate(renew.toISOString().split('T')[0]);
+    setRenewDate(renew.toISOString().split("T")[0]);
   }, [planType, startDate]);
 
   const handleConvertSubscription = async () => {
@@ -62,7 +75,7 @@ export function SubscriptionDetails() {
       alert("Please fill all required fields");
       return;
     }
-    
+
     setSavingPlan(true);
     try {
       const userRef = ref(db, `carefirst/users/${clinicId}/signup`);
@@ -73,7 +86,7 @@ export function SubscriptionDetails() {
         planStartDate: startDate,
         planRenewDate: renewDate,
         isActive: true, // Assuming converting to sub makes them active
-        trialExpires: null // Clear trial
+        trialExpires: null, // Clear trial
       });
       alert("Successfully converted client to subscription plan!");
       // Optionally fetch again or update local state
@@ -95,14 +108,20 @@ export function SubscriptionDetails() {
   };
 
   if (loading) {
-    return <div className="flex h-[400px] items-center justify-center text-muted-foreground">Loading details...</div>;
+    return (
+      <div className="flex h-[400px] items-center justify-center text-muted-foreground">
+        Loading details...
+      </div>
+    );
   }
 
   if (!user) {
     return (
       <div className="flex flex-col h-[400px] items-center justify-center text-center">
         <h2 className="text-xl font-bold text-navy mb-2">Clinic not found</h2>
-        <Link to="/superadmin/subscription" className="text-primary hover:underline">Go back to subscriptions</Link>
+        <Link to="/superadmin/subscription" className="text-primary hover:underline">
+          Go back to subscriptions
+        </Link>
       </div>
     );
   }
@@ -111,7 +130,7 @@ export function SubscriptionDetails() {
     <div className="mx-auto max-w-5xl space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <button 
+        <button
           onClick={() => navigate({ to: "/superadmin/subscription" })}
           className="flex size-10 items-center justify-center rounded-full bg-secondary/80 text-navy transition-colors hover:bg-secondary"
         >
@@ -155,38 +174,64 @@ export function SubscriptionDetails() {
         {/* User Details Tab */}
         {activeTab === "details" && (
           <div className="space-y-6 animate-in fade-in">
-            <h3 className="font-display text-[18px] font-bold text-navy border-b border-border pb-3">General Information</h3>
+            <h3 className="font-display text-[18px] font-bold text-navy border-b border-border pb-3">
+              General Information
+            </h3>
             <div className="grid gap-6 sm:grid-cols-2">
               <div>
-                <label className="text-[12px] font-bold uppercase tracking-wider text-muted-foreground">Clinic Name</label>
-                <div className="mt-1 text-[15px] font-semibold text-navy">{user.clinic || "N/A"}</div>
-              </div>
-              <div>
-                <label className="text-[12px] font-bold uppercase tracking-wider text-muted-foreground">Owner Name</label>
-                <div className="mt-1 text-[15px] font-semibold text-navy">{user.name || "N/A"}</div>
-              </div>
-              <div>
-                <label className="text-[12px] font-bold uppercase tracking-wider text-muted-foreground">Email</label>
-                <div className="mt-1 text-[15px] font-semibold text-navy">{user.email || "N/A"}</div>
-              </div>
-              <div>
-                <label className="text-[12px] font-bold uppercase tracking-wider text-muted-foreground">Phone</label>
-                <div className="mt-1 text-[15px] font-semibold text-navy">{user.phone || "N/A"}</div>
-              </div>
-              <div>
-                <label className="text-[12px] font-bold uppercase tracking-wider text-muted-foreground">Status</label>
-                <div className="mt-1 flex items-center">
-                   {user.suspended === true ? (
-                     <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive/15 px-2.5 py-1 text-[12px] font-bold text-destructive">Suspended</span>
-                   ) : user.isActive === true || user.plan === "Subscription" ? (
-                     <span className="inline-flex items-center gap-1.5 rounded-full bg-success/15 px-2.5 py-1 text-[12px] font-bold text-success">Active Subscription</span>
-                   ) : (
-                     <span className="inline-flex items-center gap-1.5 rounded-full bg-orange/15 px-2.5 py-1 text-[12px] font-bold text-orange">Trial</span>
-                   )}
+                <label className="text-[12px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Clinic Name
+                </label>
+                <div className="mt-1 text-[15px] font-semibold text-navy">
+                  {user.clinic || "N/A"}
                 </div>
               </div>
               <div>
-                <label className="text-[12px] font-bold uppercase tracking-wider text-muted-foreground">Registered On</label>
+                <label className="text-[12px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Owner Name
+                </label>
+                <div className="mt-1 text-[15px] font-semibold text-navy">{user.name || "N/A"}</div>
+              </div>
+              <div>
+                <label className="text-[12px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Email
+                </label>
+                <div className="mt-1 text-[15px] font-semibold text-navy">
+                  {user.email || "N/A"}
+                </div>
+              </div>
+              <div>
+                <label className="text-[12px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Phone
+                </label>
+                <div className="mt-1 text-[15px] font-semibold text-navy">
+                  {user.phone || "N/A"}
+                </div>
+              </div>
+              <div>
+                <label className="text-[12px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Status
+                </label>
+                <div className="mt-1 flex items-center">
+                  {user.suspended === true ? (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive/15 px-2.5 py-1 text-[12px] font-bold text-destructive">
+                      Suspended
+                    </span>
+                  ) : user.isActive === true || user.plan === "Subscription" ? (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-success/15 px-2.5 py-1 text-[12px] font-bold text-success">
+                      Active Subscription
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-orange/15 px-2.5 py-1 text-[12px] font-bold text-orange">
+                      Trial
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="text-[12px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Registered On
+                </label>
                 <div className="mt-1 text-[15px] font-semibold text-navy">
                   {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "N/A"}
                 </div>
@@ -203,7 +248,8 @@ export function SubscriptionDetails() {
             </div>
             <h3 className="font-display text-[20px] font-bold text-navy">Enabled Modules</h3>
             <p className="text-muted-foreground font-medium max-w-md mx-auto">
-              Module management configuration will be integrated in the next update. All core clinic modules are currently active.
+              Module management configuration will be integrated in the next update. All core clinic
+              modules are currently active.
             </p>
           </div>
         )}
@@ -214,15 +260,21 @@ export function SubscriptionDetails() {
             <h3 className="font-display text-[18px] font-bold text-navy mb-4">Usage Analytics</h3>
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="rounded-xl border border-border bg-secondary/20 p-5">
-                <div className="text-[12px] font-bold uppercase text-muted-foreground">Total Patients</div>
+                <div className="text-[12px] font-bold uppercase text-muted-foreground">
+                  Total Patients
+                </div>
                 <div className="mt-2 text-3xl font-extrabold text-navy">124</div>
               </div>
               <div className="rounded-xl border border-border bg-secondary/20 p-5">
-                <div className="text-[12px] font-bold uppercase text-muted-foreground">Appointments</div>
+                <div className="text-[12px] font-bold uppercase text-muted-foreground">
+                  Appointments
+                </div>
                 <div className="mt-2 text-3xl font-extrabold text-navy">892</div>
               </div>
               <div className="rounded-xl border border-border bg-secondary/20 p-5">
-                <div className="text-[12px] font-bold uppercase text-muted-foreground">Storage Used</div>
+                <div className="text-[12px] font-bold uppercase text-muted-foreground">
+                  Storage Used
+                </div>
                 <div className="mt-2 text-3xl font-extrabold text-navy">4.2 GB</div>
               </div>
             </div>
@@ -240,12 +292,14 @@ export function SubscriptionDetails() {
           <div className="space-y-8 animate-in fade-in">
             <div>
               <h3 className="font-display text-[18px] font-bold text-navy">Subscription Plan</h3>
-              <p className="text-[14px] text-muted-foreground mt-1">Convert this client from a trial to a paid subscription or manage their current plan.</p>
+              <p className="text-[14px] text-muted-foreground mt-1">
+                Convert this client from a trial to a paid subscription or manage their current
+                plan.
+              </p>
             </div>
 
             <div className="rounded-xl border border-primary/20 bg-primary/5 p-6 shadow-sm">
               <div className="grid gap-6 sm:grid-cols-2">
-                
                 {/* Amount */}
                 <div className="space-y-2">
                   <label className="text-[13px] font-bold text-navy">Subscription Amount (₹)</label>
@@ -277,7 +331,10 @@ export function SubscriptionDetails() {
                 <div className="space-y-2">
                   <label className="text-[13px] font-bold text-navy">Start Date</label>
                   <div className="relative">
-                    <Calendar size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <Calendar
+                      size={16}
+                      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    />
                     <input
                       type="date"
                       value={startDate}
@@ -289,9 +346,14 @@ export function SubscriptionDetails() {
 
                 {/* Renew Date */}
                 <div className="space-y-2">
-                  <label className="text-[13px] font-bold text-navy">Renew Date (Auto-calculated)</label>
+                  <label className="text-[13px] font-bold text-navy">
+                    Renew Date (Auto-calculated)
+                  </label>
                   <div className="relative">
-                    <Calendar size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground opacity-50" />
+                    <Calendar
+                      size={16}
+                      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground opacity-50"
+                    />
                     <input
                       type="date"
                       value={renewDate}
@@ -300,7 +362,6 @@ export function SubscriptionDetails() {
                     />
                   </div>
                 </div>
-
               </div>
 
               <div className="mt-8 flex justify-end">
@@ -318,12 +379,12 @@ export function SubscriptionDetails() {
                 </button>
               </div>
             </div>
-            
+
             {user.plan === "Subscription" && (
               <div className="rounded-xl border border-success/30 bg-success/5 p-4 text-[13.5px] font-medium text-success-foreground flex items-start gap-3 mt-6">
                 <CheckCircle2 size={18} className="text-success mt-0.5 shrink-0" />
                 <div>
-                  This client is currently on an active subscription plan ({user.planType}). <br/>
+                  This client is currently on an active subscription plan ({user.planType}). <br />
                   Valid until: <strong>{new Date(user.planRenewDate).toLocaleDateString()}</strong>
                 </div>
               </div>

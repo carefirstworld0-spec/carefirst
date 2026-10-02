@@ -41,21 +41,10 @@ import { usePatients, type PatientSummary } from "./hooks/usePatients";
 
 export function PatientList() {
   const navigate = useNavigate();
-  const clinicKey =
-    typeof window !== "undefined"
-      ? localStorage.getItem("user_clinic") || ""
-      : "";
+  const clinicKey = typeof window !== "undefined" ? localStorage.getItem("user_clinic") || "" : "";
 
-  const {
-    patients,
-    loading,
-    totalCount,
-    page,
-    totalPages,
-    search,
-    goToPage,
-    pageSize,
-  } = usePatients(clinicKey);
+  const { patients, loading, totalCount, page, totalPages, search, goToPage, pageSize } =
+    usePatients(clinicKey);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filterDept, setFilterDept] = useState("");
@@ -141,10 +130,12 @@ export function PatientList() {
             Today's Visits
           </p>
           <p className="mt-1 text-[20px] sm:text-[26px] font-display font-extrabold text-blue-600">
-            {patients.filter((p) => {
-              const today = new Date().toISOString().split("T")[0];
-              return p.createdAt?.startsWith(today);
-            }).length}
+            {
+              patients.filter((p) => {
+                const today = new Date().toISOString().split("T")[0];
+                return p.createdAt?.startsWith(today);
+              }).length
+            }
           </p>
         </div>
         <div className="rounded-xl border border-border bg-card p-3 sm:p-4 shadow-sm">
@@ -250,9 +241,7 @@ export function PatientList() {
               <Users size={28} className="text-muted-foreground" />
             </div>
             <h3 className="font-display text-lg font-bold text-navy">
-              {hasActiveFilters
-                ? "No patients match your filters"
-                : "No patients registered yet"}
+              {hasActiveFilters ? "No patients match your filters" : "No patients registered yet"}
             </h3>
             <p className="text-sm text-muted-foreground mt-1 max-w-sm">
               {hasActiveFilters
@@ -260,11 +249,7 @@ export function PatientList() {
                 : "Get started by registering your first patient."}
             </p>
             {hasActiveFilters ? (
-              <Button
-                variant="outline"
-                className="mt-4 rounded-xl"
-                onClick={clearFilters}
-              >
+              <Button variant="outline" className="mt-4 rounded-xl" onClick={clearFilters}>
                 <X size={14} className="mr-1.5" /> Clear Filters
               </Button>
             ) : (
@@ -282,15 +267,9 @@ export function PatientList() {
               <Table>
                 <TableHeader className="bg-secondary/30">
                   <TableRow>
-                    <TableHead className="font-bold text-navy py-3 w-16 text-center">
-                      #
-                    </TableHead>
-                    <TableHead className="font-bold text-navy py-3">
-                      UHID
-                    </TableHead>
-                    <TableHead className="font-bold text-navy">
-                      Patient
-                    </TableHead>
+                    <TableHead className="font-bold text-navy py-3 w-16 text-center">#</TableHead>
+                    <TableHead className="font-bold text-navy py-3">UHID</TableHead>
+                    <TableHead className="font-bold text-navy">Patient</TableHead>
                     <TableHead className="font-bold text-navy hidden sm:table-cell">
                       Gender / Age
                     </TableHead>
@@ -300,12 +279,8 @@ export function PatientList() {
                     <TableHead className="font-bold text-navy hidden lg:table-cell">
                       Department
                     </TableHead>
-                    <TableHead className="font-bold text-navy">
-                      Status
-                    </TableHead>
-                    <TableHead className="font-bold text-navy text-right">
-                      Actions
-                    </TableHead>
+                    <TableHead className="font-bold text-navy">Status</TableHead>
+                    <TableHead className="font-bold text-navy text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -315,7 +290,12 @@ export function PatientList() {
                       <TableRow
                         key={patient.id}
                         className="hover:bg-secondary/10 transition-colors cursor-pointer"
-                        onClick={() => navigate({ to: "/admin/patients/$patientId", params: { patientId: patient.id } })}
+                        onClick={() =>
+                          navigate({
+                            to: "/admin/patients/$patientId",
+                            params: { patientId: patient.id },
+                          })
+                        }
                       >
                         <TableCell className="text-center text-muted-foreground font-medium text-sm">
                           {(page - 1) * pageSize + index + 1}
@@ -343,9 +323,7 @@ export function PatientList() {
                           </div>
                         </TableCell>
                         <TableCell className="hidden sm:table-cell">
-                          <span className="text-[13px] text-navy capitalize">
-                            {patient.gender}
-                          </span>
+                          <span className="text-[13px] text-navy capitalize">{patient.gender}</span>
                           {patient.age && (
                             <span className="text-[12px] text-muted-foreground ml-1.5">
                               • {patient.age}
@@ -353,15 +331,12 @@ export function PatientList() {
                           )}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
-                          <span className="text-[13px] text-navy">
-                            {patient.mobile}
-                          </span>
+                          <span className="text-[13px] text-navy">{patient.mobile}</span>
                         </TableCell>
                         <TableCell className="hidden lg:table-cell">
                           <span className="text-[13px] text-navy">
-                            {DEPARTMENTS.find(
-                              (d) => d.id === patient.department
-                            )?.label || patient.department}
+                            {DEPARTMENTS.find((d) => d.id === patient.department)?.label ||
+                              patient.department}
                           </span>
                         </TableCell>
                         <TableCell>
@@ -381,7 +356,10 @@ export function PatientList() {
                               title="View Patient"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                navigate({ to: "/admin/patients/$patientId", params: { patientId: patient.id } });
+                                navigate({
+                                  to: "/admin/patients/$patientId",
+                                  params: { patientId: patient.id },
+                                });
                               }}
                             >
                               <Eye size={15} />
@@ -410,11 +388,9 @@ export function PatientList() {
                 <p className="text-[13px] text-muted-foreground">
                   Showing{" "}
                   <span className="font-semibold text-navy">
-                    {(page - 1) * pageSize + 1}–
-                    {Math.min(page * pageSize, totalCount)}
+                    {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, totalCount)}
                   </span>{" "}
-                  of{" "}
-                  <span className="font-semibold text-navy">{totalCount}</span>
+                  of <span className="font-semibold text-navy">{totalCount}</span>
                 </p>
                 <div className="flex gap-1">
                   <Button
@@ -426,19 +402,17 @@ export function PatientList() {
                   >
                     <ChevronLeft size={15} />
                   </Button>
-                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map(
-                    (p) => (
-                      <Button
-                        key={p}
-                        variant={p === page ? "default" : "outline"}
-                        size="icon"
-                        className={`h-8 w-8 text-[12px] ${p === page ? "bg-primary text-white" : ""}`}
-                        onClick={() => goToPage(p, searchTerm)}
-                      >
-                        {p}
-                      </Button>
-                    )
-                  )}
+                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map((p) => (
+                    <Button
+                      key={p}
+                      variant={p === page ? "default" : "outline"}
+                      size="icon"
+                      className={`h-8 w-8 text-[12px] ${p === page ? "bg-primary text-white" : ""}`}
+                      onClick={() => goToPage(p, searchTerm)}
+                    >
+                      {p}
+                    </Button>
+                  ))}
                   <Button
                     variant="outline"
                     size="icon"

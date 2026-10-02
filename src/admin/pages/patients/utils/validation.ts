@@ -85,7 +85,7 @@ export function isRequired(value: string | undefined | null): boolean {
 /** Debounce helper */
 export function debounce<T extends (...args: unknown[]) => void>(
   fn: T,
-  ms: number
+  ms: number,
 ): (...args: Parameters<T>) => void {
   let timer: ReturnType<typeof setTimeout>;
   return (...args: Parameters<T>) => {

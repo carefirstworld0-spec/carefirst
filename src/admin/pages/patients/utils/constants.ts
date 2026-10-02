@@ -20,9 +20,7 @@ export const DEPARTMENTS = [
 ] as const;
 
 // ─── Blood Groups ───
-export const BLOOD_GROUPS = [
-  "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", "Unknown",
-] as const;
+export const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", "Unknown"] as const;
 
 // ─── Gender Options ───
 export const GENDERS = [
@@ -32,9 +30,7 @@ export const GENDERS = [
 ] as const;
 
 // ─── Marital Status ───
-export const MARITAL_STATUS = [
-  "Single", "Married", "Divorced", "Widowed", "Other",
-] as const;
+export const MARITAL_STATUS = ["Single", "Married", "Divorced", "Widowed", "Other"] as const;
 
 // ─── Common Medical Conditions ───
 export const COMMON_CONDITIONS = [
@@ -81,18 +77,42 @@ export const ADMISSION_TYPES = [
 export const PATIENT_STATUSES = [
   { value: "active", label: "Active", color: "bg-green-100 text-green-800 border-green-200" },
   { value: "waiting", label: "Waiting", color: "bg-amber-100 text-amber-800 border-amber-200" },
-  { value: "in-consultation", label: "In Consultation", color: "bg-blue-100 text-blue-800 border-blue-200" },
-  { value: "completed", label: "Completed", color: "bg-emerald-100 text-emerald-800 border-emerald-200" },
-  { value: "admitted", label: "Admitted", color: "bg-purple-100 text-purple-800 border-purple-200" },
-  { value: "discharged", label: "Discharged", color: "bg-slate-100 text-slate-800 border-slate-200" },
+  {
+    value: "in-consultation",
+    label: "In Consultation",
+    color: "bg-blue-100 text-blue-800 border-blue-200",
+  },
+  {
+    value: "completed",
+    label: "Completed",
+    color: "bg-emerald-100 text-emerald-800 border-emerald-200",
+  },
+  {
+    value: "admitted",
+    label: "Admitted",
+    color: "bg-purple-100 text-purple-800 border-purple-200",
+  },
+  {
+    value: "discharged",
+    label: "Discharged",
+    color: "bg-slate-100 text-slate-800 border-slate-200",
+  },
   { value: "cancelled", label: "Cancelled", color: "bg-red-100 text-red-800 border-red-200" },
   { value: "follow-up", label: "Follow-up", color: "bg-sky-100 text-sky-800 border-sky-200" },
 ] as const;
 
 // ─── Guardian Relationships ───
 export const RELATIONSHIPS = [
-  "Father", "Mother", "Spouse", "Son", "Daughter", "Brother", "Sister",
-  "Guardian", "Friend", "Other",
+  "Father",
+  "Mother",
+  "Spouse",
+  "Son",
+  "Daughter",
+  "Brother",
+  "Sister",
+  "Guardian",
+  "Friend",
+  "Other",
 ] as const;
 
 // ─── Country Codes (for phone) ───

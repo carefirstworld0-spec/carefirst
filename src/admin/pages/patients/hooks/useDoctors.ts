@@ -11,9 +11,9 @@ export type Doctor = {
 /**
  * Hook that fetches doctors from Firebase in real-time.
  * Doctors are stored at: carefirst/users/{clinicKey}/doctors
- * 
+ *
  * Each doctor record should have: { name, department }
- * 
+ *
  * If no doctors exist in Firebase yet, returns an empty array.
  * The admin can add doctors via the Settings or a future Doctors management page.
  */

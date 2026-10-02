@@ -95,7 +95,7 @@ export function SuperAdminDashboard() {
 
         const lastViewed = parseInt(localStorage.getItem("superAdminLastViewedMs") || "0", 10);
         const newRegs = regs.filter((r) => r.createdAtMs > lastViewed);
-        
+
         if (newRegs.length > 0) {
           setPopupRegs(newRegs.slice(0, 5));
           setShowWelcomeModal(true);
@@ -160,12 +160,15 @@ export function SuperAdminDashboard() {
   return (
     <div className="space-y-8">
       {/* Welcome Modal */}
-      <Dialog open={showWelcomeModal} onOpenChange={(open) => {
-        setShowWelcomeModal(open);
-        if (!open && popupRegs.length > 0) {
-          localStorage.setItem("superAdminLastViewedMs", popupRegs[0].createdAtMs.toString());
-        }
-      }}>
+      <Dialog
+        open={showWelcomeModal}
+        onOpenChange={(open) => {
+          setShowWelcomeModal(open);
+          if (!open && popupRegs.length > 0) {
+            localStorage.setItem("superAdminLastViewedMs", popupRegs[0].createdAtMs.toString());
+          }
+        }}
+      >
         <DialogContent className="max-w-[900px] p-0 overflow-hidden border-0 shadow-2xl rounded-[24px] [&>button]:text-white">
           <div className="bg-gradient-to-br from-navy to-[#1a4a6e] p-8 text-white relative overflow-hidden">
             <div className="absolute top-0 right-0 p-8 opacity-10 rotate-12 scale-150 transform translate-x-12 -translate-y-12">
@@ -254,7 +257,10 @@ export function SuperAdminDashboard() {
                 onClick={() => {
                   setShowWelcomeModal(false);
                   if (popupRegs.length > 0) {
-                    localStorage.setItem("superAdminLastViewedMs", popupRegs[0].createdAtMs.toString());
+                    localStorage.setItem(
+                      "superAdminLastViewedMs",
+                      popupRegs[0].createdAtMs.toString(),
+                    );
                   }
                 }}
                 className="px-8 py-3 rounded-[12px] bg-navy text-white text-[14px] font-bold hover:bg-navy/90 transition-all shadow-lg hover:-translate-y-0.5"

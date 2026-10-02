@@ -99,25 +99,31 @@ export function Dashboard() {
 
       {/* Trial Plan Alert */}
       {trialExpires && (
-        <div className={`flex flex-col sm:flex-row items-start gap-3 sm:gap-4 rounded-[12px] p-3 sm:p-4 shadow-sm border ${
-          isExpired 
-            ? "bg-destructive/10 border-destructive/20 text-destructive" 
-            : "bg-orange/10 border-orange/20 text-orange"
-        }`}>
+        <div
+          className={`flex flex-col sm:flex-row items-start gap-3 sm:gap-4 rounded-[12px] p-3 sm:p-4 shadow-sm border ${isExpired
+              ? "bg-destructive/10 border-destructive/20 text-destructive"
+              : "bg-orange/10 border-orange/20 text-orange"
+            }`}
+        >
           <div className="flex gap-3 sm:gap-4 w-full sm:w-auto flex-1">
-            <div className={`mt-0.5 grid size-7 sm:size-8 shrink-0 place-items-center rounded-full ${
-              isExpired ? "bg-destructive/20" : "bg-orange/20"
-            }`}>
-              {isExpired ? <AlertCircle size={14} className="sm:w-[18px] sm:h-[18px]" /> : <Clock size={14} className="sm:w-[18px] sm:h-[18px]" />}
+            <div
+              className={`mt-0.5 grid size-7 sm:size-8 shrink-0 place-items-center rounded-full ${isExpired ? "bg-destructive/20" : "bg-orange/20"
+                }`}
+            >
+              {isExpired ? (
+                <AlertCircle size={14} className="sm:w-[18px] sm:h-[18px]" />
+              ) : (
+                <Clock size={14} className="sm:w-[18px] sm:h-[18px]" />
+              )}
             </div>
             <div className="flex-1">
               <h3 className="text-[13px] sm:text-[14px] font-bold">
                 {isExpired ? "Trial Plan Expired" : "7-Day Trial Plan Active"}
               </h3>
               <p className="mt-0.5 sm:mt-1 text-[11.5px] sm:text-[13px] opacity-90 leading-relaxed max-w-3xl">
-                {isExpired 
+                {isExpired
                   ? `Your trial period expired on ${trialExpires}. Please upgrade your subscription to continue using the CareFirst Clinic Admin features without interruption.`
-                  : `You are currently exploring CareFirst on a free trial. You have ${daysLeft} ${daysLeft === 1 ? 'day' : 'days'} remaining. Your trial expires on ${trialExpires}.`}
+                  : `You are currently exploring CareFirst on a free trial. You have ${daysLeft} ${daysLeft === 1 ? "day" : "days"} remaining. Your trial expires on ${trialExpires}.`}
               </p>
             </div>
           </div>
@@ -126,28 +132,41 @@ export function Dashboard() {
               Upgrade Now
             </button>
           )}
-
-
-          
         </div>
       )}
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {/* Real-time stats cards */}
         <div className="rounded-[12px] sm:rounded-[16px] border border-border bg-card p-3 sm:p-5 shadow-sm ring-1 ring-border/50">
-          <div className="text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider sm:tracking-widest text-muted-foreground truncate">Total Patients</div>
-          <div className="mt-1 sm:mt-2 text-[20px] sm:text-[28px] font-display font-extrabold text-navy">{stats.patients.toLocaleString()}</div>
+          <div className="text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider sm:tracking-widest text-muted-foreground truncate">
+            Total Patients
+          </div>
+          <div className="mt-1 sm:mt-2 text-[20px] sm:text-[28px] font-display font-extrabold text-navy">
+            {stats.patients.toLocaleString()}
+          </div>
         </div>
         <div className="rounded-[12px] sm:rounded-[16px] border border-border bg-card p-3 sm:p-5 shadow-sm ring-1 ring-border/50">
-          <div className="text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider sm:tracking-widest text-muted-foreground truncate">Appointments</div>
-          <div className="mt-1 sm:mt-2 text-[20px] sm:text-[28px] font-display font-extrabold text-navy">{stats.appointments.toLocaleString()}</div>
+          <div className="text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider sm:tracking-widest text-muted-foreground truncate">
+            Appointments
+          </div>
+          <div className="mt-1 sm:mt-2 text-[20px] sm:text-[28px] font-display font-extrabold text-navy">
+            {stats.appointments.toLocaleString()}
+          </div>
         </div>
         <div className="rounded-[12px] sm:rounded-[16px] border border-border bg-card p-3 sm:p-5 shadow-sm ring-1 ring-border/50">
-          <div className="text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider sm:tracking-widest text-muted-foreground truncate">Revenue (Month)</div>
-          <div className="mt-1 sm:mt-2 text-[20px] sm:text-[28px] font-display font-extrabold text-navy">₹{stats.revenue.toLocaleString("en-IN")}</div>
+          <div className="text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider sm:tracking-widest text-muted-foreground truncate">
+            Revenue (Month)
+          </div>
+          <div className="mt-1 sm:mt-2 text-[20px] sm:text-[28px] font-display font-extrabold text-navy">
+            ₹{stats.revenue.toLocaleString("en-IN")}
+          </div>
         </div>
         <div className="rounded-[12px] sm:rounded-[16px] border border-border bg-card p-3 sm:p-5 shadow-sm ring-1 ring-border/50">
-          <div className="text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider sm:tracking-widest text-muted-foreground truncate">Active Staff</div>
-          <div className="mt-1 sm:mt-2 text-[20px] sm:text-[28px] font-display font-extrabold text-navy">{stats.staff.toLocaleString()}</div>
+          <div className="text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider sm:tracking-widest text-muted-foreground truncate">
+            Active Staff
+          </div>
+          <div className="mt-1 sm:mt-2 text-[20px] sm:text-[28px] font-display font-extrabold text-navy">
+            {stats.staff.toLocaleString()}
+          </div>
         </div>
       </div>
 

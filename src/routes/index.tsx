@@ -365,10 +365,13 @@ function HomePage() {
             ))}
           </nav>
           <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm" asChild className="hidden sm:inline-flex border-navy text-navy font-bold hover:bg-navy hover:text-white transition-colors">
-              <a href="/login">
-                Log In
-              </a>
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
+              className="hidden sm:inline-flex border-navy text-navy font-bold hover:bg-navy hover:text-white transition-colors"
+            >
+              <a href="/login">Log In</a>
             </Button>
             <Button variant="orange" size="sm" asChild className="hidden sm:inline-flex">
               <a href="/signup">
@@ -619,15 +622,15 @@ function HomePage() {
               <ul className="mt-5 space-y-3">
                 {(solution === "clinic"
                   ? [
-                    "Simple appointment and queue management",
-                    "Complete patient histories at your fingertips",
-                    "Faster billing and follow-up reminders",
-                  ]
+                      "Simple appointment and queue management",
+                      "Complete patient histories at your fingertips",
+                      "Faster billing and follow-up reminders",
+                    ]
                   : [
-                    "OPD, IPD and bed management",
-                    "Pharmacy, lab and billing connected",
-                    "Multi-team workflows and actionable reports",
-                  ]
+                      "OPD, IPD and bed management",
+                      "Pharmacy, lab and billing connected",
+                      "Multi-team workflows and actionable reports",
+                    ]
                 ).map((t) => (
                   <li
                     key={t}

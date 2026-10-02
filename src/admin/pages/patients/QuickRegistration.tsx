@@ -67,15 +67,10 @@ const initialForm: QuickFormData = {
   doctor: "",
 };
 
-
-
 // ─── Component ───
 export function QuickRegistration() {
   const navigate = useNavigate();
-  const clinicKey =
-    typeof window !== "undefined"
-      ? localStorage.getItem("user_clinic") || ""
-      : "";
+  const clinicKey = typeof window !== "undefined" ? localStorage.getItem("user_clinic") || "" : "";
 
   const [form, setForm] = useState<QuickFormData>(initialForm);
   const [errors, setErrors] = useState<Partial<Record<keyof QuickFormData, string>>>({});
@@ -119,7 +114,7 @@ export function QuickRegistration() {
 
   const handleMobileChange = (value: string) => {
     const digits = stripNonDigits(value);
-    const maxDigits = COUNTRY_CODES.find(c => c.code === form.countryCode)?.maxDigits || 10;
+    const maxDigits = COUNTRY_CODES.find((c) => c.code === form.countryCode)?.maxDigits || 10;
     if (digits.length <= maxDigits) {
       updateField("mobile", digits);
       // Trigger duplicate check at full length
@@ -137,7 +132,7 @@ export function QuickRegistration() {
 
     if (!form.name.trim()) errs.name = "Patient name is required.";
 
-    const maxDigits = COUNTRY_CODES.find(c => c.code === form.countryCode)?.maxDigits || 10;
+    const maxDigits = COUNTRY_CODES.find((c) => c.code === form.countryCode)?.maxDigits || 10;
     if (!form.mobile) {
       errs.mobile = "Mobile number is required.";
     } else if (form.mobile.length !== maxDigits) {
@@ -206,7 +201,8 @@ export function QuickRegistration() {
           status: "active",
           registrationType: "quick",
           createdAt: new Date().toISOString(),
-          createdBy: typeof window !== "undefined" ? localStorage.getItem("user_name") || "Staff" : "Staff",
+          createdBy:
+            typeof window !== "undefined" ? localStorage.getItem("user_name") || "Staff" : "Staff",
         },
       };
 
@@ -236,7 +232,8 @@ export function QuickRegistration() {
         patientId,
         uhid,
         patientName: form.name.trim(),
-        performedBy: typeof window !== "undefined" ? localStorage.getItem("user_name") || "Staff" : "Staff",
+        performedBy:
+          typeof window !== "undefined" ? localStorage.getItem("user_name") || "Staff" : "Staff",
         timestamp: new Date().toISOString(),
         type: "quick",
       });
@@ -273,7 +270,10 @@ export function QuickRegistration() {
               <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 Patient ID
               </span>
-              <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 font-bold">
+              <Badge
+                variant="outline"
+                className="bg-primary/5 text-primary border-primary/20 font-bold"
+              >
                 {savedUHID}
               </Badge>
             </div>
@@ -296,7 +296,12 @@ export function QuickRegistration() {
             <Button
               variant="outline"
               className="rounded-xl h-11"
-              onClick={() => navigate({ to: "/admin/patients/$patientId", params: { patientId: savedPatientId } })}
+              onClick={() =>
+                navigate({
+                  to: "/admin/patients/$patientId",
+                  params: { patientId: savedPatientId },
+                })
+              }
             >
               <Eye size={16} className="mr-2" /> View Patient
             </Button>
@@ -373,7 +378,8 @@ export function QuickRegistration() {
                   day: "2-digit",
                   month: "short",
                   year: "numeric",
-                })},{" "}
+                })}
+                ,{" "}
                 {new Date().toLocaleTimeString("en-IN", {
                   hour: "2-digit",
                   minute: "2-digit",
@@ -400,9 +406,7 @@ export function QuickRegistration() {
                 className={`h-11 bg-secondary/10 ${errors.name ? "border-red-500" : ""}`}
                 autoFocus
               />
-              {errors.name && (
-                <p className="text-[11px] text-red-500 font-medium">{errors.name}</p>
-              )}
+              {errors.name && <p className="text-[11px] text-red-500 font-medium">{errors.name}</p>}
             </div>
 
             {/* Mobile Number */}
@@ -423,10 +427,7 @@ export function QuickRegistration() {
                   <SelectContent>
                     {COUNTRY_CODES.map((c) => (
                       <SelectItem key={c.code} value={c.code}>
-                        {c.code}{" "}
-                        <span className="text-muted-foreground ml-1">
-                          ({c.country})
-                        </span>
+                        {c.code} <span className="text-muted-foreground ml-1">({c.country})</span>
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -468,7 +469,8 @@ export function QuickRegistration() {
                         <p className="text-[13px] font-semibold text-navy">{m.name}</p>
                         <p className="text-[11px] text-muted-foreground">
                           {m.uhid} • {m.mobile}
-                          {m.lastVisit && ` • Last visit: ${new Date(m.lastVisit).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}`}
+                          {m.lastVisit &&
+                            ` • Last visit: ${new Date(m.lastVisit).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}`}
                         </p>
                       </div>
                       <Button
@@ -548,9 +550,7 @@ export function QuickRegistration() {
                   </label>
                 </>
               )}
-              {errors.dob && (
-                <p className="text-[11px] text-red-500 font-medium">{errors.dob}</p>
-              )}
+              {errors.dob && <p className="text-[11px] text-red-500 font-medium">{errors.dob}</p>}
               {errors.approxAge && (
                 <p className="text-[11px] text-red-500 font-medium">{errors.approxAge}</p>
               )}
@@ -613,17 +613,13 @@ export function QuickRegistration() {
                   </SelectContent>
                 </Select>
                 {errors.department && (
-                  <p className="text-[11px] text-red-500 font-medium">
-                    {errors.department}
-                  </p>
+                  <p className="text-[11px] text-red-500 font-medium">{errors.department}</p>
                 )}
               </div>
 
               {/* Doctor */}
               <div className="space-y-1.5">
-                <Label className="text-[13px] font-bold text-navy">
-                  Doctor Assigned
-                </Label>
+                <Label className="text-[13px] font-bold text-navy">Doctor Assigned</Label>
                 <Select
                   value={form.doctor}
                   onValueChange={(val) => updateField("doctor", val)}
@@ -631,11 +627,7 @@ export function QuickRegistration() {
                 >
                   <SelectTrigger className="h-11 bg-secondary/10">
                     <SelectValue
-                      placeholder={
-                        form.department
-                          ? "Select Doctor"
-                          : "Select department first"
-                      }
+                      placeholder={form.department ? "Select Doctor" : "Select department first"}
                     />
                   </SelectTrigger>
                   <SelectContent>
@@ -699,12 +691,8 @@ export function QuickRegistration() {
                     : "?"}
                 </div>
                 <div>
-                  <p className="text-[14px] font-bold text-navy">
-                    {form.name || "New Patient"}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground">
-                    {uhid || "Generating ID…"}
-                  </p>
+                  <p className="text-[14px] font-bold text-navy">{form.name || "New Patient"}</p>
+                  <p className="text-[11px] text-muted-foreground">{uhid || "Generating ID…"}</p>
                 </div>
               </div>
 
@@ -714,9 +702,7 @@ export function QuickRegistration() {
               <div className="space-y-2.5 text-[13px]">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Gender</span>
-                  <span className="font-medium text-navy capitalize">
-                    {form.gender || "—"}
-                  </span>
+                  <span className="font-medium text-navy capitalize">{form.gender || "—"}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Age</span>
@@ -731,23 +717,19 @@ export function QuickRegistration() {
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Mobile</span>
                   <span className="font-medium text-navy">
-                    {form.mobile
-                      ? `${form.countryCode} ${form.mobile}`
-                      : "—"}
+                    {form.mobile ? `${form.countryCode} ${form.mobile}` : "—"}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Department</span>
                   <span className="font-medium text-navy">
-                    {DEPARTMENTS.find((d) => d.id === form.department)?.label ||
-                      "—"}
+                    {DEPARTMENTS.find((d) => d.id === form.department)?.label || "—"}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Doctor</span>
                   <span className="font-medium text-navy truncate max-w-[140px]">
-                    {availableDoctors.find((d) => d.id === form.doctor)?.name ||
-                      "—"}
+                    {availableDoctors.find((d) => d.id === form.doctor)?.name || "—"}
                   </span>
                 </div>
               </div>
@@ -773,21 +755,14 @@ export function QuickRegistration() {
                     { label: "Department", done: !!form.department },
                     { label: "Doctor", done: !!form.doctor },
                   ].map((step) => (
-                    <div
-                      key={step.label}
-                      className="flex items-center gap-2 text-[12px]"
-                    >
+                    <div key={step.label} className="flex items-center gap-2 text-[12px]">
                       {step.done ? (
                         <CheckCircle2 size={14} className="text-success shrink-0" />
                       ) : (
                         <div className="size-3.5 rounded-full border-2 border-border shrink-0" />
                       )}
                       <span
-                        className={
-                          step.done
-                            ? "text-navy font-medium"
-                            : "text-muted-foreground"
-                        }
+                        className={step.done ? "text-navy font-medium" : "text-muted-foreground"}
                       >
                         {step.label}
                       </span>

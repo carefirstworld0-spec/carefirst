@@ -139,7 +139,62 @@ function HomePage() {
 
     <section className="bg-navy py-14"><div className="section-wrap flex flex-col items-start justify-between gap-6 md:flex-row md:items-center"><div><h2 className="display-title text-2xl text-primary-foreground md:text-3xl">Make every day a better day for care.</h2><p className="mt-2 text-sm text-primary-foreground/70">Let's find a simpler way forward, together.</p></div><Button variant="orange" size="lg" asChild><a href="/signup">Get Free Demo <ArrowRight /></a></Button></div></section>
 
-    <footer className="bg-foreground py-14 text-primary-foreground"><div className="section-wrap grid gap-10 border-b border-primary-foreground/15 pb-12 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1.2fr]"><div><Brand inverse /><p className="mt-5 max-w-xs text-sm leading-6 text-primary-foreground/60">CareFirst Software Solutions builds intuitive, reliable tools for clinics and hospitals—simplifying everyday patient care, records, and operations.</p><div className="mt-5 flex gap-2">{[[Linkedin, "LinkedIn"], [Instagram, "Instagram"], [Facebook, "Facebook"]].map(([Icon, label]) => <span key={String(label)} title={`${label} profile coming soon`} className="grid size-8 place-items-center rounded border border-primary-foreground/20 text-primary-foreground/60">{Icon && createElement(Icon as typeof Plus, { size: 15 })}</span>)}</div></div><div><h3 className="font-display text-sm font-bold">Product</h3><div className="mt-5 flex flex-col gap-3 text-sm text-primary-foreground/60"><a href="#features" className="hover:text-primary-foreground">Features</a><a href="#solutions" className="hover:text-primary-foreground">Solutions</a><a href="#pricing" className="hover:text-primary-foreground">Pricing</a><a href="#preview" className="hover:text-primary-foreground">Product preview</a></div></div><div><h3 className="font-display text-sm font-bold">Company</h3><div className="mt-5 flex flex-col gap-3 text-sm text-primary-foreground/60"><a href="#about" className="hover:text-primary-foreground">About Us</a><a href="#why" className="hover:text-primary-foreground">Why CareFirst</a><a href="#faq" className="hover:text-primary-foreground">FAQs</a><a href="/signup" className="hover:text-primary-foreground">Contact</a></div></div><div><h3 className="font-display text-sm font-bold">Get in touch</h3><div className="mt-5 space-y-3 text-sm text-primary-foreground/60"><p className="flex gap-2"><Phone size={16} className="shrink-0" /> Phone number coming soon</p><p className="flex gap-2"><Mail size={16} className="shrink-0" /> Email address coming soon</p><p className="flex gap-2"><MapPin size={16} className="shrink-0" /> Office address coming soon</p></div></div></div><div className="section-wrap flex flex-wrap justify-between gap-3 pt-6 text-xs text-primary-foreground/45"><span>© {new Date().getFullYear()} CareFirst Software Solutions. All rights reserved.</span><span>Made for better care.</span></div></footer>
+    <footer className="bg-foreground py-14 text-primary-foreground">
+      <div className="section-wrap grid gap-10 border-b border-primary-foreground/15 pb-12 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1.2fr]">
+        <div>
+          <Brand inverse />
+          <p className="mt-5 max-w-xs text-sm leading-6 text-primary-foreground/60">
+            CareFirst Software Solutions builds intuitive, reliable tools for clinics and hospitals—simplifying everyday patient care, records, and operations.
+          </p>
+          <div className="mt-5 flex gap-2">
+            {[[Linkedin, "LinkedIn"], [Instagram, "Instagram"], [Facebook, "Facebook"]].map(([Icon, label]) => (
+              <span key={String(label)} title={`${label} profile coming soon`} className="grid size-8 place-items-center rounded border border-primary-foreground/20 text-primary-foreground/60">
+                {Icon && createElement(Icon as typeof Plus, { size: 15 })}
+              </span>
+            ))}
+          </div>
+        </div>
+        <div>
+          <h3 className="font-display text-sm font-bold">Product</h3>
+          <div className="mt-5 flex flex-col gap-3 text-sm text-primary-foreground/60">
+            <a href="#features" className="hover:text-primary-foreground">Features</a>
+            <a href="#solutions" className="hover:text-primary-foreground">Solutions</a>
+            <a href="#pricing" className="hover:text-primary-foreground">Pricing</a>
+            <a href="#preview" className="hover:text-primary-foreground">Product preview</a>
+          </div>
+        </div>
+        <div>
+          <h3 className="font-display text-sm font-bold">Company</h3>
+          <div className="mt-5 flex flex-col gap-3 text-sm text-primary-foreground/60">
+            <a href="#about" className="hover:text-primary-foreground">About Us</a>
+            <a href="#why" className="hover:text-primary-foreground">Why CareFirst</a>
+            <a href="#faq" className="hover:text-primary-foreground">FAQs</a>
+            <a href="/signup" className="hover:text-primary-foreground">Contact</a>
+          </div>
+        </div>
+        <div>
+          <h3 className="font-display text-sm font-bold">Get in touch</h3>
+          <div className="mt-5 space-y-3 text-sm text-primary-foreground/60">
+            <a href="tel:+917201069892" className="flex items-start gap-2 transition-colors hover:text-primary-foreground">
+              <Phone size={16} className="mt-0.5 shrink-0 text-orange" />
+              <span>+91 72010 69892</span>
+            </a>
+            <a href="mailto:support@carefirst.in" className="flex items-start gap-2 transition-colors hover:text-primary-foreground">
+              <Mail size={16} className="mt-0.5 shrink-0 text-orange" />
+              <span>support@carefirst.in</span>
+            </a>
+            <div className="flex items-start gap-2">
+              <MapPin size={16} className="mt-0.5 shrink-0 text-orange" />
+              <span>Sindhu Bhavan Road, Ahmedabad, Gujarat 380059, India</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="section-wrap flex flex-wrap justify-between gap-3 pt-6 text-xs text-primary-foreground/45">
+        <span>© {new Date().getFullYear()} CareFirst Software Solutions. All rights reserved.</span>
+        <span>Made for better care.</span>
+      </div>
+    </footer>
     <div className="fixed bottom-5 right-5 z-40">
       <a
         href="https://wa.me/917201069892?text=I%20am%20interested"

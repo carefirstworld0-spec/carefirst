@@ -4,3 +4,5 @@ import { NewToken } from "../../admin/pages/NewToken";
 export const Route = createFileRoute("/admin/new-token")({
   component: NewToken,
 });
+
+

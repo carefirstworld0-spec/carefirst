@@ -1,9 +1,24 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowRight, Activity, CheckCircle2, Eye, EyeOff, Check, ChevronsUpDown } from "lucide-react";
+import {
+  ArrowRight,
+  Activity,
+  CheckCircle2,
+  Eye,
+  EyeOff,
+  Check,
+  ChevronsUpDown,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 
 const COUNTRY_CODES = [
@@ -75,7 +90,7 @@ function SignupPage() {
 
       await updateProfile(user, { displayName: name });
 
-      const safeClinicName = clinic.replace(/[.#$\[\]\/]/g, '').trim();
+      const safeClinicName = clinic.replace(/[.#$\[\]\/]/g, "").trim();
       await set(ref(db, `carefirst/users/${safeClinicName}/signup`), {
         name,
         email,
@@ -96,14 +111,17 @@ function SignupPage() {
       navigate({ to: "/admin" });
     } catch (err: any) {
       let friendlyError = "An error occurred during signup. Please try again.";
-      if (err.code === 'auth/email-already-in-use') {
+      if (err.code === "auth/email-already-in-use") {
         friendlyError = "User already exist with this email. Please log in instead.";
-      } else if (err.code === 'auth/weak-password') {
+      } else if (err.code === "auth/weak-password") {
         friendlyError = "Password should be at least 6 characters.";
-      } else if (err.code === 'auth/invalid-email') {
+      } else if (err.code === "auth/invalid-email") {
         friendlyError = "Please enter a valid email address.";
       } else if (err.message) {
-        friendlyError = err.message.replace('Firebase: ', '').replace(/\(auth\/.*\)\.?/, '').trim();
+        friendlyError = err.message
+          .replace("Firebase: ", "")
+          .replace(/\(auth\/.*\)\.?/, "")
+          .trim();
       }
       setErrorMsg(friendlyError);
       setSending(false);
@@ -115,9 +133,12 @@ function SignupPage() {
       {/* Left side: Full screen height image with overlay (Hidden on mobile) */}
       <div className="hidden lg:flex w-1/2 relative bg-navy flex-col justify-between p-12 text-primary-foreground overflow-hidden">
         {/* Background Image */}
-        <div 
+        <div
           className="absolute inset-0 w-full h-full bg-cover bg-center"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1581056771107-24ca5f033842?q=70&w=1200&auto=format&fit=crop')" }}
+          style={{
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1581056771107-24ca5f033842?q=80&w=2940&auto=format&fit=crop')",
+          }}
         />
       </div>
 
@@ -145,7 +166,10 @@ function SignupPage() {
           <form onSubmit={submitSignup} className="space-y-2 sm:space-y-3">
             <div className="grid gap-2 sm:gap-3 sm:grid-cols-2">
               <div className="space-y-1 sm:space-y-1.5">
-                <label htmlFor="name" className="block text-[10px] sm:text-[11px] font-bold capitalize text-navy/80">
+                <label
+                  htmlFor="name"
+                  className="block text-[10px] sm:text-[11px] font-bold capitalize text-navy/80"
+                >
                   Your name
                 </label>
                 <input
@@ -158,7 +182,10 @@ function SignupPage() {
                 />
               </div>
               <div className="space-y-1 sm:space-y-1.5">
-                <label htmlFor="email" className="block text-[10px] sm:text-[11px] font-bold capitalize text-navy/80">
+                <label
+                  htmlFor="email"
+                  className="block text-[10px] sm:text-[11px] font-bold capitalize text-navy/80"
+                >
                   Work email
                 </label>
                 <input
@@ -171,10 +198,13 @@ function SignupPage() {
                 />
               </div>
             </div>
-            
+
             <div className="grid gap-2 sm:gap-3 sm:grid-cols-2">
               <div className="space-y-1 sm:space-y-1.5">
-                <label htmlFor="phone" className="block text-[10px] sm:text-[11px] font-bold capitalize text-navy/80">
+                <label
+                  htmlFor="phone"
+                  className="block text-[10px] sm:text-[11px] font-bold capitalize text-navy/80"
+                >
                   Mobile Number
                 </label>
                 <div className="flex gap-2">
@@ -201,7 +231,9 @@ function SignupPage() {
                                 key={country.value}
                                 value={country.label}
                                 onSelect={(currentValue) => {
-                                  const selected = COUNTRY_CODES.find(c => c.label.toLowerCase() === currentValue.toLowerCase());
+                                  const selected = COUNTRY_CODES.find(
+                                    (c) => c.label.toLowerCase() === currentValue.toLowerCase(),
+                                  );
                                   if (selected) {
                                     setCountryCode(selected.value);
                                     setOpenCountry(false);
@@ -211,7 +243,7 @@ function SignupPage() {
                                 <Check
                                   className={cn(
                                     "mr-2 h-4 w-4",
-                                    countryCode === country.value ? "opacity-100" : "opacity-0"
+                                    countryCode === country.value ? "opacity-100" : "opacity-0",
                                   )}
                                 />
                                 {country.label}
@@ -230,22 +262,31 @@ function SignupPage() {
                       required
                       value={phoneVal}
                       onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                        const val = e.target.value.replace(/\D/g, "").slice(0, 10);
                         setPhoneVal(val);
                         if (val.length === 10) setPhoneError("");
                       }}
                       className={cn(
                         "h-[40px] sm:h-[44px] w-full rounded-[8px] border border-border bg-background px-3 text-[13px] sm:text-[14px] font-medium text-foreground outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10",
-                        phoneError ? "border-destructive focus:border-destructive focus:ring-destructive/10" : ""
+                        phoneError
+                          ? "border-destructive focus:border-destructive focus:ring-destructive/10"
+                          : "",
                       )}
                       placeholder="98765 43210"
                     />
                   </div>
                 </div>
-                {phoneError && <span className="block text-[11px] font-semibold text-destructive mt-1">{phoneError}</span>}
+                {phoneError && (
+                  <span className="block text-[11px] font-semibold text-destructive mt-1">
+                    {phoneError}
+                  </span>
+                )}
               </div>
               <div className="space-y-1 sm:space-y-1.5">
-                <label htmlFor="password" className="block text-[10px] sm:text-[11px] font-bold capitalize text-navy/80">
+                <label
+                  htmlFor="password"
+                  className="block text-[10px] sm:text-[11px] font-bold capitalize text-navy/80"
+                >
                   Password
                 </label>
                 <div className="relative">
@@ -269,7 +310,10 @@ function SignupPage() {
             </div>
 
             <div className="space-y-1 sm:space-y-1.5">
-              <label htmlFor="clinic" className="block text-[10px] sm:text-[11px] font-bold capitalize text-navy/80">
+              <label
+                htmlFor="clinic"
+                className="block text-[10px] sm:text-[11px] font-bold capitalize text-navy/80"
+              >
                 Clinic / hospital name
               </label>
               <input
@@ -292,15 +336,29 @@ function SignupPage() {
                   className="mt-0.5 size-[16px] sm:size-[18px] rounded-[4px] border-border bg-background text-primary focus:ring-primary focus:ring-offset-0"
                 />
               </div>
-              <label htmlFor="terms" className="text-[12px] sm:text-[13px] text-muted-foreground font-medium leading-[1.4]">
+              <label
+                htmlFor="terms"
+                className="text-[12px] sm:text-[13px] text-muted-foreground font-medium leading-[1.4]"
+              >
                 I agree to the{" "}
-                <a href="/terms" target="_blank" rel="noopener noreferrer" className="font-semibold text-navy hover:underline">
+                <a
+                  href="/terms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-navy hover:underline"
+                >
                   Terms & Conditions
                 </a>{" "}
                 and{" "}
-                <a href="/privacy" target="_blank" rel="noopener noreferrer" className="font-semibold text-navy hover:underline">
+                <a
+                  href="/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-navy hover:underline"
+                >
                   Privacy Policy
-                </a>.
+                </a>
+                .
               </label>
             </div>
 
@@ -325,15 +383,16 @@ function SignupPage() {
 
           <div className="mt-4 sm:mt-6 text-center text-[13px] sm:text-[14px] font-medium text-muted-foreground border-t border-border pt-4 sm:pt-4">
             Already have an account?{" "}
-            <Link to="/login" className="font-bold text-primary hover:underline hover:text-navy transition-colors">
+            <Link
+              to="/login"
+              className="font-bold text-primary hover:underline hover:text-navy transition-colors"
+            >
               Log in
             </Link>
           </div>
-          
+
           <div className="flex justify-center items-baseline gap-1.5 mt-6 pt-2">
-            <span className="text-[14px] font-medium text-slate-500">
-              Powered by
-            </span>
+            <span className="text-[14px] font-medium text-slate-500">Powered by</span>
             <span className="text-[18px] font-extrabold text-navy font-display tracking-tight">
               CareFirst
             </span>

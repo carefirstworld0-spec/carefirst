@@ -18,28 +18,30 @@ export function Dashboard() {
     const fetchTrialData = async () => {
       const uid = localStorage.getItem("user_uid");
       const clinicKey = localStorage.getItem("user_clinic");
-      
+
       if (uid && clinicKey) {
         // Fetch trial data
         const dbRef = ref(db);
         const snapshot = await get(child(dbRef, `carefirst/users/${clinicKey}/signup`));
-        
+
         if (snapshot.exists()) {
           const data = snapshot.val();
           if (data.trialExpires) {
             const expiryDate = new Date(data.trialExpires);
             const now = new Date();
-            
-            setTrialExpires(expiryDate.toLocaleDateString("en-IN", {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric"
-            }));
+
+            setTrialExpires(
+              expiryDate.toLocaleDateString("en-IN", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              }),
+            );
 
             const diffTime = expiryDate.getTime() - now.getTime();
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
+
             if (diffDays <= 0) {
               setIsExpired(true);
               setDaysLeft(0);
@@ -52,24 +54,27 @@ export function Dashboard() {
 
         // Real-time listeners for dashboard stats
         const clinicRef = ref(db, `carefirst/users/${clinicKey}`);
-        
-        const unsubPatients = onValue(child(clinicRef, 'patients'), (snap) => {
-          setStats(s => ({ ...s, patients: snap.exists() ? Object.keys(snap.val()).length : 0 }));
+
+        const unsubPatients = onValue(child(clinicRef, "patients"), (snap) => {
+          setStats((s) => ({ ...s, patients: snap.exists() ? Object.keys(snap.val()).length : 0 }));
         });
-        const unsubAppointments = onValue(child(clinicRef, 'appointments'), (snap) => {
-          setStats(s => ({ ...s, appointments: snap.exists() ? Object.keys(snap.val()).length : 0 }));
+        const unsubAppointments = onValue(child(clinicRef, "appointments"), (snap) => {
+          setStats((s) => ({
+            ...s,
+            appointments: snap.exists() ? Object.keys(snap.val()).length : 0,
+          }));
         });
-        const unsubPayments = onValue(child(clinicRef, 'payments'), (snap) => {
+        const unsubPayments = onValue(child(clinicRef, "payments"), (snap) => {
           let total = 0;
           if (snap.exists()) {
             Object.values(snap.val()).forEach((p: any) => {
               if (p.amount) total += Number(p.amount);
             });
           }
-          setStats(s => ({ ...s, revenue: total }));
+          setStats((s) => ({ ...s, revenue: total }));
         });
-        const unsubStaff = onValue(child(clinicRef, 'staff'), (snap) => {
-          setStats(s => ({ ...s, staff: snap.exists() ? Object.keys(snap.val()).length : 0 }));
+        const unsubStaff = onValue(child(clinicRef, "staff"), (snap) => {
+          setStats((s) => ({ ...s, staff: snap.exists() ? Object.keys(snap.val()).length : 0 }));
         });
 
         return () => {
@@ -80,14 +85,16 @@ export function Dashboard() {
         };
       }
     };
-    
+
     fetchTrialData();
   }, []);
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-[24px] font-extrabold tracking-tight text-navy font-display">Dashboard Overview</h1>
+        <h1 className="text-[24px] font-extrabold tracking-tight text-navy font-display">
+          Dashboard Overview
+        </h1>
       </div>
 
       {/* Trial Plan Alert */}
@@ -121,7 +128,6 @@ export function Dashboard() {
           )}
         </div>
       )}
-      
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {/* Real-time stats cards */}
         <div className="rounded-[12px] sm:rounded-[16px] border border-border bg-card p-3 sm:p-5 shadow-sm ring-1 ring-border/50">
@@ -141,10 +147,13 @@ export function Dashboard() {
           <div className="mt-1 sm:mt-2 text-[20px] sm:text-[28px] font-display font-extrabold text-navy">{stats.staff.toLocaleString()}</div>
         </div>
       </div>
-      
+
       <div className="rounded-[16px] border border-border bg-card p-6 shadow-sm ring-1 ring-border/50 min-h-[400px]">
         <h3 className="font-display text-[15px] font-bold text-navy mb-4">Recent Activity</h3>
-        <p className="text-[13px] font-medium text-muted-foreground">Welcome to your new CareFirst admin panel. Activity logs will appear here once your staff begins using the system.</p>
+        <p className="text-[13px] font-medium text-muted-foreground">
+          Welcome to your new CareFirst admin panel. Activity logs will appear here once your staff
+          begins using the system.
+        </p>
       </div>
     </div>
   );

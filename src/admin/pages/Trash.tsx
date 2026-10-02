@@ -23,7 +23,7 @@ export function TrashPage() {
   useEffect(() => {
     if (!clinicKey) return;
     const trashRef = ref(db, `carefirst/users/${clinicKey}/trash`);
-    
+
     const unsubscribe = onValue(trashRef, (snapshot) => {
       const list: TrashItem[] = [];
       if (snapshot.exists()) {
@@ -58,7 +58,12 @@ export function TrashPage() {
 
   const handlePermanentDelete = async (item: TrashItem) => {
     if (!clinicKey) return;
-    if (!window.confirm("Are you sure you want to permanently delete this item? This cannot be undone.")) return;
+    if (
+      !window.confirm(
+        "Are you sure you want to permanently delete this item? This cannot be undone.",
+      )
+    )
+      return;
     try {
       await remove(ref(db, `carefirst/users/${clinicKey}/trash/${item.id}`));
     } catch (err) {
@@ -67,14 +72,14 @@ export function TrashPage() {
     }
   };
 
-  const filtered = items.filter(item => {
+  const filtered = items.filter((item) => {
     const matchesSearch = item.name?.toLowerCase().includes(search.toLowerCase());
-    
+
     let matchesDate = true;
     if (item.deletedAt) {
       const itemDate = new Date(item.deletedAt);
       itemDate.setHours(0, 0, 0, 0); // Normalize time
-      
+
       if (fromDate) {
         const fDate = new Date(fromDate);
         fDate.setHours(0, 0, 0, 0);
@@ -107,7 +112,10 @@ export function TrashPage() {
       {/* Filters */}
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="relative flex-1 w-full max-w-md">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Search
+            size={15}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+          />
           <input
             type="text"
             placeholder="Search deleted items..."
@@ -133,7 +141,10 @@ export function TrashPage() {
           />
           {(fromDate || toDate) && (
             <button
-              onClick={() => { setFromDate(""); setToDate(""); }}
+              onClick={() => {
+                setFromDate("");
+                setToDate("");
+              }}
               className="rounded-full p-1.5 text-muted-foreground hover:bg-secondary hover:text-navy transition-colors"
             >
               <X size={13} />
@@ -178,16 +189,18 @@ export function TrashPage() {
                     <div className="mx-auto grid size-12 place-items-center rounded-full bg-secondary">
                       <Trash2 size={20} className="text-muted-foreground" />
                     </div>
-                    <h3 className="mt-4 font-display text-[15px] font-bold text-navy">Trash is empty</h3>
-                    <p className="mt-1 text-[13px] text-muted-foreground">No deleted items found.</p>
+                    <h3 className="mt-4 font-display text-[15px] font-bold text-navy">
+                      Trash is empty
+                    </h3>
+                    <p className="mt-1 text-[13px] text-muted-foreground">
+                      No deleted items found.
+                    </p>
                   </td>
                 </tr>
               ) : (
                 filtered.map((item, idx) => (
                   <tr key={item.id} className="transition-colors hover:bg-secondary/20">
-                    <td className="px-6 py-4 font-medium text-navy/70">
-                      {idx + 1}
-                    </td>
+                    <td className="px-6 py-4 font-medium text-navy/70">{idx + 1}</td>
                     <td className="px-6 py-4">
                       <span className="font-semibold text-navy">{item.name || "Unknown Item"}</span>
                       {item.originalPath && (
@@ -197,11 +210,13 @@ export function TrashPage() {
                       )}
                     </td>
                     <td className="px-6 py-4 font-medium text-muted-foreground">
-                      {item.deletedAt ? new Date(item.deletedAt).toLocaleDateString("en-GB", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      }) : "Unknown Date"}
+                      {item.deletedAt
+                        ? new Date(item.deletedAt).toLocaleDateString("en-GB", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })
+                        : "Unknown Date"}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-center gap-2">

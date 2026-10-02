@@ -14,19 +14,19 @@ export function SettingsPage() {
     clinic: "",
     phone: "",
     email: "",
-    logoUrl: ""
+    logoUrl: "",
   });
 
   useEffect(() => {
     const fetchUserData = async () => {
       const uid = localStorage.getItem("user_uid");
       const clinicKey = localStorage.getItem("user_clinic");
-      
+
       if (uid && clinicKey) {
         try {
           const dbRef = ref(db);
           const snapshot = await get(child(dbRef, `carefirst/users/${clinicKey}/signup`));
-          
+
           if (snapshot.exists()) {
             const data = snapshot.val();
             setFormData({
@@ -34,7 +34,7 @@ export function SettingsPage() {
               clinic: data.clinic || "",
               phone: data.phone || "",
               email: data.email || "",
-              logoUrl: data.logoUrl || ""
+              logoUrl: data.logoUrl || "",
             });
           }
         } catch (error) {
@@ -48,7 +48,7 @@ export function SettingsPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -71,17 +71,17 @@ export function SettingsPage() {
         clinic: formData.clinic,
         phone: formData.phone,
         email: formData.email,
-        logoUrl: formData.logoUrl
+        logoUrl: formData.logoUrl,
       });
-      
+
       // Update local storage cache to ensure instant layout update
       localStorage.setItem("user_name", formData.name);
-      
+
       setSuccessMsg("Settings updated successfully!");
-      
+
       // Auto-hide success message
       setTimeout(() => setSuccessMsg(""), 3000);
-      
+
       // Force reload to update layout name
       setTimeout(() => window.location.reload(), 1000);
     } catch (error: any) {
@@ -92,27 +92,38 @@ export function SettingsPage() {
   };
 
   if (fetching) {
-    return <div className="flex h-[400px] items-center justify-center text-muted-foreground">Loading settings...</div>;
+    return (
+      <div className="flex h-[400px] items-center justify-center text-muted-foreground">
+        Loading settings...
+      </div>
+    );
   }
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div>
-        <h1 className="font-display text-[24px] font-extrabold tracking-tight text-navy">Clinic Settings</h1>
-        <p className="mt-1 text-[14px] text-muted-foreground">Manage your clinic profile, contact information, and logo.</p>
+        <h1 className="font-display text-[24px] font-extrabold tracking-tight text-navy">
+          Clinic Settings
+        </h1>
+        <p className="mt-1 text-[14px] text-muted-foreground">
+          Manage your clinic profile, contact information, and logo.
+        </p>
       </div>
 
       <div className="rounded-[16px] border border-border bg-card shadow-sm">
         <form onSubmit={handleSubmit} className="p-6 sm:p-8">
           <div className="space-y-8">
-            
             {/* Logo Section */}
             <div>
               <h3 className="text-[14px] font-bold text-navy mb-4">Clinic Logo</h3>
               <div className="flex items-center gap-6">
                 <div className="relative group size-24 shrink-0 overflow-hidden rounded-[16px] border-2 border-dashed border-border bg-secondary/50 transition-colors hover:bg-secondary">
                   {formData.logoUrl ? (
-                    <img src={formData.logoUrl} alt="Clinic Logo" className="size-full object-cover" />
+                    <img
+                      src={formData.logoUrl}
+                      alt="Clinic Logo"
+                      className="size-full object-cover"
+                    />
                   ) : (
                     <div className="flex size-full flex-col items-center justify-center text-muted-foreground">
                       <Camera size={24} className="mb-1 opacity-50" />
@@ -134,7 +145,9 @@ export function SettingsPage() {
                     placeholder="https://example.com/logo.png"
                     className="w-full rounded-[10px] border border-border bg-background px-4 py-2.5 text-[14px] text-navy placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all"
                   />
-                  <p className="mt-1.5 text-[11px] text-muted-foreground">Paste a direct link to your logo image. Recommended size: 256x256px.</p>
+                  <p className="mt-1.5 text-[11px] text-muted-foreground">
+                    Paste a direct link to your logo image. Recommended size: 256x256px.
+                  </p>
                 </div>
               </div>
             </div>
@@ -148,7 +161,10 @@ export function SettingsPage() {
                 <div className="space-y-1.5">
                   <label className="text-[13px] font-semibold text-navy">Administrator Name</label>
                   <div className="relative">
-                    <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/60" />
+                    <User
+                      size={16}
+                      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/60"
+                    />
                     <input
                       type="text"
                       name="name"
@@ -161,9 +177,14 @@ export function SettingsPage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[13px] font-semibold text-navy">Clinic / Hospital Name</label>
+                  <label className="text-[13px] font-semibold text-navy">
+                    Clinic / Hospital Name
+                  </label>
                   <div className="relative">
-                    <Building2 size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/60" />
+                    <Building2
+                      size={16}
+                      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/60"
+                    />
                     <input
                       type="text"
                       name="clinic"
@@ -178,7 +199,10 @@ export function SettingsPage() {
                 <div className="space-y-1.5">
                   <label className="text-[13px] font-semibold text-navy">Mobile Number</label>
                   <div className="relative">
-                    <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/60" />
+                    <Phone
+                      size={16}
+                      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/60"
+                    />
                     <input
                       type="tel"
                       name="phone"
@@ -193,7 +217,10 @@ export function SettingsPage() {
                 <div className="space-y-1.5">
                   <label className="text-[13px] font-semibold text-navy">Email Address</label>
                   <div className="relative">
-                    <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/60" />
+                    <Mail
+                      size={16}
+                      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/60"
+                    />
                     <input
                       type="email"
                       name="email"
@@ -210,8 +237,16 @@ export function SettingsPage() {
             {/* Actions */}
             <div className="pt-4 flex items-center justify-between border-t border-border/60">
               <div className="flex-1">
-                {successMsg && <p className="text-[13px] font-bold text-success animate-in fade-in slide-in-from-bottom-1">{successMsg}</p>}
-                {errorMsg && <p className="text-[13px] font-bold text-destructive animate-in fade-in slide-in-from-bottom-1">{errorMsg}</p>}
+                {successMsg && (
+                  <p className="text-[13px] font-bold text-success animate-in fade-in slide-in-from-bottom-1">
+                    {successMsg}
+                  </p>
+                )}
+                {errorMsg && (
+                  <p className="text-[13px] font-bold text-destructive animate-in fade-in slide-in-from-bottom-1">
+                    {errorMsg}
+                  </p>
+                )}
               </div>
               <button
                 type="submit"

@@ -14,7 +14,7 @@ import {
   BarChart3,
   PanelLeftClose,
   PanelLeftOpen,
-  Globe
+  Globe,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -35,16 +35,14 @@ const navItems = [
         subItems: [
           { label: "Subscription", to: "/superadmin/subscription" },
           { label: "White Label", to: "/superadmin/white-label" },
-        ]
+        ],
       },
       { label: "Users & Staff", icon: Users, to: "/superadmin/users-staff" },
     ],
   },
   {
     group: "System",
-    items: [
-      { label: "Settings", icon: Settings, to: "/superadmin/settings" },
-    ],
+    items: [{ label: "Settings", icon: Settings, to: "/superadmin/settings" }],
   },
 ];
 
@@ -56,7 +54,7 @@ export function SuperAdminLayout() {
 
   const toggleMenu = (label: string) => {
     setExpandedMenus((prev) =>
-      prev.includes(label) ? prev.filter((item) => item !== label) : [...prev, label]
+      prev.includes(label) ? prev.filter((item) => item !== label) : [...prev, label],
     );
   };
 
@@ -87,11 +85,13 @@ export function SuperAdminLayout() {
           {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
         </button>
         {/* Logo */}
-        <div className={`flex h-[76px] shrink-0 items-center border-b border-border overflow-hidden whitespace-nowrap transition-all duration-300 ${isCollapsed ? 'px-0 justify-center' : 'px-6 gap-3'}`}>
+        <div
+          className={`flex h-[76px] shrink-0 items-center border-b border-border overflow-hidden whitespace-nowrap transition-all duration-300 ${isCollapsed ? "px-0 justify-center" : "px-6 gap-3"}`}
+        >
           <img
             src="https://ik.imagekit.io/dn3ch7b5a/WhatsApp_Image_2026-09-28_at_14.06.54-removebg-preview.png?updatedAt=1790594212831"
             alt="CareFirst Logo"
-            className={`${isCollapsed ? 'h-[28px]' : 'h-[36px]'} w-auto object-contain transition-all duration-300`}
+            className={`${isCollapsed ? "h-[28px]" : "h-[36px]"} w-auto object-contain transition-all duration-300`}
           />
           {!isCollapsed && (
             <div className="flex flex-col justify-center">
@@ -140,7 +140,7 @@ export function SuperAdminLayout() {
                               toggleMenu(item.label);
                             }
                           }}
-                          className={`group flex items-center rounded-[10px] text-[13.5px] font-semibold text-muted-foreground transition-all hover:bg-secondary hover:text-navy ${isCollapsed ? 'justify-center size-[42px] mx-auto' : 'w-full gap-3 px-3 py-2.5'}`}
+                          className={`group flex items-center rounded-[10px] text-[13.5px] font-semibold text-muted-foreground transition-all hover:bg-secondary hover:text-navy ${isCollapsed ? "justify-center size-[42px] mx-auto" : "w-full gap-3 px-3 py-2.5"}`}
                           title={isCollapsed ? item.label : undefined}
                         >
                           <item.icon size={17} className="shrink-0" />
@@ -162,7 +162,9 @@ export function SuperAdminLayout() {
                                 to={sub.to}
                                 onClick={() => setMobileOpen(false)}
                                 className="block rounded-[8px] px-3 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-navy whitespace-nowrap"
-                                activeProps={{ className: "!text-primary font-semibold !bg-primary/5" }}
+                                activeProps={{
+                                  className: "!text-primary font-semibold !bg-primary/5",
+                                }}
                               >
                                 {sub.label}
                               </Link>
@@ -177,7 +179,7 @@ export function SuperAdminLayout() {
                           setMobileOpen(false);
                           if (isCollapsed) setIsCollapsed(false);
                         }}
-                        className={`group flex items-center rounded-[10px] text-[13.5px] font-semibold text-muted-foreground transition-all hover:bg-secondary hover:text-navy ${isCollapsed ? 'justify-center size-[42px] mx-auto' : 'gap-3 px-3 py-2.5'}`}
+                        className={`group flex items-center rounded-[10px] text-[13.5px] font-semibold text-muted-foreground transition-all hover:bg-secondary hover:text-navy ${isCollapsed ? "justify-center size-[42px] mx-auto" : "gap-3 px-3 py-2.5"}`}
                         activeProps={{ className: "!bg-primary/10 !text-primary" }}
                         title={isCollapsed ? item.label : undefined}
                       >
@@ -217,11 +219,11 @@ export function SuperAdminLayout() {
               SA
             </div>
           )}
-          
-          <div className={`flex items-center ${isCollapsed ? 'flex-col gap-2' : 'gap-2'}`}>
+
+          <div className={`flex items-center ${isCollapsed ? "flex-col gap-2" : "gap-2"}`}>
             <button
               onClick={handleLogout}
-              className={`flex items-center justify-center rounded-[10px] text-destructive transition-colors hover:bg-destructive/10 ${isCollapsed ? 'size-10' : 'w-full gap-2.5 px-3 py-2 text-[13px] font-semibold'}`}
+              className={`flex items-center justify-center rounded-[10px] text-destructive transition-colors hover:bg-destructive/10 ${isCollapsed ? "size-10" : "w-full gap-2.5 px-3 py-2 text-[13px] font-semibold"}`}
               title="Sign out"
             >
               <LogOut size={16} />

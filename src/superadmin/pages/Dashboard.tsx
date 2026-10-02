@@ -77,10 +77,13 @@ export function SuperAdminDashboard() {
               location: signupData.phone || signupData.email || "N/A",
               plan: "7-Day Trial",
               date: new Date(signupData.createdAt).toLocaleDateString("en-IN", {
-                day: "numeric", month: "short", hour: "2-digit", minute: "2-digit"
+                day: "numeric",
+                month: "short",
+                hour: "2-digit",
+                minute: "2-digit",
               }),
               status: new Date(signupData.trialExpires) > new Date() ? "Trial" : "Expired",
-              createdAtMs: new Date(signupData.createdAt).getTime()
+              createdAtMs: new Date(signupData.createdAt).getTime(),
             });
           }
         }
@@ -144,11 +147,11 @@ export function SuperAdminDashboard() {
     },
   ];
 
-  const dynamicAlerts = recentRegs.slice(0, 4).map(reg => ({
+  const dynamicAlerts = recentRegs.slice(0, 4).map((reg) => ({
     title: "New Clinic Registration",
     desc: `${reg.name} joined the platform`,
     time: reg.date,
-    type: "info"
+    type: "info",
   }));
 
   return (
@@ -165,7 +168,8 @@ export function SuperAdminDashboard() {
                 New Registrations Overview
               </DialogTitle>
               <p className="text-white/80 text-[15px] mt-2 font-medium max-w-lg">
-                Welcome back, Super Admin. Here are the latest clinics that have signed up for a trial recently.
+                Welcome back, Super Admin. Here are the latest clinics that have signed up for a
+                trial recently.
               </p>
             </DialogHeader>
           </div>
@@ -175,40 +179,60 @@ export function SuperAdminDashboard() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-border/30 bg-secondary/20">
-                      <th className="px-6 py-4 text-left text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground">Clinic Name</th>
-                      <th className="px-6 py-4 text-left text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground">User Name</th>
-                      <th className="px-6 py-4 text-left text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground">Contact</th>
-                      <th className="px-6 py-4 text-right text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground">Action</th>
+                      <th className="px-6 py-4 text-left text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground">
+                        Clinic Name
+                      </th>
+                      <th className="px-6 py-4 text-left text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground">
+                        User Name
+                      </th>
+                      <th className="px-6 py-4 text-left text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground">
+                        Contact
+                      </th>
+                      <th className="px-6 py-4 text-right text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground">
+                        Action
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {recentRegs.length > 0 ? recentRegs.slice(0, 5).map((reg, i) => (
-                      <tr key={i} className="border-b border-border/20 last:border-0 hover:bg-secondary/10 transition-colors">
-                        <td className="px-6 py-4.5">
-                          <div className="text-[14px] font-bold text-navy">{reg.name}</div>
-                          <div className="text-[12px] font-medium text-muted-foreground mt-0.5">{reg.date}</div>
-                        </td>
-                        <td className="px-6 py-4.5">
-                          <div className="flex items-center gap-2">
-                            <div className="grid size-7 place-items-center rounded-full bg-secondary/80 text-[11px] font-bold text-navy">
-                              {reg.userName.charAt(0).toUpperCase()}
+                    {recentRegs.length > 0 ? (
+                      recentRegs.slice(0, 5).map((reg, i) => (
+                        <tr
+                          key={i}
+                          className="border-b border-border/20 last:border-0 hover:bg-secondary/10 transition-colors"
+                        >
+                          <td className="px-6 py-4.5">
+                            <div className="text-[14px] font-bold text-navy">{reg.name}</div>
+                            <div className="text-[12px] font-medium text-muted-foreground mt-0.5">
+                              {reg.date}
                             </div>
-                            <div className="text-[13px] font-semibold text-navy">{reg.userName}</div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4.5">
-                          <div className="text-[13px] font-bold text-navy">{reg.phone}</div>
-                          <div className="text-[12px] text-muted-foreground">{reg.email}</div>
-                        </td>
-                        <td className="px-6 py-4.5 text-right">
-                          <button className="inline-flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary transition-all hover:bg-primary hover:text-white hover:scale-105">
-                            <ArrowUpRight size={16} />
-                          </button>
-                        </td>
-                      </tr>
-                    )) : (
+                          </td>
+                          <td className="px-6 py-4.5">
+                            <div className="flex items-center gap-2">
+                              <div className="grid size-7 place-items-center rounded-full bg-secondary/80 text-[11px] font-bold text-navy">
+                                {reg.userName.charAt(0).toUpperCase()}
+                              </div>
+                              <div className="text-[13px] font-semibold text-navy">
+                                {reg.userName}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4.5">
+                            <div className="text-[13px] font-bold text-navy">{reg.phone}</div>
+                            <div className="text-[12px] text-muted-foreground">{reg.email}</div>
+                          </td>
+                          <td className="px-6 py-4.5 text-right">
+                            <button className="inline-flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary transition-all hover:bg-primary hover:text-white hover:scale-105">
+                              <ArrowUpRight size={16} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
                       <tr>
-                        <td colSpan={4} className="px-6 py-10 text-center text-[14px] font-medium text-muted-foreground">
+                        <td
+                          colSpan={4}
+                          className="px-6 py-10 text-center text-[14px] font-medium text-muted-foreground"
+                        >
                           No recent registrations to display.
                         </td>
                       </tr>
@@ -259,11 +283,15 @@ export function SuperAdminDashboard() {
             key={i}
             className={`group relative overflow-hidden rounded-[14px] bg-card p-3.5 sm:p-4 shadow-sm ring-1 ring-border transition-all hover:-translate-y-0.5 hover:shadow-md`}
           >
-            <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 transition-opacity group-hover:opacity-100`} />
+            <div
+              className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 transition-opacity group-hover:opacity-100`}
+            />
             <div className="relative">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5 sm:gap-3">
-                  <div className={`grid size-8 sm:size-10 place-items-center rounded-[8px] sm:rounded-[10px] ${stat.bg} shrink-0`}>
+                  <div
+                    className={`grid size-8 sm:size-10 place-items-center rounded-[8px] sm:rounded-[10px] ${stat.bg} shrink-0`}
+                  >
                     <stat.icon size={16} className={`sm:w-[18px] sm:h-[18px] ${stat.color}`} />
                   </div>
                   <div className="text-[9px] sm:text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/80 line-clamp-1">
@@ -296,7 +324,9 @@ export function SuperAdminDashboard() {
           <div className="flex items-center justify-between border-b border-border/50 px-6 py-4">
             <div>
               <h3 className="font-display text-[14px] font-bold text-navy">Recent Registrations</h3>
-              <p className="text-[11px] text-muted-foreground">Latest clinics & hospitals onboarded</p>
+              <p className="text-[11px] text-muted-foreground">
+                Latest clinics & hospitals onboarded
+              </p>
             </div>
             <button className="flex items-center gap-1 rounded-[8px] bg-secondary/60 px-3 py-1.5 text-[12px] font-bold text-primary transition-colors hover:bg-primary/10">
               View all <ArrowUpRight size={13} />
@@ -344,7 +374,10 @@ export function SuperAdminDashboard() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={4} className="px-6 py-8 text-center text-[13px] text-muted-foreground">
+                    <td
+                      colSpan={4}
+                      className="px-6 py-8 text-center text-[13px] text-muted-foreground"
+                    >
                       No recent registrations found.
                     </td>
                   </tr>
@@ -372,7 +405,9 @@ export function SuperAdminDashboard() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="text-[13px] font-semibold text-navy">{alert.title}</div>
-                    <div className="mt-0.5 text-[11px] text-muted-foreground leading-relaxed">{alert.desc}</div>
+                    <div className="mt-0.5 text-[11px] text-muted-foreground leading-relaxed">
+                      {alert.desc}
+                    </div>
                     <div className="mt-1 flex items-center gap-1 text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wide">
                       <Clock size={10} />
                       {alert.time}

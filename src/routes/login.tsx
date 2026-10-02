@@ -31,7 +31,7 @@ function AdminLogin() {
       // Verify if data is in Firebase Realtime Database
       const dbRef = ref(db);
       const snapshot = await get(child(dbRef, `carefirst/users`));
-      
+
       let userFound = false;
       let userClinic = "";
 
@@ -48,13 +48,15 @@ function AdminLogin() {
       }
 
       if (userFound) {
-        localStorage.setItem('user_uid', user.uid);
-        localStorage.setItem('user_clinic', userClinic);
-        
+        localStorage.setItem("user_uid", user.uid);
+        localStorage.setItem("user_clinic", userClinic);
+
         // Cache user name for instant UI rendering
-        const clinicData = (await get(child(ref(db), `carefirst/users/${userClinic}/signup`))).val();
+        const clinicData = (
+          await get(child(ref(db), `carefirst/users/${userClinic}/signup`))
+        ).val();
         if (clinicData && clinicData.name) {
-          localStorage.setItem('user_name', clinicData.name);
+          localStorage.setItem("user_name", clinicData.name);
         }
 
         navigate({ to: "/admin" });
@@ -73,9 +75,12 @@ function AdminLogin() {
       {/* Left side: Full screen height image with overlay (Hidden on mobile) */}
       <div className="hidden lg:flex w-1/2 relative flex-col justify-between p-12 overflow-hidden">
         {/* Background Image */}
-        <div 
+        <div
           className="absolute inset-0 w-full h-full bg-cover bg-center"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1581056771107-24ca5f033842?q=80&w=2940&auto=format&fit=crop')" }}
+          style={{
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1581056771107-24ca5f033842?q=80&w=2940&auto=format&fit=crop')",
+          }}
         />
       </div>
 
@@ -107,7 +112,10 @@ function AdminLogin() {
               </div>
             )}
             <div className="space-y-1 sm:space-y-2">
-              <label htmlFor="email" className="block text-[10px] sm:text-[12px] font-bold capitalize text-navy/80">
+              <label
+                htmlFor="email"
+                className="block text-[10px] sm:text-[12px] font-bold capitalize text-navy/80"
+              >
                 Email Address
               </label>
               <input
@@ -121,9 +129,12 @@ function AdminLogin() {
                 placeholder="admin@carefirst.world"
               />
             </div>
-            
+
             <div className="space-y-1 sm:space-y-2">
-              <label htmlFor="password" className="block text-[10px] sm:text-[12px] font-bold capitalize text-navy/80">
+              <label
+                htmlFor="password"
+                className="block text-[10px] sm:text-[12px] font-bold capitalize text-navy/80"
+              >
                 Password
               </label>
               <div className="relative">
@@ -162,15 +173,16 @@ function AdminLogin() {
 
           <div className="mt-4 sm:mt-10 text-center text-[13px] sm:text-[14px] font-medium text-muted-foreground border-t border-border pt-4 sm:pt-8">
             Don't have an account?{" "}
-            <Link to="/signup" className="font-bold text-primary hover:underline hover:text-navy transition-colors">
+            <Link
+              to="/signup"
+              className="font-bold text-primary hover:underline hover:text-navy transition-colors"
+            >
               Sign up
             </Link>
           </div>
-          
+
           <div className="flex justify-center items-baseline gap-1.5 mt-6 pt-2">
-            <span className="text-[14px] font-medium text-slate-500">
-              Powered by
-            </span>
+            <span className="text-[14px] font-medium text-slate-500">Powered by</span>
             <span className="text-[18px] font-extrabold text-navy font-display tracking-tight">
               CareFirst
             </span>

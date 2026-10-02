@@ -19,7 +19,7 @@ import {
   MoreVertical,
   Eye,
   Ban,
-  Play
+  Play,
 } from "lucide-react";
 
 type UserRecord = {
@@ -87,7 +87,7 @@ export function Subscription() {
     userName: "",
     phone: "",
     email: "",
-    password: ""
+    password: "",
   });
   const [showAddModal, setShowAddModal] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
@@ -97,7 +97,7 @@ export function Subscription() {
     phone: "",
     email: "",
     password: "",
-    status: "Trial"
+    status: "Trial",
   });
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [suspendTarget, setSuspendTarget] = useState<UserRecord | null>(null);
@@ -107,11 +107,12 @@ export function Subscription() {
     "Violation of Terms",
     "Security Concern",
     "Requested by Owner",
-    "Other"
+    "Other",
   ];
   const [suspendForm, setSuspendForm] = useState({
     reason: "Payment Overdue",
-    description: "Your account has been suspended due to an overdue payment. Please clear the pending dues to restore access."
+    description:
+      "Your account has been suspended due to an overdue payment. Please clear the pending dues to restore access.",
   });
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -151,10 +152,10 @@ export function Subscription() {
               sd.suspended === true
                 ? "Suspended"
                 : sd.isActive === true
-                ? "Active"
-                : sd.trialExpires && new Date(sd.trialExpires) > new Date()
-                ? "Trial"
-                : "Expired",
+                  ? "Active"
+                  : sd.trialExpires && new Date(sd.trialExpires) > new Date()
+                    ? "Trial"
+                    : "Expired",
           });
         }
       }
@@ -186,22 +187,34 @@ export function Subscription() {
   };
 
   const handleAddUser = async () => {
-    if (!addForm.clinicName || !addForm.email || !addForm.password || !addForm.userName || !addForm.phone) return;
+    if (
+      !addForm.clinicName ||
+      !addForm.email ||
+      !addForm.password ||
+      !addForm.userName ||
+      !addForm.phone
+    )
+      return;
     setIsAdding(true);
     try {
       const { initializeApp, deleteApp } = await import("firebase/app");
-      const { getAuth, createUserWithEmailAndPassword, updateProfile } = await import("firebase/auth");
+      const { getAuth, createUserWithEmailAndPassword, updateProfile } =
+        await import("firebase/auth");
       const { firebaseConfig } = await import("@/lib/firebase");
-      
+
       const secondaryApp = initializeApp(firebaseConfig, "Secondary");
       const secondaryAuth = getAuth(secondaryApp);
-      
-      const userCredential = await createUserWithEmailAndPassword(secondaryAuth, addForm.email, addForm.password);
+
+      const userCredential = await createUserWithEmailAndPassword(
+        secondaryAuth,
+        addForm.email,
+        addForm.password,
+      );
       await updateProfile(userCredential.user, { displayName: addForm.userName });
-      
-      const safeClinicName = addForm.clinicName.replace(/[.#$\[\]\/]/g, '').trim();
+
+      const safeClinicName = addForm.clinicName.replace(/[.#$\[\]\/]/g, "").trim();
       const now = new Date();
-      
+
       await set(ref(db, `carefirst/users/${safeClinicName}/signup`), {
         name: addForm.userName,
         email: addForm.email,
@@ -211,12 +224,19 @@ export function Subscription() {
         uid: userCredential.user.uid,
         createdAt: now.toISOString(),
         trialExpires: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        isActive: addForm.status === "Active"
+        isActive: addForm.status === "Active",
       });
-      
+
       await deleteApp(secondaryApp);
       setShowAddModal(false);
-      setAddForm({ clinicName: "", userName: "", phone: "", email: "", password: "", status: "Trial" });
+      setAddForm({
+        clinicName: "",
+        userName: "",
+        phone: "",
+        email: "",
+        password: "",
+        status: "Trial",
+      });
       fetchUsers();
     } catch (e: any) {
       console.error(e);
@@ -246,7 +266,7 @@ export function Subscription() {
       userName: user.userName,
       phone: user.phone,
       email: user.email,
-      password: user.password || ""
+      password: user.password || "",
     });
   };
 
@@ -259,13 +279,13 @@ export function Subscription() {
         clinic: editForm.clinicName,
         name: editForm.userName,
         phone: editForm.phone,
-        email: editForm.email
+        email: editForm.email,
       };
-      
+
       if (editForm.password.trim() !== "") {
         updates.password = editForm.password;
       }
-      
+
       await update(userRef, updates);
       setEditTarget(null);
     } catch (error) {
@@ -280,11 +300,11 @@ export function Subscription() {
     setSuspending(true);
     try {
       const userRef = ref(db, `carefirst/users/${suspendTarget.clinicKey}/signup`);
-      await update(userRef, { 
+      await update(userRef, {
         suspended: true,
         suspendReason: suspendForm.reason,
         suspendDescription: suspendForm.description,
-        suspendDate: new Date().toISOString()
+        suspendDate: new Date().toISOString(),
       });
       setSuspendTarget(null);
     } catch (error) {
@@ -321,8 +341,14 @@ export function Subscription() {
 
   const SortIcon = ({ field }: { field: keyof UserRecord }) => (
     <span className="ml-1 inline-flex flex-col opacity-40">
-      <ChevronUp size={10} className={sortField === field && sortDir === "asc" ? "opacity-100 text-primary" : ""} />
-      <ChevronDown size={10} className={sortField === field && sortDir === "desc" ? "opacity-100 text-primary" : ""} />
+      <ChevronUp
+        size={10}
+        className={sortField === field && sortDir === "asc" ? "opacity-100 text-primary" : ""}
+      />
+      <ChevronDown
+        size={10}
+        className={sortField === field && sortDir === "desc" ? "opacity-100 text-primary" : ""}
+      />
     </span>
   );
 
@@ -399,7 +425,9 @@ export function Subscription() {
             key={i}
             className={`group relative overflow-hidden rounded-[14px] bg-card p-4 shadow-sm ring-1 ring-border transition-all hover:-translate-y-0.5 hover:shadow-md`}
           >
-            <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 transition-opacity group-hover:opacity-100`} />
+            <div
+              className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 transition-opacity group-hover:opacity-100`}
+            />
             <div className="relative flex items-center gap-3.5">
               <div className={`grid size-10 shrink-0 place-items-center rounded-[10px] ${stat.bg}`}>
                 <stat.icon size={18} className={stat.color} />
@@ -420,7 +448,10 @@ export function Subscription() {
       {/* Filters */}
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
         <div className="relative flex-1 w-full">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Search
+            size={15}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+          />
           <input
             type="text"
             placeholder="Search by clinic, name, email or phone..."
@@ -429,7 +460,10 @@ export function Subscription() {
             className="w-full rounded-[10px] border border-border/40 bg-card py-2.5 pl-9 pr-4 text-[12px] sm:text-[13px] shadow-sm outline-none ring-0 transition focus:border-primary/40 focus:ring-2 focus:ring-primary/10"
           />
           {search && (
-            <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-navy">
+            <button
+              onClick={() => setSearch("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-navy"
+            >
               <X size={14} />
             </button>
           )}
@@ -451,7 +485,10 @@ export function Subscription() {
           />
           {(fromDate || toDate) && (
             <button
-              onClick={() => { setFromDate(""); setToDate(""); }}
+              onClick={() => {
+                setFromDate("");
+                setToDate("");
+              }}
               className="rounded-full p-1.5 text-muted-foreground hover:bg-secondary hover:text-navy transition-colors"
             >
               <X size={13} />
@@ -473,7 +510,9 @@ export function Subscription() {
                   : "border-transparent text-muted-foreground hover:text-navy"
               }`}
             >
-              <span className="text-[12px] sm:text-[13px] font-semibold whitespace-nowrap">All Clinics</span>
+              <span className="text-[12px] sm:text-[13px] font-semibold whitespace-nowrap">
+                All Clinics
+              </span>
               <span
                 className={`rounded-full px-2 py-0.5 text-[10px] sm:text-[11px] font-bold ${
                   activeTab === "all" ? "bg-primary/10" : "bg-secondary"
@@ -490,7 +529,9 @@ export function Subscription() {
                   : "border-transparent text-muted-foreground hover:text-navy"
               }`}
             >
-              <span className="text-[12px] sm:text-[13px] font-semibold whitespace-nowrap">Trial Users</span>
+              <span className="text-[12px] sm:text-[13px] font-semibold whitespace-nowrap">
+                Trial Users
+              </span>
               <span
                 className={`rounded-full px-2 py-0.5 text-[10px] sm:text-[11px] font-bold ${
                   activeTab === "trial" ? "bg-primary/10" : "bg-secondary"
@@ -501,7 +542,9 @@ export function Subscription() {
             </button>
           </div>
           <span className="pb-2 sm:pb-3 text-[11px] sm:text-[12px] text-muted-foreground self-start sm:self-auto">
-            {filtered.length} of {activeTab === "all" ? users.length : users.filter((u) => u.status === "Trial").length} records
+            {filtered.length} of{" "}
+            {activeTab === "all" ? users.length : users.filter((u) => u.status === "Trial").length}{" "}
+            records
           </span>
         </div>
 
@@ -516,13 +559,17 @@ export function Subscription() {
                   className="whitespace-nowrap cursor-pointer px-5 py-3.5 text-left text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/70 hover:text-navy"
                   onClick={() => handleSort("clinicName")}
                 >
-                  <div className="flex items-center gap-1.5">Clinic Name <SortIcon field="clinicName" /></div>
+                  <div className="flex items-center gap-1.5">
+                    Clinic Name <SortIcon field="clinicName" />
+                  </div>
                 </th>
                 <th
                   className="whitespace-nowrap cursor-pointer px-5 py-3.5 text-left text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/70 hover:text-navy"
                   onClick={() => handleSort("userName")}
                 >
-                  <div className="flex items-center gap-1.5">Name <SortIcon field="userName" /></div>
+                  <div className="flex items-center gap-1.5">
+                    Name <SortIcon field="userName" />
+                  </div>
                 </th>
                 <th className="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/70">
                   Mobile Number
@@ -540,7 +587,9 @@ export function Subscription() {
                   className="whitespace-nowrap cursor-pointer px-5 py-3.5 text-left text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/70 hover:text-navy"
                   onClick={() => handleSort("createdAtMs")}
                 >
-                  <div className="flex items-center gap-1.5">Joined <SortIcon field="createdAtMs" /></div>
+                  <div className="flex items-center gap-1.5">
+                    Joined <SortIcon field="createdAtMs" />
+                  </div>
                 </th>
                 <th className="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground/70">
                   Expires
@@ -569,7 +618,9 @@ export function Subscription() {
                         <Search size={20} className="text-muted-foreground" />
                       </div>
                       <p className="text-[14px] font-semibold text-muted-foreground">
-                        {search || fromDate || toDate ? "No records match your filters." : "No registered clinics yet."}
+                        {search || fromDate || toDate
+                          ? "No records match your filters."
+                          : "No registered clinics yet."}
                       </p>
                     </div>
                   </td>
@@ -591,7 +642,9 @@ export function Subscription() {
                           {user.clinicName.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <div className="text-[13px] font-bold text-navy/90">{user.clinicName}</div>
+                          <div className="text-[13px] font-bold text-navy/90">
+                            {user.clinicName}
+                          </div>
                         </div>
                       </div>
                     </td>
@@ -602,7 +655,9 @@ export function Subscription() {
                       <div className="text-[13px] font-medium text-navy/70">{user.phone}</div>
                     </td>
                     <td className="px-5 py-4">
-                      <div className="text-[13px] font-medium text-muted-foreground">{user.email}</div>
+                      <div className="text-[13px] font-medium text-muted-foreground">
+                        {user.email}
+                      </div>
                     </td>
                     <td className="px-5 py-4">{planBadge(user.plan)}</td>
                     <td className="px-5 py-4">{statusBadge(user.status)}</td>
@@ -618,7 +673,9 @@ export function Subscription() {
                       </div>
                     </td>
                     <td className="px-5 py-4">
-                      <div className={`text-[12px] font-bold ${user.status === "Expired" ? "text-destructive" : "text-navy/80"}`}>
+                      <div
+                        className={`text-[12px] font-bold ${user.status === "Expired" ? "text-destructive" : "text-navy/80"}`}
+                      >
                         {user.trialExpires
                           ? new Date(user.trialExpires).toLocaleDateString("en-IN", {
                               day: "numeric",
@@ -648,38 +705,41 @@ export function Subscription() {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              setActiveDropdown(activeDropdown === user.clinicKey ? null : user.clinicKey);
+                              setActiveDropdown(
+                                activeDropdown === user.clinicKey ? null : user.clinicKey,
+                              );
                             }}
                             className="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-all hover:bg-secondary hover:text-navy"
                           >
                             <MoreVertical size={16} />
                           </button>
-                          
+
                           {activeDropdown === user.clinicKey && (
                             <>
-                              <div 
-                                className="fixed inset-0 z-40" 
+                              <div
+                                className="fixed inset-0 z-40"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setActiveDropdown(null);
                                 }}
                               />
                               <div className="absolute right-8 top-0 z-50 w-48 rounded-xl border border-border bg-card p-1.5 shadow-lg animate-in fade-in zoom-in-95">
-                                <button 
+                                <button
                                   onClick={() => setActiveDropdown(null)}
                                   className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium text-navy transition-colors hover:bg-secondary"
                                 >
                                   <Eye size={14} className="text-muted-foreground" /> View Details
                                 </button>
-                                
+
                                 {user.status !== "Suspended" ? (
-                                  <button 
+                                  <button
                                     onClick={() => {
                                       setActiveDropdown(null);
                                       setSuspendTarget(user);
                                       setSuspendForm({
                                         reason: suspendReasons[0],
-                                        description: "Your account has been suspended due to an overdue payment. Please clear the pending dues to restore access."
+                                        description:
+                                          "Your account has been suspended due to an overdue payment. Please clear the pending dues to restore access.",
                                       });
                                     }}
                                     className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium text-orange transition-colors hover:bg-orange/10 hover:text-orange"
@@ -687,16 +747,19 @@ export function Subscription() {
                                     <Ban size={14} className="opacity-70" /> Suspend Account
                                   </button>
                                 ) : (
-                                  <button 
+                                  <button
                                     onClick={async () => {
                                       setActiveDropdown(null);
-                                      const userRef = ref(db, `carefirst/users/${user.clinicKey}/signup`);
-                                      await update(userRef, { 
+                                      const userRef = ref(
+                                        db,
+                                        `carefirst/users/${user.clinicKey}/signup`,
+                                      );
+                                      await update(userRef, {
                                         suspended: false,
                                         suspendReason: null,
                                         suspendDescription: null,
                                         suspendDate: null,
-                                        lastActivatedAt: new Date().getTime()
+                                        lastActivatedAt: new Date().getTime(),
                                       });
                                     }}
                                     className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium text-success transition-colors hover:bg-success/10 hover:text-success"
@@ -704,8 +767,8 @@ export function Subscription() {
                                     <Play size={14} className="opacity-70" /> Activate Account
                                   </button>
                                 )}
-                                
-                                <button 
+
+                                <button
                                   onClick={() => setActiveDropdown(null)}
                                   className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium text-primary transition-colors hover:bg-primary/10 hover:text-primary"
                                 >
@@ -737,10 +800,13 @@ export function Subscription() {
               <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-destructive/10">
                 <Trash2 size={22} className="text-destructive" />
               </div>
-              <h3 className="font-display text-[20px] font-extrabold text-navy/90">Delete Clinic?</h3>
+              <h3 className="font-display text-[20px] font-extrabold text-navy/90">
+                Delete Clinic?
+              </h3>
               <p className="mt-2 text-[14px] font-medium text-muted-foreground">
                 You are about to permanently remove{" "}
-                <span className="font-bold text-navy/90">{deleteTarget.clinicName}</span> and all their data. This action cannot be undone.
+                <span className="font-bold text-navy/90">{deleteTarget.clinicName}</span> and all
+                their data. This action cannot be undone.
               </p>
             </div>
             <div className="flex gap-3 p-6 pt-0">
@@ -774,13 +840,15 @@ export function Subscription() {
               <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-orange/10">
                 <Ban size={22} className="text-orange" />
               </div>
-              <h3 className="font-display text-[20px] font-extrabold text-navy/90">Suspend Account?</h3>
+              <h3 className="font-display text-[20px] font-extrabold text-navy/90">
+                Suspend Account?
+              </h3>
               <p className="mt-2 text-[14px] font-medium text-muted-foreground">
                 Are you sure you want to suspend{" "}
                 <span className="font-bold text-navy/90">{suspendTarget.clinicName}</span>?
               </p>
             </div>
-            
+
             <div className="p-6 pt-2 space-y-4 text-left">
               <div className="space-y-1.5">
                 <label className="text-[13px] font-semibold text-navy">Select Reason</label>
@@ -789,27 +857,42 @@ export function Subscription() {
                   onChange={(e) => {
                     const r = e.target.value;
                     let desc = "";
-                    if (r === "Payment Overdue") desc = "Your account has been suspended due to an overdue payment. Please clear the pending dues to restore access.";
-                    else if (r === "Violation of Terms") desc = "Your account has been suspended due to a violation of our terms of service.";
-                    else if (r === "Security Concern") desc = "Your account has been temporarily suspended due to suspicious activity. Please contact support.";
-                    else if (r === "Requested by Owner") desc = "Your account has been suspended at the request of the clinic owner.";
-                    else desc = "Your account has been suspended. Please contact CareFirst support for more information.";
-                    
+                    if (r === "Payment Overdue")
+                      desc =
+                        "Your account has been suspended due to an overdue payment. Please clear the pending dues to restore access.";
+                    else if (r === "Violation of Terms")
+                      desc =
+                        "Your account has been suspended due to a violation of our terms of service.";
+                    else if (r === "Security Concern")
+                      desc =
+                        "Your account has been temporarily suspended due to suspicious activity. Please contact support.";
+                    else if (r === "Requested by Owner")
+                      desc = "Your account has been suspended at the request of the clinic owner.";
+                    else
+                      desc =
+                        "Your account has been suspended. Please contact CareFirst support for more information.";
+
                     setSuspendForm({ reason: r, description: desc });
                   }}
                   className="w-full rounded-[10px] border border-border bg-background px-4 py-2.5 text-[14px] text-navy focus:border-orange focus:outline-none focus:ring-1 focus:ring-orange"
                 >
-                  {suspendReasons.map(r => (
-                    <option key={r} value={r}>{r}</option>
+                  {suspendReasons.map((r) => (
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
                   ))}
                 </select>
               </div>
               <div className="space-y-1.5">
-                <label className="text-[13px] font-semibold text-navy">Description (Visible to user)</label>
+                <label className="text-[13px] font-semibold text-navy">
+                  Description (Visible to user)
+                </label>
                 <textarea
                   rows={3}
                   value={suspendForm.description}
-                  onChange={(e) => setSuspendForm(prev => ({ ...prev, description: e.target.value }))}
+                  onChange={(e) =>
+                    setSuspendForm((prev) => ({ ...prev, description: e.target.value }))
+                  }
                   className="w-full resize-none rounded-[10px] border border-border bg-background px-4 py-3 text-[14px] text-navy focus:border-orange focus:outline-none focus:ring-1 focus:ring-orange"
                 />
               </div>
@@ -842,7 +925,9 @@ export function Subscription() {
           />
           <div className="relative w-full max-w-[500px] overflow-hidden rounded-[20px] bg-card shadow-2xl">
             <div className="flex items-center justify-between border-b border-border/60 px-6 py-4">
-              <h3 className="font-display text-[18px] font-extrabold text-navy">Edit Clinic Profile</h3>
+              <h3 className="font-display text-[18px] font-extrabold text-navy">
+                Edit Clinic Profile
+              </h3>
               <button
                 onClick={() => setEditTarget(null)}
                 className="rounded-full p-2 text-muted-foreground hover:bg-secondary hover:text-navy transition-colors"
@@ -850,14 +935,14 @@ export function Subscription() {
                 <X size={18} />
               </button>
             </div>
-            
+
             <div className="p-6 space-y-4">
               <div className="space-y-1.5">
                 <label className="text-[13px] font-semibold text-navy">Clinic Name</label>
                 <input
                   type="text"
                   value={editForm.clinicName}
-                  onChange={(e) => setEditForm(prev => ({ ...prev, clinicName: e.target.value }))}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, clinicName: e.target.value }))}
                   className="w-full rounded-[10px] border border-border bg-background px-4 py-2 text-[14px] text-navy focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
@@ -866,7 +951,7 @@ export function Subscription() {
                 <input
                   type="text"
                   value={editForm.userName}
-                  onChange={(e) => setEditForm(prev => ({ ...prev, userName: e.target.value }))}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, userName: e.target.value }))}
                   className="w-full rounded-[10px] border border-border bg-background px-4 py-2 text-[14px] text-navy focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
@@ -875,7 +960,7 @@ export function Subscription() {
                 <input
                   type="text"
                   value={editForm.phone}
-                  onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, phone: e.target.value }))}
                   className="w-full rounded-[10px] border border-border bg-background px-4 py-2 text-[14px] text-navy focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
@@ -884,7 +969,7 @@ export function Subscription() {
                 <input
                   type="email"
                   value={editForm.email}
-                  onChange={(e) => setEditForm(prev => ({ ...prev, email: e.target.value }))}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, email: e.target.value }))}
                   className="w-full rounded-[10px] border border-border bg-background px-4 py-2 text-[14px] text-navy focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
@@ -894,11 +979,12 @@ export function Subscription() {
                   type="text"
                   placeholder="Enter password"
                   value={editForm.password}
-                  onChange={(e) => setEditForm(prev => ({ ...prev, password: e.target.value }))}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, password: e.target.value }))}
                   className="w-full rounded-[10px] border border-border bg-background px-4 py-2 text-[14px] text-navy focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
                 <p className="text-[11px] text-muted-foreground mt-1">
-                  Note: Updating this will save to the database, but Firebase Auth requires a backend Cloud Function to securely apply password changes.
+                  Note: Updating this will save to the database, but Firebase Auth requires a
+                  backend Cloud Function to securely apply password changes.
                 </p>
               </div>
             </div>
@@ -939,14 +1025,14 @@ export function Subscription() {
                 <X size={18} />
               </button>
             </div>
-            
+
             <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 max-h-[70vh] overflow-y-auto">
               <div className="space-y-1.5 sm:col-span-2">
                 <label className="text-[13px] font-semibold text-navy">Clinic Name</label>
                 <input
                   type="text"
                   value={addForm.clinicName}
-                  onChange={(e) => setAddForm(prev => ({ ...prev, clinicName: e.target.value }))}
+                  onChange={(e) => setAddForm((prev) => ({ ...prev, clinicName: e.target.value }))}
                   className="w-full rounded-[10px] border border-border bg-background px-4 py-2 text-[14px] text-navy focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
@@ -955,7 +1041,7 @@ export function Subscription() {
                 <input
                   type="text"
                   value={addForm.userName}
-                  onChange={(e) => setAddForm(prev => ({ ...prev, userName: e.target.value }))}
+                  onChange={(e) => setAddForm((prev) => ({ ...prev, userName: e.target.value }))}
                   className="w-full rounded-[10px] border border-border bg-background px-4 py-2 text-[14px] text-navy focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
@@ -964,7 +1050,7 @@ export function Subscription() {
                 <input
                   type="text"
                   value={addForm.phone}
-                  onChange={(e) => setAddForm(prev => ({ ...prev, phone: e.target.value }))}
+                  onChange={(e) => setAddForm((prev) => ({ ...prev, phone: e.target.value }))}
                   className="w-full rounded-[10px] border border-border bg-background px-4 py-2 text-[14px] text-navy focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
@@ -973,7 +1059,7 @@ export function Subscription() {
                 <input
                   type="email"
                   value={addForm.email}
-                  onChange={(e) => setAddForm(prev => ({ ...prev, email: e.target.value }))}
+                  onChange={(e) => setAddForm((prev) => ({ ...prev, email: e.target.value }))}
                   className="w-full rounded-[10px] border border-border bg-background px-4 py-2 text-[14px] text-navy focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
@@ -982,7 +1068,7 @@ export function Subscription() {
                 <input
                   type="text"
                   value={addForm.password}
-                  onChange={(e) => setAddForm(prev => ({ ...prev, password: e.target.value }))}
+                  onChange={(e) => setAddForm((prev) => ({ ...prev, password: e.target.value }))}
                   className="w-full rounded-[10px] border border-border bg-background px-4 py-2 text-[14px] text-navy focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
@@ -990,7 +1076,7 @@ export function Subscription() {
                 <label className="text-[13px] font-semibold text-navy">Status</label>
                 <select
                   value={addForm.status}
-                  onChange={(e) => setAddForm(prev => ({ ...prev, status: e.target.value }))}
+                  onChange={(e) => setAddForm((prev) => ({ ...prev, status: e.target.value }))}
                   className="w-full rounded-[10px] border border-border bg-background px-4 py-2 text-[14px] text-navy focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 >
                   <option value="Trial">Trial</option>
@@ -1002,7 +1088,11 @@ export function Subscription() {
                 <input
                   type="text"
                   disabled
-                  value={new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                  value={new Date().toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
                   className="w-full rounded-[10px] border border-border bg-secondary/50 px-4 py-2 text-[14px] text-muted-foreground cursor-not-allowed focus:outline-none"
                 />
               </div>

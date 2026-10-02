@@ -15,7 +15,8 @@ function UnderDevelopment() {
         Under Development
       </h1>
       <p className="mt-3 max-w-md text-[15px] leading-relaxed text-muted-foreground font-medium">
-        This module is currently being built. Our engineering team is working hard to bring you this feature very soon.
+        This module is currently being built. Our engineering team is working hard to bring you this
+        feature very soon.
       </p>
     </div>
   );

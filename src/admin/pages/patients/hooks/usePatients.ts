@@ -46,34 +46,83 @@ export function usePatients(clinicKey: string) {
     setLoading(true);
 
     try {
-      const patientsRef = ref(db, `carefirst/users/${clinicKey}/patients`);
-      const snapshot = await get(patientsRef);
+      const indexRef = ref(db, `carefirst/users/${clinicKey}/patient_index`);
+      const snapshot = await get(indexRef);
+      const list: PatientSummary[] = [];
 
       if (snapshot.exists()) {
         const data = snapshot.val();
-        const list: PatientSummary[] = [];
-
         for (const id in data) {
           const p = data[id];
-          const identity = p.identity || {};
-          const contact = p.contact || {};
-          const meta = p.meta || {};
-
           list.push({
             id,
-            uhid: identity.uhid || "",
-            name: identity.name || "",
-            gender: identity.gender || "",
-            dob: identity.dob || "",
-            age: identity.age || "",
-            mobile: contact.mobile || "",
-            department: meta.department || "",
-            doctor: meta.doctor || "",
-            status: meta.status || "active",
-            lastVisit: meta.lastVisit || "",
-            createdAt: meta.createdAt || "",
+            uhid: p.uhid || "",
+            name: p.name || "",
+            gender: p.gender || "",
+            dob: p.dob || "",
+            age: p.age || "",
+            mobile: p.mobile || "",
+            department: p.department || "",
+            doctor: p.doctor || "",
+            status: p.status || "active",
+            lastVisit: p.lastVisit || "",
+            createdAt: p.createdAt || "",
           });
         }
+      } else {
+        // Fallback and auto-migration for legacy data
+        const legacyRef = ref(db, `carefirst/users/${clinicKey}/patients`);
+        const legacySnap = await get(legacyRef);
+        
+        if (legacySnap.exists()) {
+          const data = legacySnap.val();
+          const { update } = await import("firebase/database");
+          const migrationUpdates: any = {};
+
+          for (const id in data) {
+            const p = data[id];
+            const identity = p.identity || {};
+            const contact = p.contact || {};
+            const meta = p.meta || {};
+
+            const summary = {
+              id,
+              uhid: identity.uhid || "",
+              name: identity.name || "",
+              gender: identity.gender || "",
+              dob: identity.dob || "",
+              age: identity.age || "",
+              mobile: contact.mobile || "",
+              department: meta.department || "",
+              doctor: meta.doctor || "",
+              status: meta.status || "active",
+              lastVisit: meta.lastVisit || "",
+              createdAt: meta.createdAt || "",
+            };
+            list.push(summary);
+
+            // Prepare migration update
+            migrationUpdates[`patient_index/${id}`] = {
+              uhid: summary.uhid,
+              name: summary.name,
+              gender: summary.gender,
+              dob: summary.dob,
+              age: summary.age,
+              mobile: summary.mobile,
+              department: summary.department,
+              doctor: summary.doctor,
+              status: summary.status,
+              lastVisit: summary.lastVisit,
+              createdAt: summary.createdAt,
+            };
+          }
+          
+          // Silently run the migration to fix the database going forward
+          update(ref(db, `carefirst/users/${clinicKey}`), migrationUpdates).catch(e => console.error("Auto-migration failed:", e));
+        }
+      }
+
+      if (list.length > 0) {
 
         // Sort by createdAt descending
         list.sort(

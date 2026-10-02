@@ -99,39 +99,47 @@ export function EditPatient() {
     setSaving(true);
     
     try {
-      const updates = {
-        "identity/name": formData.name.trim(),
-        "identity/dob": formData.dobMode === "dob" ? formData.dob : "",
-        "identity/age": formData.dobMode === "age" ? `${formData.approxAge}Y (approx)` : "",
-        "identity/gender": formData.gender,
-        "identity/maritalStatus": formData.maritalStatus,
-        "identity/bloodGroup": formData.bloodGroup,
-        
-        "contact/countryCode": formData.countryCode,
-        "contact/mobile": `${formData.countryCode} ${formData.mobile}`,
-        "contact/email": formData.email,
-        "contact/address": {
-          line1: formData.addressLine1,
-          line2: formData.addressLine2,
-          city: formData.city,
-          state: formData.state,
-          pincode: formData.pincode
-        },
-        
-        "emergency/name": formData.emergencyName,
-        "emergency/relationship": formData.emergencyRelation,
-        "emergency/countryCode": formData.emergencyCountryCode,
-        "emergency/phone": formData.emergencyPhone ? `${formData.emergencyCountryCode} ${formData.emergencyPhone}` : "",
-        
-        "identification/type": formData.govIdType,
-        "identification/number": formData.govIdNumber,
-        
-        "medical/allergies": formData.allergies,
-        "medical/conditions": formData.conditions,
-        "medical/medications": formData.medications,
+      const updates: any = {};
+      
+      // Update main patient record
+      updates[`patients/${patientId}/identity/name`] = formData.name.trim();
+      updates[`patients/${patientId}/identity/dob`] = formData.dobMode === "dob" ? formData.dob : "";
+      updates[`patients/${patientId}/identity/age`] = formData.dobMode === "age" ? `${formData.approxAge}Y (approx)` : "";
+      updates[`patients/${patientId}/identity/gender`] = formData.gender;
+      updates[`patients/${patientId}/identity/maritalStatus`] = formData.maritalStatus;
+      updates[`patients/${patientId}/identity/bloodGroup`] = formData.bloodGroup;
+      
+      updates[`patients/${patientId}/contact/countryCode`] = formData.countryCode;
+      updates[`patients/${patientId}/contact/mobile`] = `${formData.countryCode} ${formData.mobile}`;
+      updates[`patients/${patientId}/contact/email`] = formData.email;
+      updates[`patients/${patientId}/contact/address`] = {
+        line1: formData.addressLine1,
+        line2: formData.addressLine2,
+        city: formData.city,
+        state: formData.state,
+        pincode: formData.pincode
       };
+      
+      updates[`patients/${patientId}/emergency/name`] = formData.emergencyName;
+      updates[`patients/${patientId}/emergency/relationship`] = formData.emergencyRelation;
+      updates[`patients/${patientId}/emergency/countryCode`] = formData.emergencyCountryCode;
+      updates[`patients/${patientId}/emergency/phone`] = formData.emergencyPhone ? `${formData.emergencyCountryCode} ${formData.emergencyPhone}` : "";
+      
+      updates[`patients/${patientId}/identification/type`] = formData.govIdType;
+      updates[`patients/${patientId}/identification/number`] = formData.govIdNumber;
+      
+      updates[`patients/${patientId}/medical/allergies`] = formData.allergies;
+      updates[`patients/${patientId}/medical/conditions`] = formData.conditions;
+      updates[`patients/${patientId}/medical/medications`] = formData.medications;
 
-      await update(ref(db, `carefirst/users/${clinicKey}/patients/${patientId}`), updates);
+      // Update patient_index record synchronously
+      updates[`patient_index/${patientId}/name`] = formData.name.trim();
+      updates[`patient_index/${patientId}/dob`] = formData.dobMode === "dob" ? formData.dob : "";
+      updates[`patient_index/${patientId}/age`] = formData.dobMode === "age" ? `${formData.approxAge}Y (approx)` : "";
+      updates[`patient_index/${patientId}/gender`] = formData.gender;
+      updates[`patient_index/${patientId}/mobile`] = `${formData.countryCode} ${formData.mobile}`;
+
+      await update(ref(db, `carefirst/users/${clinicKey}`), updates);
       
       navigate({ to: "/admin/patients/$patientId", params: { patientId } });
     } catch (err) {

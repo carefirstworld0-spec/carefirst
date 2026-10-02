@@ -10,12 +10,31 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as SuperadminRouteImport } from './routes/superadmin'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminSplatRouteImport } from './routes/admin/$'
+import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
+import { Route as AdminTrashRouteImport } from './routes/admin/trash'
+import { Route as SuperadminIndexRouteImport } from './routes/superadmin/index'
+import { Route as SuperadminSplatRouteImport } from './routes/superadmin/$'
+import { Route as SuperadminSubscriptionRouteImport } from './routes/superadmin/subscription'
+import { Route as SuperadminWhiteLabelRouteImport } from './routes/superadmin/white-label'
+import { Route as SuperadminLoginRouteImport } from './routes/superadmin_.login'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -23,40 +42,201 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SuperadminRoute = SuperadminRouteImport.update({
+  id: '/superadmin',
+  path: '/superadmin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSplatRoute = AdminSplatRouteImport.update({
+  id: '/$',
+  path: '/$',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminTrashRoute = AdminTrashRouteImport.update({
+  id: '/trash',
+  path: '/trash',
+  getParentRoute: () => AdminRoute,
+} as any)
+const SuperadminIndexRoute = SuperadminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminSplatRoute = SuperadminSplatRouteImport.update({
+  id: '/$',
+  path: '/$',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminSubscriptionRoute = SuperadminSubscriptionRouteImport.update({
+  id: '/subscription',
+  path: '/subscription',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminWhiteLabelRoute = SuperadminWhiteLabelRouteImport.update({
+  id: '/white-label',
+  path: '/white-label',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminLoginRoute = SuperadminLoginRouteImport.update({
+  id: '/superadmin_/login',
+  path: '/superadmin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
+  '/superadmin': typeof SuperadminRouteWithChildren
+  '/terms': typeof TermsRoute
+  '/admin/$': typeof AdminSplatRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/trash': typeof AdminTrashRoute
+  '/superadmin/$': typeof SuperadminSplatRoute
+  '/superadmin/subscription': typeof SuperadminSubscriptionRoute
+  '/superadmin/white-label': typeof SuperadminWhiteLabelRoute
+  '/superadmin/login': typeof SuperadminLoginRoute
+  '/admin/': typeof AdminIndexRoute
+  '/superadmin/': typeof SuperadminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
+  '/terms': typeof TermsRoute
+  '/admin/$': typeof AdminSplatRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/trash': typeof AdminTrashRoute
+  '/superadmin/$': typeof SuperadminSplatRoute
+  '/superadmin/subscription': typeof SuperadminSubscriptionRoute
+  '/superadmin/white-label': typeof SuperadminWhiteLabelRoute
+  '/superadmin/login': typeof SuperadminLoginRoute
+  '/admin': typeof AdminIndexRoute
+  '/superadmin': typeof SuperadminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
+  '/superadmin': typeof SuperadminRouteWithChildren
+  '/terms': typeof TermsRoute
+  '/admin/$': typeof AdminSplatRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/trash': typeof AdminTrashRoute
+  '/superadmin/$': typeof SuperadminSplatRoute
+  '/superadmin/subscription': typeof SuperadminSubscriptionRoute
+  '/superadmin/white-label': typeof SuperadminWhiteLabelRoute
+  '/superadmin_/login': typeof SuperadminLoginRoute
+  '/admin/': typeof AdminIndexRoute
+  '/superadmin/': typeof SuperadminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/signup'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/dashboard'
+    | '/login'
+    | '/privacy'
+    | '/signup'
+    | '/superadmin'
+    | '/terms'
+    | '/admin/$'
+    | '/admin/settings'
+    | '/admin/trash'
+    | '/superadmin/$'
+    | '/superadmin/subscription'
+    | '/superadmin/white-label'
+    | '/superadmin/login'
+    | '/admin/'
+    | '/superadmin/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/signup'
-  id: '__root__' | '/' | '/dashboard' | '/signup'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/privacy'
+    | '/signup'
+    | '/terms'
+    | '/admin/$'
+    | '/admin/settings'
+    | '/admin/trash'
+    | '/superadmin/$'
+    | '/superadmin/subscription'
+    | '/superadmin/white-label'
+    | '/superadmin/login'
+    | '/admin'
+    | '/superadmin'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/dashboard'
+    | '/login'
+    | '/privacy'
+    | '/signup'
+    | '/superadmin'
+    | '/terms'
+    | '/admin/$'
+    | '/admin/settings'
+    | '/admin/trash'
+    | '/superadmin/$'
+    | '/superadmin/subscription'
+    | '/superadmin/white-label'
+    | '/superadmin_/login'
+    | '/admin/'
+    | '/superadmin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
   DashboardRoute: typeof DashboardRoute
+  LoginRoute: typeof LoginRoute
+  PrivacyRoute: typeof PrivacyRoute
   SignupRoute: typeof SignupRoute
+  SuperadminRoute: typeof SuperadminRouteWithChildren
+  TermsRoute: typeof TermsRoute
+  SuperadminLoginRoute: typeof SuperadminLoginRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -68,11 +248,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/signup': {
@@ -82,13 +283,130 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/superadmin': {
+      id: '/superadmin'
+      path: '/superadmin'
+      fullPath: '/superadmin'
+      preLoaderRoute: typeof SuperadminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/$': {
+      id: '/admin/$'
+      path: '/$'
+      fullPath: '/admin/$'
+      preLoaderRoute: typeof AdminSplatRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/trash': {
+      id: '/admin/trash'
+      path: '/trash'
+      fullPath: '/admin/trash'
+      preLoaderRoute: typeof AdminTrashRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/superadmin/': {
+      id: '/superadmin/'
+      path: '/'
+      fullPath: '/superadmin/'
+      preLoaderRoute: typeof SuperadminIndexRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/$': {
+      id: '/superadmin/$'
+      path: '/$'
+      fullPath: '/superadmin/$'
+      preLoaderRoute: typeof SuperadminSplatRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/subscription': {
+      id: '/superadmin/subscription'
+      path: '/subscription'
+      fullPath: '/superadmin/subscription'
+      preLoaderRoute: typeof SuperadminSubscriptionRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/white-label': {
+      id: '/superadmin/white-label'
+      path: '/white-label'
+      fullPath: '/superadmin/white-label'
+      preLoaderRoute: typeof SuperadminWhiteLabelRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin_/login': {
+      id: '/superadmin_/login'
+      path: '/superadmin/login'
+      fullPath: '/superadmin/login'
+      preLoaderRoute: typeof SuperadminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface AdminRouteChildren {
+  AdminSplatRoute: typeof AdminSplatRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminTrashRoute: typeof AdminTrashRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminSplatRoute: AdminSplatRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
+  AdminTrashRoute: AdminTrashRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
+interface SuperadminRouteChildren {
+  SuperadminSplatRoute: typeof SuperadminSplatRoute
+  SuperadminSubscriptionRoute: typeof SuperadminSubscriptionRoute
+  SuperadminWhiteLabelRoute: typeof SuperadminWhiteLabelRoute
+  SuperadminIndexRoute: typeof SuperadminIndexRoute
+}
+
+const SuperadminRouteChildren: SuperadminRouteChildren = {
+  SuperadminSplatRoute: SuperadminSplatRoute,
+  SuperadminSubscriptionRoute: SuperadminSubscriptionRoute,
+  SuperadminWhiteLabelRoute: SuperadminWhiteLabelRoute,
+  SuperadminIndexRoute: SuperadminIndexRoute,
+}
+
+const SuperadminRouteWithChildren = SuperadminRoute._addFileChildren(
+  SuperadminRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
   DashboardRoute: DashboardRoute,
+  LoginRoute: LoginRoute,
+  PrivacyRoute: PrivacyRoute,
   SignupRoute: SignupRoute,
+  SuperadminRoute: SuperadminRouteWithChildren,
+  TermsRoute: TermsRoute,
+  SuperadminLoginRoute: SuperadminLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

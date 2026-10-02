@@ -32,31 +32,49 @@ function DashboardPage() {
         {/* Sidebar */}
         <aside className="hidden w-64 flex-col border-r border-border bg-background px-4 py-6 md:flex h-[calc(100vh-65px)] sticky top-[65px]">
           <nav className="space-y-2 flex-1">
-            <a href="#" className="flex items-center gap-3 rounded-lg bg-primary/10 px-3 py-2 text-primary font-medium">
+            <a
+              href="#"
+              className="flex items-center gap-3 rounded-lg bg-primary/10 px-3 py-2 text-primary font-medium"
+            >
               <BarChart3 size={18} /> Dashboard
             </a>
-            <a href="#" className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
+            <a
+              href="#"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+            >
               <CalendarDays size={18} /> Appointments
             </a>
-            <a href="#" className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
+            <a
+              href="#"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+            >
               <Users size={18} /> Patients
             </a>
-            <a href="#" className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
+            <a
+              href="#"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+            >
               <Settings size={18} /> Settings
             </a>
           </nav>
-          
+
           <div className="mt-auto rounded-lg border border-border bg-secondary p-4">
             <h4 className="text-sm font-bold text-navy">7-Day Free Trial</h4>
-            <p className="mt-1 text-xs text-muted-foreground">You have 7 days left in your trial.</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              You have 7 days left in your trial.
+            </p>
           </div>
         </aside>
 
         {/* Main Content */}
         <main className="flex-1 p-6 md:p-8">
           <div className="mb-6">
-            <h1 className="font-display text-2xl font-bold text-navy">Welcome to your Demo Account!</h1>
-            <p className="text-sm text-muted-foreground">Here is a quick overview of your clinic today.</p>
+            <h1 className="font-display text-2xl font-bold text-navy">
+              Welcome to your Demo Account!
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Here is a quick overview of your clinic today.
+            </p>
           </div>
 
           {/* Stats Grid */}
@@ -74,27 +92,31 @@ function DashboardPage() {
               </div>
             ))}
           </div>
-          
+
           {/* Recent Activity */}
           <div className="mt-8 rounded-xl border border-border bg-background shadow-sm">
             <div className="border-b border-border px-6 py-4">
               <h3 className="font-display font-bold text-navy">Recent Appointments</h3>
             </div>
             <div className="divide-y divide-border">
-              {["Ananya S. - 10:00 AM", "Rahul P. - 11:30 AM", "Priya K. - 01:15 PM"].map((appt, i) => (
-                <div key={i} className="flex items-center justify-between px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <span className="grid size-10 place-items-center rounded-full bg-secondary text-primary font-bold">
-                      {appt[0]}
-                    </span>
-                    <div>
-                      <p className="text-sm font-medium text-navy">{appt.split(' - ')[0]}</p>
-                      <p className="text-xs text-muted-foreground">General Checkup</p>
+              {["Ananya S. - 10:00 AM", "Rahul P. - 11:30 AM", "Priya K. - 01:15 PM"].map(
+                (appt, i) => (
+                  <div key={i} className="flex items-center justify-between px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <span className="grid size-10 place-items-center rounded-full bg-secondary text-primary font-bold">
+                        {appt[0]}
+                      </span>
+                      <div>
+                        <p className="text-sm font-medium text-navy">{appt.split(" - ")[0]}</p>
+                        <p className="text-xs text-muted-foreground">General Checkup</p>
+                      </div>
                     </div>
+                    <span className="text-sm font-medium text-muted-foreground">
+                      {appt.split(" - ")[1]}
+                    </span>
                   </div>
-                  <span className="text-sm font-medium text-muted-foreground">{appt.split(' - ')[1]}</span>
-                </div>
-              ))}
+                ),
+              )}
             </div>
           </div>
         </main>

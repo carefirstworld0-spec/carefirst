@@ -18,7 +18,7 @@ export function TrashPage() {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
-  const clinicKey = localStorage.getItem("user_clinic") || "";
+  const clinicKey = typeof window !== 'undefined' ? localStorage.getItem("user_clinic") || "" : "";
 
   useEffect(() => {
     if (!clinicKey) return;

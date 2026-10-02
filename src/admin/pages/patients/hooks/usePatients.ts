@@ -9,6 +9,7 @@ import {
   endAt,
   onValue,
   get,
+  remove,
 } from "firebase/database";
 
 export type PatientSummary = {
@@ -33,17 +34,61 @@ const PAGE_SIZE = 20;
  * Fetches patients in pages from Firebase, supports search by name/mobile/UHID.
  */
 export function usePatients(clinicKey: string) {
-  const [patients, setPatients] = useState<PatientSummary[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [totalCount, setTotalCount] = useState(0);
+  // Initialize state from cache for instant load
+  const [patients, setPatients] = useState<PatientSummary[]>(() => {
+    if (typeof window !== "undefined" && clinicKey) {
+      const cached = sessionStorage.getItem(`patients_${clinicKey}`);
+      if (cached) {
+        try {
+          return JSON.parse(cached).slice(0, PAGE_SIZE);
+        } catch (e) {}
+      }
+    }
+    return [];
+  });
+  
+  const [totalCount, setTotalCount] = useState(() => {
+    if (typeof window !== "undefined" && clinicKey) {
+      const cached = sessionStorage.getItem(`patients_${clinicKey}`);
+      if (cached) {
+        try {
+          return JSON.parse(cached).length;
+        } catch (e) {}
+      }
+    }
+    return 0;
+  });
+
+  const [loading, setLoading] = useState(() => {
+    // If we have cached data, don't show the initial loading spinner
+    if (typeof window !== "undefined" && clinicKey) {
+      return !sessionStorage.getItem(`patients_${clinicKey}`);
+    }
+    return true;
+  });
+  
   const [page, setPage] = useState(1);
   const allPatientsRef = useRef<PatientSummary[]>([]);
+
+  // Initialize ref from cache on first render
+  if (allPatientsRef.current.length === 0 && typeof window !== "undefined" && clinicKey) {
+    const cached = sessionStorage.getItem(`patients_${clinicKey}`);
+    if (cached) {
+      try {
+        allPatientsRef.current = JSON.parse(cached);
+      } catch (e) {}
+    }
+  }
 
   // Fetch all patients once (for a single clinic the count is manageable)
   // and do client-side pagination + search for responsiveness
   const fetchPatients = useCallback(async () => {
     if (!clinicKey) return;
-    setLoading(true);
+    
+    // Only set loading if we don't already have data in ref
+    if (allPatientsRef.current.length === 0) {
+      setLoading(true);
+    }
 
     try {
       const indexRef = ref(db, `carefirst/users/${clinicKey}/patient_index`);
@@ -128,10 +173,24 @@ export function usePatients(clinicKey: string) {
         // Sort by createdAt descending
         list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem(`patients_${clinicKey}`, JSON.stringify(list));
+        }
+
         allPatientsRef.current = list;
         setTotalCount(list.length);
-        setPatients(list.slice(0, PAGE_SIZE));
+        
+        // Only update current page items if we're on page 1 and not searching
+        setPatients(prev => {
+           // To avoid overwriting search results, we just refresh the whole view
+           // A more robust app might merge, but for now we'll just reset to page 1 list
+           return list.slice(0, PAGE_SIZE);
+        });
+        setPage(1);
       } else {
+        if (typeof window !== "undefined") {
+          sessionStorage.removeItem(`patients_${clinicKey}`);
+        }
         allPatientsRef.current = [];
         setPatients([]);
         setTotalCount(0);
@@ -186,6 +245,26 @@ export function usePatients(clinicKey: string) {
     setPage(p);
   }, []);
 
+  const deletePatient = useCallback(async (patientId: string) => {
+    if (!clinicKey) return false;
+    try {
+      const indexRef = ref(db, `carefirst/users/${clinicKey}/patient_index/${patientId}`);
+      await remove(indexRef);
+      
+      const fullRef = ref(db, `carefirst/users/${clinicKey}/patients/${patientId}`);
+      await remove(fullRef);
+      
+      allPatientsRef.current = allPatientsRef.current.filter(p => p.id !== patientId);
+      setPatients(prev => prev.filter(p => p.id !== patientId));
+      setTotalCount(prev => prev - 1);
+      
+      return true;
+    } catch (err) {
+      console.error("Failed to delete patient:", err);
+      return false;
+    }
+  }, [clinicKey]);
+
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
   return {
@@ -197,6 +276,7 @@ export function usePatients(clinicKey: string) {
     search,
     goToPage,
     refetch: fetchPatients,
+    deletePatient,
     pageSize: PAGE_SIZE,
   };
 }

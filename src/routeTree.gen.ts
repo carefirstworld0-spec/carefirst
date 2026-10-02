@@ -34,6 +34,7 @@ import { Route as AdminPatientsPatientIdRouteImport } from './routes/admin/patie
 import { Route as AdminPatientsNewRouteImport } from './routes/admin/patients.new'
 import { Route as AdminPatientsQuickRouteImport } from './routes/admin/patients.quick'
 import { Route as SuperadminSubscriptionClinicIdRouteImport } from './routes/superadmin/subscription.$clinicId'
+import { Route as AdminPatientsPatientIdIndexRouteImport } from './routes/admin/patients.$patientId.index'
 import { Route as AdminPatientsPatientIdEditRouteImport } from './routes/admin/patients.$patientId.edit'
 
 const IndexRoute = IndexRouteImport.update({
@@ -162,6 +163,12 @@ const SuperadminSubscriptionClinicIdRoute =
     path: '/$clinicId',
     getParentRoute: () => SuperadminSubscriptionRoute,
   } as any)
+const AdminPatientsPatientIdIndexRoute =
+  AdminPatientsPatientIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AdminPatientsPatientIdRoute,
+  } as any)
 const AdminPatientsPatientIdEditRoute =
   AdminPatientsPatientIdEditRouteImport.update({
     id: '/edit',
@@ -196,6 +203,7 @@ export interface FileRoutesByFullPath {
   '/superadmin/subscription/$clinicId': typeof SuperadminSubscriptionClinicIdRoute
   '/admin/patients/': typeof AdminPatientsIndexRoute
   '/admin/patients/$patientId/edit': typeof AdminPatientsPatientIdEditRoute
+  '/admin/patients/$patientId/': typeof AdminPatientsPatientIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -215,12 +223,12 @@ export interface FileRoutesByTo {
   '/superadmin/login': typeof SuperadminLoginRoute
   '/admin': typeof AdminIndexRoute
   '/superadmin': typeof SuperadminIndexRoute
-  '/admin/patients/$patientId': typeof AdminPatientsPatientIdRouteWithChildren
   '/admin/patients/new': typeof AdminPatientsNewRoute
   '/admin/patients/quick': typeof AdminPatientsQuickRoute
   '/superadmin/subscription/$clinicId': typeof SuperadminSubscriptionClinicIdRoute
   '/admin/patients': typeof AdminPatientsIndexRoute
   '/admin/patients/$patientId/edit': typeof AdminPatientsPatientIdEditRoute
+  '/admin/patients/$patientId': typeof AdminPatientsPatientIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -250,6 +258,7 @@ export interface FileRoutesById {
   '/superadmin/subscription/$clinicId': typeof SuperadminSubscriptionClinicIdRoute
   '/admin/patients/': typeof AdminPatientsIndexRoute
   '/admin/patients/$patientId/edit': typeof AdminPatientsPatientIdEditRoute
+  '/admin/patients/$patientId/': typeof AdminPatientsPatientIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -280,6 +289,7 @@ export interface FileRouteTypes {
     | '/superadmin/subscription/$clinicId'
     | '/admin/patients/'
     | '/admin/patients/$patientId/edit'
+    | '/admin/patients/$patientId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -299,12 +309,12 @@ export interface FileRouteTypes {
     | '/superadmin/login'
     | '/admin'
     | '/superadmin'
-    | '/admin/patients/$patientId'
     | '/admin/patients/new'
     | '/admin/patients/quick'
     | '/superadmin/subscription/$clinicId'
     | '/admin/patients'
     | '/admin/patients/$patientId/edit'
+    | '/admin/patients/$patientId'
   id:
     | '__root__'
     | '/'
@@ -333,6 +343,7 @@ export interface FileRouteTypes {
     | '/superadmin/subscription/$clinicId'
     | '/admin/patients/'
     | '/admin/patients/$patientId/edit'
+    | '/admin/patients/$patientId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -524,6 +535,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SuperadminSubscriptionClinicIdRouteImport
       parentRoute: typeof SuperadminSubscriptionRoute
     }
+    '/admin/patients/$patientId/': {
+      id: '/admin/patients/$patientId/'
+      path: '/'
+      fullPath: '/admin/patients/$patientId/'
+      preLoaderRoute: typeof AdminPatientsPatientIdIndexRouteImport
+      parentRoute: typeof AdminPatientsPatientIdRoute
+    }
     '/admin/patients/$patientId/edit': {
       id: '/admin/patients/$patientId/edit'
       path: '/edit'
@@ -536,11 +554,13 @@ declare module '@tanstack/react-router' {
 
 interface AdminPatientsPatientIdRouteChildren {
   AdminPatientsPatientIdEditRoute: typeof AdminPatientsPatientIdEditRoute
+  AdminPatientsPatientIdIndexRoute: typeof AdminPatientsPatientIdIndexRoute
 }
 
 const AdminPatientsPatientIdRouteChildren: AdminPatientsPatientIdRouteChildren =
   {
     AdminPatientsPatientIdEditRoute: AdminPatientsPatientIdEditRoute,
+    AdminPatientsPatientIdIndexRoute: AdminPatientsPatientIdIndexRoute,
   }
 
 const AdminPatientsPatientIdRouteWithChildren =

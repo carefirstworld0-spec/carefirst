@@ -7,11 +7,24 @@ export function Dashboard() {
   const [trialExpires, setTrialExpires] = useState<string | null>(null);
   const [daysLeft, setDaysLeft] = useState<number | null>(null);
   const [isExpired, setIsExpired] = useState(false);
-  const [stats, setStats] = useState({
-    patients: 0,
-    appointments: 0,
-    revenue: 0,
-    staff: 0,
+  const [stats, setStats] = useState(() => {
+    if (typeof window !== "undefined") {
+      const clinicKey = localStorage.getItem("user_clinic");
+      if (clinicKey) {
+        const cached = sessionStorage.getItem(`dash_stats_${clinicKey}`);
+        if (cached) {
+          try {
+            return JSON.parse(cached);
+          } catch (e) {}
+        }
+      }
+    }
+    return {
+      patients: 0,
+      appointments: 0,
+      revenue: 0,
+      staff: 0,
+    };
   });
 
   useEffect(() => {
@@ -56,13 +69,21 @@ export function Dashboard() {
         const clinicRef = ref(db, `carefirst/users/${clinicKey}`);
 
         const unsubPatients = onValue(child(clinicRef, "patients"), (snap) => {
-          setStats((s) => ({ ...s, patients: snap.exists() ? Object.keys(snap.val()).length : 0 }));
+          setStats((s) => {
+            const next = { ...s, patients: snap.exists() ? Object.keys(snap.val()).length : 0 };
+            sessionStorage.setItem(`dash_stats_${clinicKey}`, JSON.stringify(next));
+            return next;
+          });
         });
         const unsubAppointments = onValue(child(clinicRef, "appointments"), (snap) => {
-          setStats((s) => ({
-            ...s,
-            appointments: snap.exists() ? Object.keys(snap.val()).length : 0,
-          }));
+          setStats((s) => {
+            const next = {
+              ...s,
+              appointments: snap.exists() ? Object.keys(snap.val()).length : 0,
+            };
+            sessionStorage.setItem(`dash_stats_${clinicKey}`, JSON.stringify(next));
+            return next;
+          });
         });
         const unsubPayments = onValue(child(clinicRef, "payments"), (snap) => {
           let total = 0;
@@ -71,10 +92,18 @@ export function Dashboard() {
               if (p.amount) total += Number(p.amount);
             });
           }
-          setStats((s) => ({ ...s, revenue: total }));
+          setStats((s) => {
+            const next = { ...s, revenue: total };
+            sessionStorage.setItem(`dash_stats_${clinicKey}`, JSON.stringify(next));
+            return next;
+          });
         });
         const unsubStaff = onValue(child(clinicRef, "staff"), (snap) => {
-          setStats((s) => ({ ...s, staff: snap.exists() ? Object.keys(snap.val()).length : 0 }));
+          setStats((s) => {
+            const next = { ...s, staff: snap.exists() ? Object.keys(snap.val()).length : 0 };
+            sessionStorage.setItem(`dash_stats_${clinicKey}`, JSON.stringify(next));
+            return next;
+          });
         });
 
         return () => {
@@ -91,7 +120,7 @@ export function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between animate-in fade-in slide-in-from-left-4 duration-500 ease-out">
         <h1 className="text-[24px] font-extrabold tracking-tight text-navy font-display">
           Dashboard Overview
         </h1>
@@ -100,20 +129,25 @@ export function Dashboard() {
       {/* Trial Plan Alert */}
       {trialExpires && (
         <div
-          className={`flex flex-col sm:flex-row items-start gap-3 sm:gap-4 rounded-[12px] p-3 sm:p-4 shadow-sm border ${isExpired
-              ? "bg-destructive/10 border-destructive/20 text-destructive"
-              : "bg-orange/10 border-orange/20 text-orange"
-            }`}
+          className={`flex flex-col sm:flex-row items-start gap-3 sm:gap-4 rounded-[12px] p-3 sm:p-4 border animate-in fade-in zoom-in-[0.98] slide-in-from-top-3 duration-700 ease-out fill-mode-both ${
+            isExpired
+              ? "bg-destructive/10 border-destructive/20 text-destructive shadow-sm"
+              : "bg-orange/10 border-orange/20 text-orange shadow-[0_0_15px_rgba(249,115,22,0.15)]"
+          }`}
         >
           <div className="flex gap-3 sm:gap-4 w-full sm:w-auto flex-1">
             <div
-              className={`mt-0.5 grid size-7 sm:size-8 shrink-0 place-items-center rounded-full ${isExpired ? "bg-destructive/20" : "bg-orange/20"
-                }`}
+              className={`mt-0.5 grid size-7 sm:size-8 shrink-0 place-items-center rounded-full relative ${
+                isExpired ? "bg-destructive/20" : "bg-orange/20"
+              }`}
             >
+              {!isExpired && (
+                <span className="absolute inset-0 rounded-full bg-orange/40 animate-ping opacity-75" style={{ animationDuration: '3s' }}></span>
+              )}
               {isExpired ? (
-                <AlertCircle size={14} className="sm:w-[18px] sm:h-[18px]" />
+                <AlertCircle size={14} className="sm:w-[18px] sm:h-[18px] relative z-10" />
               ) : (
-                <Clock size={14} className="sm:w-[18px] sm:h-[18px]" />
+                <Clock size={14} className="sm:w-[18px] sm:h-[18px] relative z-10" />
               )}
             </div>
             <div className="flex-1">
@@ -128,7 +162,7 @@ export function Dashboard() {
             </div>
           </div>
           {!isExpired && (
-            <button className="w-full sm:w-auto shrink-0 rounded-[8px] bg-orange px-3 py-2 text-[12.5px] sm:text-[12px] font-bold text-white shadow-md transition-all hover:-translate-y-0.5 hover:bg-orange/90">
+            <button className="w-full sm:w-auto shrink-0 rounded-[8px] bg-orange px-3 py-2 text-[12.5px] sm:text-[12px] font-bold text-white shadow-md transition-all hover:-translate-y-0.5 hover:bg-orange/90 hover:shadow-lg animate-in fade-in slide-in-from-right-4 duration-500 delay-300 fill-mode-both">
               Upgrade Now
             </button>
           )}
@@ -136,7 +170,7 @@ export function Dashboard() {
       )}
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {/* Real-time stats cards */}
-        <div className="rounded-[12px] sm:rounded-[16px] border border-border bg-card p-3 sm:p-5 shadow-sm ring-1 ring-border/50">
+        <div className="rounded-[12px] sm:rounded-[16px] border border-border bg-card p-3 sm:p-5 shadow-sm ring-1 ring-border/50 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100 fill-mode-both hover:-translate-y-1 transition-transform">
           <div className="text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider sm:tracking-widest text-muted-foreground truncate">
             Total Patients
           </div>
@@ -144,7 +178,7 @@ export function Dashboard() {
             {stats.patients.toLocaleString()}
           </div>
         </div>
-        <div className="rounded-[12px] sm:rounded-[16px] border border-border bg-card p-3 sm:p-5 shadow-sm ring-1 ring-border/50">
+        <div className="rounded-[12px] sm:rounded-[16px] border border-border bg-card p-3 sm:p-5 shadow-sm ring-1 ring-border/50 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200 fill-mode-both hover:-translate-y-1 transition-transform">
           <div className="text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider sm:tracking-widest text-muted-foreground truncate">
             Appointments
           </div>
@@ -152,7 +186,7 @@ export function Dashboard() {
             {stats.appointments.toLocaleString()}
           </div>
         </div>
-        <div className="rounded-[12px] sm:rounded-[16px] border border-border bg-card p-3 sm:p-5 shadow-sm ring-1 ring-border/50">
+        <div className="rounded-[12px] sm:rounded-[16px] border border-border bg-card p-3 sm:p-5 shadow-sm ring-1 ring-border/50 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300 fill-mode-both hover:-translate-y-1 transition-transform">
           <div className="text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider sm:tracking-widest text-muted-foreground truncate">
             Revenue (Month)
           </div>
@@ -160,7 +194,7 @@ export function Dashboard() {
             ₹{stats.revenue.toLocaleString("en-IN")}
           </div>
         </div>
-        <div className="rounded-[12px] sm:rounded-[16px] border border-border bg-card p-3 sm:p-5 shadow-sm ring-1 ring-border/50">
+        <div className="rounded-[12px] sm:rounded-[16px] border border-border bg-card p-3 sm:p-5 shadow-sm ring-1 ring-border/50 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-500 fill-mode-both hover:-translate-y-1 transition-transform">
           <div className="text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider sm:tracking-widest text-muted-foreground truncate">
             Active Staff
           </div>
@@ -170,7 +204,7 @@ export function Dashboard() {
         </div>
       </div>
 
-      <div className="rounded-[16px] border border-border bg-card p-6 shadow-sm ring-1 ring-border/50 min-h-[400px]">
+      <div className="rounded-[16px] border border-border bg-card p-6 shadow-sm ring-1 ring-border/50 min-h-[400px] animate-in fade-in slide-in-from-bottom-8 duration-700 delay-700 fill-mode-both">
         <h3 className="font-display text-[15px] font-bold text-navy mb-4">Recent Activity</h3>
         <p className="text-[13px] font-medium text-muted-foreground">
           Welcome to your new CareFirst admin panel. Activity logs will appear here once your staff

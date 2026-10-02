@@ -96,6 +96,7 @@ function SignupPage() {
         email,
         phone,
         clinic,
+        password,
         uid: user.uid,
         createdAt: new Date().toISOString(),
         trialExpires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),

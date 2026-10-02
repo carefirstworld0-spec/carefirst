@@ -20,7 +20,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminSplatRouteImport } from './routes/admin/$'
 import { Route as AdminAppointmentsRouteImport } from './routes/admin/appointments'
-import { Route as AdminPatientsRouteImport } from './routes/admin/patients'
+import { Route as AdminNewTokenRouteImport } from './routes/admin/new-token'
 import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
 import { Route as AdminTrashRouteImport } from './routes/admin/trash'
 import { Route as SuperadminIndexRouteImport } from './routes/superadmin/index'
@@ -28,12 +28,6 @@ import { Route as SuperadminSplatRouteImport } from './routes/superadmin/$'
 import { Route as SuperadminSubscriptionRouteImport } from './routes/superadmin/subscription'
 import { Route as SuperadminWhiteLabelRouteImport } from './routes/superadmin/white-label'
 import { Route as SuperadminLoginRouteImport } from './routes/superadmin_.login'
-import { Route as AdminPatientsIndexRouteImport } from './routes/admin/patients.index'
-import { Route as AdminPatientsPatientIdRouteImport } from './routes/admin/patients.$patientId'
-import { Route as AdminPatientsNewRouteImport } from './routes/admin/patients.new'
-import { Route as AdminPatientsQuickRouteImport } from './routes/admin/patients.quick'
-import { Route as SuperadminSubscriptionClinicIdRouteImport } from './routes/superadmin/subscription.$clinicId'
-import { Route as AdminPatientsPatientIdEditRouteImport } from './routes/admin/patients.$patientId.edit'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -90,9 +84,9 @@ const AdminAppointmentsRoute = AdminAppointmentsRouteImport.update({
   path: '/appointments',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminPatientsRoute = AdminPatientsRouteImport.update({
-  id: '/patients',
-  path: '/patients',
+const AdminNewTokenRoute = AdminNewTokenRouteImport.update({
+  id: '/new-token',
+  path: '/new-token',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminSettingsRoute = AdminSettingsRouteImport.update({
@@ -130,38 +124,6 @@ const SuperadminLoginRoute = SuperadminLoginRouteImport.update({
   path: '/superadmin/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminPatientsIndexRoute = AdminPatientsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AdminPatientsRoute,
-} as any)
-const AdminPatientsPatientIdRoute = AdminPatientsPatientIdRouteImport.update({
-  id: '/$patientId',
-  path: '/$patientId',
-  getParentRoute: () => AdminPatientsRoute,
-} as any)
-const AdminPatientsNewRoute = AdminPatientsNewRouteImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => AdminPatientsRoute,
-} as any)
-const AdminPatientsQuickRoute = AdminPatientsQuickRouteImport.update({
-  id: '/quick',
-  path: '/quick',
-  getParentRoute: () => AdminPatientsRoute,
-} as any)
-const SuperadminSubscriptionClinicIdRoute =
-  SuperadminSubscriptionClinicIdRouteImport.update({
-    id: '/$clinicId',
-    path: '/$clinicId',
-    getParentRoute: () => SuperadminSubscriptionRoute,
-  } as any)
-const AdminPatientsPatientIdEditRoute =
-  AdminPatientsPatientIdEditRouteImport.update({
-    id: '/edit',
-    path: '/edit',
-    getParentRoute: () => AdminPatientsPatientIdRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -174,21 +136,15 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/admin/$': typeof AdminSplatRoute
   '/admin/appointments': typeof AdminAppointmentsRoute
-  '/admin/patients': typeof AdminPatientsRouteWithChildren
+  '/admin/new-token': typeof AdminNewTokenRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/trash': typeof AdminTrashRoute
   '/superadmin/$': typeof SuperadminSplatRoute
-  '/superadmin/subscription': typeof SuperadminSubscriptionRouteWithChildren
+  '/superadmin/subscription': typeof SuperadminSubscriptionRoute
   '/superadmin/white-label': typeof SuperadminWhiteLabelRoute
   '/superadmin/login': typeof SuperadminLoginRoute
   '/admin/': typeof AdminIndexRoute
   '/superadmin/': typeof SuperadminIndexRoute
-  '/admin/patients/$patientId': typeof AdminPatientsPatientIdRouteWithChildren
-  '/admin/patients/new': typeof AdminPatientsNewRoute
-  '/admin/patients/quick': typeof AdminPatientsQuickRoute
-  '/superadmin/subscription/$clinicId': typeof SuperadminSubscriptionClinicIdRoute
-  '/admin/patients/': typeof AdminPatientsIndexRoute
-  '/admin/patients/$patientId/edit': typeof AdminPatientsPatientIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -199,20 +155,15 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/admin/$': typeof AdminSplatRoute
   '/admin/appointments': typeof AdminAppointmentsRoute
+  '/admin/new-token': typeof AdminNewTokenRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/trash': typeof AdminTrashRoute
   '/superadmin/$': typeof SuperadminSplatRoute
-  '/superadmin/subscription': typeof SuperadminSubscriptionRouteWithChildren
+  '/superadmin/subscription': typeof SuperadminSubscriptionRoute
   '/superadmin/white-label': typeof SuperadminWhiteLabelRoute
   '/superadmin/login': typeof SuperadminLoginRoute
   '/admin': typeof AdminIndexRoute
   '/superadmin': typeof SuperadminIndexRoute
-  '/admin/patients/$patientId': typeof AdminPatientsPatientIdRouteWithChildren
-  '/admin/patients/new': typeof AdminPatientsNewRoute
-  '/admin/patients/quick': typeof AdminPatientsQuickRoute
-  '/superadmin/subscription/$clinicId': typeof SuperadminSubscriptionClinicIdRoute
-  '/admin/patients': typeof AdminPatientsIndexRoute
-  '/admin/patients/$patientId/edit': typeof AdminPatientsPatientIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -226,21 +177,15 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/admin/$': typeof AdminSplatRoute
   '/admin/appointments': typeof AdminAppointmentsRoute
-  '/admin/patients': typeof AdminPatientsRouteWithChildren
+  '/admin/new-token': typeof AdminNewTokenRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/trash': typeof AdminTrashRoute
   '/superadmin/$': typeof SuperadminSplatRoute
-  '/superadmin/subscription': typeof SuperadminSubscriptionRouteWithChildren
+  '/superadmin/subscription': typeof SuperadminSubscriptionRoute
   '/superadmin/white-label': typeof SuperadminWhiteLabelRoute
   '/superadmin_/login': typeof SuperadminLoginRoute
   '/admin/': typeof AdminIndexRoute
   '/superadmin/': typeof SuperadminIndexRoute
-  '/admin/patients/$patientId': typeof AdminPatientsPatientIdRouteWithChildren
-  '/admin/patients/new': typeof AdminPatientsNewRoute
-  '/admin/patients/quick': typeof AdminPatientsQuickRoute
-  '/superadmin/subscription/$clinicId': typeof SuperadminSubscriptionClinicIdRoute
-  '/admin/patients/': typeof AdminPatientsIndexRoute
-  '/admin/patients/$patientId/edit': typeof AdminPatientsPatientIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -255,7 +200,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/admin/$'
     | '/admin/appointments'
-    | '/admin/patients'
+    | '/admin/new-token'
     | '/admin/settings'
     | '/admin/trash'
     | '/superadmin/$'
@@ -264,12 +209,6 @@ export interface FileRouteTypes {
     | '/superadmin/login'
     | '/admin/'
     | '/superadmin/'
-    | '/admin/patients/$patientId'
-    | '/admin/patients/new'
-    | '/admin/patients/quick'
-    | '/superadmin/subscription/$clinicId'
-    | '/admin/patients/'
-    | '/admin/patients/$patientId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -280,6 +219,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/admin/$'
     | '/admin/appointments'
+    | '/admin/new-token'
     | '/admin/settings'
     | '/admin/trash'
     | '/superadmin/$'
@@ -288,12 +228,6 @@ export interface FileRouteTypes {
     | '/superadmin/login'
     | '/admin'
     | '/superadmin'
-    | '/admin/patients/$patientId'
-    | '/admin/patients/new'
-    | '/admin/patients/quick'
-    | '/superadmin/subscription/$clinicId'
-    | '/admin/patients'
-    | '/admin/patients/$patientId/edit'
   id:
     | '__root__'
     | '/'
@@ -306,7 +240,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/admin/$'
     | '/admin/appointments'
-    | '/admin/patients'
+    | '/admin/new-token'
     | '/admin/settings'
     | '/admin/trash'
     | '/superadmin/$'
@@ -315,12 +249,6 @@ export interface FileRouteTypes {
     | '/superadmin_/login'
     | '/admin/'
     | '/superadmin/'
-    | '/admin/patients/$patientId'
-    | '/admin/patients/new'
-    | '/admin/patients/quick'
-    | '/superadmin/subscription/$clinicId'
-    | '/admin/patients/'
-    | '/admin/patients/$patientId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -414,11 +342,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAppointmentsRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/patients': {
-      id: '/admin/patients'
-      path: '/patients'
-      fullPath: '/admin/patients'
-      preLoaderRoute: typeof AdminPatientsRouteImport
+    '/admin/new-token': {
+      id: '/admin/new-token'
+      path: '/new-token'
+      fullPath: '/admin/new-token'
+      preLoaderRoute: typeof AdminNewTokenRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/settings': {
@@ -470,87 +398,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SuperadminLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/patients/': {
-      id: '/admin/patients/'
-      path: '/'
-      fullPath: '/admin/patients/'
-      preLoaderRoute: typeof AdminPatientsIndexRouteImport
-      parentRoute: typeof AdminPatientsRoute
-    }
-    '/admin/patients/$patientId': {
-      id: '/admin/patients/$patientId'
-      path: '/$patientId'
-      fullPath: '/admin/patients/$patientId'
-      preLoaderRoute: typeof AdminPatientsPatientIdRouteImport
-      parentRoute: typeof AdminPatientsRoute
-    }
-    '/admin/patients/new': {
-      id: '/admin/patients/new'
-      path: '/new'
-      fullPath: '/admin/patients/new'
-      preLoaderRoute: typeof AdminPatientsNewRouteImport
-      parentRoute: typeof AdminPatientsRoute
-    }
-    '/admin/patients/quick': {
-      id: '/admin/patients/quick'
-      path: '/quick'
-      fullPath: '/admin/patients/quick'
-      preLoaderRoute: typeof AdminPatientsQuickRouteImport
-      parentRoute: typeof AdminPatientsRoute
-    }
-    '/superadmin/subscription/$clinicId': {
-      id: '/superadmin/subscription/$clinicId'
-      path: '/$clinicId'
-      fullPath: '/superadmin/subscription/$clinicId'
-      preLoaderRoute: typeof SuperadminSubscriptionClinicIdRouteImport
-      parentRoute: typeof SuperadminSubscriptionRoute
-    }
-    '/admin/patients/$patientId/edit': {
-      id: '/admin/patients/$patientId/edit'
-      path: '/edit'
-      fullPath: '/admin/patients/$patientId/edit'
-      preLoaderRoute: typeof AdminPatientsPatientIdEditRouteImport
-      parentRoute: typeof AdminPatientsPatientIdRoute
-    }
   }
 }
-
-interface AdminPatientsPatientIdRouteChildren {
-  AdminPatientsPatientIdEditRoute: typeof AdminPatientsPatientIdEditRoute
-}
-
-const AdminPatientsPatientIdRouteChildren: AdminPatientsPatientIdRouteChildren =
-  {
-    AdminPatientsPatientIdEditRoute: AdminPatientsPatientIdEditRoute,
-  }
-
-const AdminPatientsPatientIdRouteWithChildren =
-  AdminPatientsPatientIdRoute._addFileChildren(
-    AdminPatientsPatientIdRouteChildren,
-  )
-
-interface AdminPatientsRouteChildren {
-  AdminPatientsPatientIdRoute: typeof AdminPatientsPatientIdRouteWithChildren
-  AdminPatientsNewRoute: typeof AdminPatientsNewRoute
-  AdminPatientsQuickRoute: typeof AdminPatientsQuickRoute
-  AdminPatientsIndexRoute: typeof AdminPatientsIndexRoute
-}
-
-const AdminPatientsRouteChildren: AdminPatientsRouteChildren = {
-  AdminPatientsPatientIdRoute: AdminPatientsPatientIdRouteWithChildren,
-  AdminPatientsNewRoute: AdminPatientsNewRoute,
-  AdminPatientsQuickRoute: AdminPatientsQuickRoute,
-  AdminPatientsIndexRoute: AdminPatientsIndexRoute,
-}
-
-const AdminPatientsRouteWithChildren = AdminPatientsRoute._addFileChildren(
-  AdminPatientsRouteChildren,
-)
 
 interface AdminRouteChildren {
   AdminSplatRoute: typeof AdminSplatRoute
   AdminAppointmentsRoute: typeof AdminAppointmentsRoute
-  AdminPatientsRoute: typeof AdminPatientsRouteWithChildren
+  AdminNewTokenRoute: typeof AdminNewTokenRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminTrashRoute: typeof AdminTrashRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -559,7 +413,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminSplatRoute: AdminSplatRoute,
   AdminAppointmentsRoute: AdminAppointmentsRoute,
-  AdminPatientsRoute: AdminPatientsRouteWithChildren,
+  AdminNewTokenRoute: AdminNewTokenRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminTrashRoute: AdminTrashRoute,
   AdminIndexRoute: AdminIndexRoute,
@@ -567,30 +421,16 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
-interface SuperadminSubscriptionRouteChildren {
-  SuperadminSubscriptionClinicIdRoute: typeof SuperadminSubscriptionClinicIdRoute
-}
-
-const SuperadminSubscriptionRouteChildren: SuperadminSubscriptionRouteChildren =
-  {
-    SuperadminSubscriptionClinicIdRoute: SuperadminSubscriptionClinicIdRoute,
-  }
-
-const SuperadminSubscriptionRouteWithChildren =
-  SuperadminSubscriptionRoute._addFileChildren(
-    SuperadminSubscriptionRouteChildren,
-  )
-
 interface SuperadminRouteChildren {
   SuperadminSplatRoute: typeof SuperadminSplatRoute
-  SuperadminSubscriptionRoute: typeof SuperadminSubscriptionRouteWithChildren
+  SuperadminSubscriptionRoute: typeof SuperadminSubscriptionRoute
   SuperadminWhiteLabelRoute: typeof SuperadminWhiteLabelRoute
   SuperadminIndexRoute: typeof SuperadminIndexRoute
 }
 
 const SuperadminRouteChildren: SuperadminRouteChildren = {
   SuperadminSplatRoute: SuperadminSplatRoute,
-  SuperadminSubscriptionRoute: SuperadminSubscriptionRouteWithChildren,
+  SuperadminSubscriptionRoute: SuperadminSubscriptionRoute,
   SuperadminWhiteLabelRoute: SuperadminWhiteLabelRoute,
   SuperadminIndexRoute: SuperadminIndexRoute,
 }

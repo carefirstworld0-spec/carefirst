@@ -364,7 +364,12 @@ function HomePage() {
               </a>
             ))}
           </nav>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <Button variant="outline" size="sm" asChild className="hidden sm:inline-flex border-navy text-navy font-bold hover:bg-navy hover:text-white transition-colors">
+              <a href="/login">
+                Log In
+              </a>
+            </Button>
             <Button variant="orange" size="sm" asChild className="hidden sm:inline-flex">
               <a href="/signup">
                 Get Free Demo <ArrowUpRight />
@@ -396,13 +401,22 @@ function HomePage() {
                 {n.label}
               </a>
             ))}
-            <a
-              href="/signup"
-              onClick={() => setMenuOpen(false)}
-              className="py-2.5 text-base font-semibold text-primary"
-            >
-              Get Free Demo
-            </a>
+            <div className="mt-3 flex flex-col gap-2">
+              <a
+                href="/login"
+                onClick={() => setMenuOpen(false)}
+                className="block w-full rounded-md border-2 border-navy py-2.5 text-center text-base font-bold text-navy transition-colors hover:bg-navy hover:text-white"
+              >
+                Log In
+              </a>
+              <a
+                href="/signup"
+                onClick={() => setMenuOpen(false)}
+                className="block w-full rounded-md bg-orange py-2.5 text-center text-base font-bold text-white transition-colors hover:bg-orange/90"
+              >
+                Get Free Demo
+              </a>
+            </div>
           </nav>
         )}
       </header>
@@ -1327,7 +1341,7 @@ function HomePage() {
       </footer>
       <div className="fixed bottom-5 right-5 z-40">
         <a
-          href="https://wa.me/917201069892?text=I%20am%20interested"
+          href="https://api.whatsapp.com/send?text=I%20am%20interested"
           target="_blank"
           rel="noopener noreferrer"
           aria-label="WhatsApp chat"

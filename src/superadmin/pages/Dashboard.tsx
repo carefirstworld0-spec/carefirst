@@ -43,6 +43,7 @@ const alertIcon = (type: string) => {
 export function SuperAdminDashboard() {
   const [totalClinics, setTotalClinics] = useState(0);
   const [recentRegs, setRecentRegs] = useState<any[]>([]);
+  const [popupRegs, setPopupRegs] = useState<any[]>([]);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [uptimeStr, setUptimeStr] = useState("Calculating...");
 
@@ -88,15 +89,17 @@ export function SuperAdminDashboard() {
         setTotalClinics(count);
         regs.sort((a, b) => b.createdAtMs - a.createdAtMs);
         setRecentRegs(regs.slice(0, 5));
+
+        const lastViewed = parseInt(localStorage.getItem("superAdminLastViewedMs") || "0", 10);
+        const newRegs = regs.filter((r) => r.createdAtMs > lastViewed);
+        
+        if (newRegs.length > 0) {
+          setPopupRegs(newRegs.slice(0, 5));
+          setShowWelcomeModal(true);
+        }
       }
     };
     fetchData();
-
-    // Show popup once per session
-    if (!sessionStorage.getItem("superAdminWelcomeShown")) {
-      setShowWelcomeModal(true);
-      sessionStorage.setItem("superAdminWelcomeShown", "true");
-    }
 
     return () => clearInterval(interval);
   }, []);
@@ -154,8 +157,13 @@ export function SuperAdminDashboard() {
   return (
     <div className="space-y-8">
       {/* Welcome Modal */}
-      <Dialog open={showWelcomeModal} onOpenChange={setShowWelcomeModal}>
-        <DialogContent className="max-w-[900px] p-0 overflow-hidden border-0 shadow-2xl rounded-[24px]">
+      <Dialog open={showWelcomeModal} onOpenChange={(open) => {
+        setShowWelcomeModal(open);
+        if (!open && popupRegs.length > 0) {
+          localStorage.setItem("superAdminLastViewedMs", popupRegs[0].createdAtMs.toString());
+        }
+      }}>
+        <DialogContent className="max-w-[900px] p-0 overflow-hidden border-0 shadow-2xl rounded-[24px] [&>button]:text-white">
           <div className="bg-gradient-to-br from-navy to-[#1a4a6e] p-8 text-white relative overflow-hidden">
             <div className="absolute top-0 right-0 p-8 opacity-10 rotate-12 scale-150 transform translate-x-12 -translate-y-12">
               <Building2 size={180} />
@@ -182,7 +190,7 @@ export function SuperAdminDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {recentRegs.length > 0 ? recentRegs.slice(0, 5).map((reg, i) => (
+                    {popupRegs.length > 0 ? popupRegs.map((reg, i) => (
                       <tr key={i} className="border-b border-border/20 last:border-0 hover:bg-secondary/10 transition-colors">
                         <td className="px-6 py-4.5">
                           <div className="text-[14px] font-bold text-navy">{reg.name}</div>
@@ -219,7 +227,12 @@ export function SuperAdminDashboard() {
             </div>
             <div className="mt-8 flex justify-end">
               <button
-                onClick={() => setShowWelcomeModal(false)}
+                onClick={() => {
+                  setShowWelcomeModal(false);
+                  if (popupRegs.length > 0) {
+                    localStorage.setItem("superAdminLastViewedMs", popupRegs[0].createdAtMs.toString());
+                  }
+                }}
                 className="px-8 py-3 rounded-[12px] bg-navy text-white text-[14px] font-bold hover:bg-navy/90 transition-all shadow-lg hover:-translate-y-0.5"
               >
                 Continue to Dashboard

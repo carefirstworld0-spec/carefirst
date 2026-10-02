@@ -76,9 +76,9 @@ export function SuperAdminLayout() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-40 flex h-full flex-col bg-card border-r border-border shadow-[4px_0_24px_rgba(15,23,42,0.02)] transition-all duration-300 lg:static lg:z-auto lg:translate-x-0 relative ${
-          mobileOpen ? "translate-x-0 w-[260px]" : "-translate-x-full"
-        } ${isCollapsed ? "lg:w-[80px]" : "lg:w-[260px]"}`}
+        className={`fixed inset-y-0 left-0 z-40 flex h-full flex-col bg-card border-r border-border shadow-[4px_0_24px_rgba(15,23,42,0.02)] transition-all duration-300 lg:relative ${
+          mobileOpen ? "translate-x-0 w-[260px]" : "-translate-x-full lg:translate-x-0"
+        } ${!mobileOpen && isCollapsed ? "lg:w-[80px]" : "lg:w-[260px]"}`}
       >
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}

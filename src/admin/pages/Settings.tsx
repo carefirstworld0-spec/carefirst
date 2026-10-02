@@ -109,7 +109,7 @@ export function SettingsPage() {
             {/* Logo Section */}
             <div>
               <h3 className="text-[14px] font-bold text-navy mb-4">Clinic Logo</h3>
-              <div className="flex items-center gap-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
                 <div className="relative group size-24 shrink-0 overflow-hidden rounded-[16px] border-2 border-dashed border-border bg-secondary/50 transition-colors hover:bg-secondary">
                   {formData.logoUrl ? (
                     <img src={formData.logoUrl} alt="Clinic Logo" className="size-full object-cover" />

@@ -1,5 +1,5 @@
 import { Outlet, Link, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, Users, Calendar, FileText, Settings, LogOut, PanelLeftClose, PanelLeftOpen, ChevronLeft, ChevronRight, Trash2, Ban, CheckCircle2 } from "lucide-react";
+import { LayoutDashboard, Users, Calendar, FileText, Settings, LogOut, PanelLeftClose, PanelLeftOpen, ChevronLeft, ChevronRight, Trash2, Ban, CheckCircle2, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
 import { ref, get, child, onValue, off } from "firebase/database";
@@ -7,9 +7,10 @@ import { ref, get, child, onValue, off } from "firebase/database";
 export function AdminLayout() {
   const navigate = useNavigate();
   
-  const [userName, setUserName] = useState(() => localStorage.getItem("user_name") || "Loading...");
-  const [clinicName, setClinicName] = useState(() => localStorage.getItem("user_clinic") || "");
+  const [userName, setUserName] = useState(() => typeof window !== 'undefined' ? localStorage.getItem("user_name") || "Loading..." : "Loading...");
+  const [clinicName, setClinicName] = useState(() => typeof window !== 'undefined' ? localStorage.getItem("user_clinic") || "" : "");
   const [initials, setInitials] = useState(() => {
+    if (typeof window === 'undefined') return "AU";
     const name = localStorage.getItem("user_name");
     if (name) {
       const nameParts = name.trim().split(" ");
@@ -30,6 +31,7 @@ export function AdminLayout() {
   const [suspendReason, setSuspendReason] = useState("");
   const [suspendDate, setSuspendDate] = useState("");
   const [showActivatedScreen, setShowActivatedScreen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const uid = localStorage.getItem("user_uid");
@@ -103,16 +105,24 @@ export function AdminLayout() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-secondary/30 font-sans">
+    <div className="flex h-screen overflow-hidden bg-secondary/30 font-sans relative">
+      {/* Mobile overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-navy/20 z-30 md:hidden backdrop-blur-sm"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+      
       {/* Sidebar */}
-      <div className={`flex flex-col border-r border-border bg-background transition-all duration-300 relative ${isCollapsed ? 'w-[80px]' : 'w-[260px]'}`}>
+      <div className={`flex flex-col border-r border-border bg-background transition-all duration-300 fixed inset-y-0 left-0 z-40 md:relative ${isMobileMenuOpen ? 'translate-x-0 w-[260px]' : '-translate-x-full md:translate-x-0'} ${!isMobileMenuOpen && isCollapsed ? 'md:w-[80px]' : 'md:w-[260px]'}`}>
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="absolute -right-3 top-[26px] z-50 hidden lg:flex size-6 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-sm hover:text-navy hover:bg-secondary focus:outline-none transition-transform hover:scale-110"
         >
           {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
         </button>
-        <div className={`flex h-[72px] items-center border-b border-border transition-all duration-300 overflow-hidden whitespace-nowrap ${isCollapsed ? 'px-0 justify-center' : 'px-6'}`}>
+        <div className={`flex h-[72px] items-center border-b border-border transition-all duration-300 overflow-hidden whitespace-nowrap ${isCollapsed ? 'px-0 justify-center' : 'px-6 justify-between'}`}>
           {!isCollapsed ? (
             <Link to="/" className="font-display text-xl font-bold text-navy">
               CareFirst <span className="text-primary">Clinic</span>
@@ -121,6 +131,14 @@ export function AdminLayout() {
             <Link to="/" className="font-display text-xl font-bold text-primary">
               C<span className="text-navy">F</span>
             </Link>
+          )}
+          {isMobileMenuOpen && (
+            <button
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="md:hidden text-muted-foreground hover:text-navy transition-colors p-1 -mr-2"
+            >
+              <X size={20} />
+            </button>
           )}
         </div>
 
@@ -139,6 +157,7 @@ export function AdminLayout() {
             <Link
               to="/admin"
               exact
+              onClick={() => setIsMobileMenuOpen(false)}
               className={`flex items-center rounded-[8px] text-[14px] font-medium text-navy/70 transition-colors hover:bg-secondary hover:text-navy ${isCollapsed ? 'justify-center size-[42px] mx-auto' : 'gap-3 px-3 py-2.5 w-full'}`}
               activeProps={{ className: "!text-primary !bg-primary/10 !font-semibold" }}
               title={isCollapsed ? "Dashboard" : undefined}
@@ -149,6 +168,7 @@ export function AdminLayout() {
 
             <Link
               to="/admin/appointments"
+              onClick={() => setIsMobileMenuOpen(false)}
               className={`flex items-center rounded-[8px] text-[14px] font-medium text-navy/70 transition-colors hover:bg-secondary hover:text-navy ${isCollapsed ? 'justify-center size-[42px] mx-auto' : 'gap-3 px-3 py-2.5 w-full'}`}
               activeProps={{ className: "!text-primary !bg-primary/10 !font-semibold" }}
               title={isCollapsed ? "Appointments" : undefined}
@@ -159,6 +179,7 @@ export function AdminLayout() {
 
             <Link
               to="/admin/patients"
+              onClick={() => setIsMobileMenuOpen(false)}
               className={`flex items-center rounded-[8px] text-[14px] font-medium text-navy/70 transition-colors hover:bg-secondary hover:text-navy ${isCollapsed ? 'justify-center size-[42px] mx-auto' : 'gap-3 px-3 py-2.5 w-full'}`}
               activeProps={{ className: "!text-primary !bg-primary/10 !font-semibold" }}
               title={isCollapsed ? "Patients" : undefined}
@@ -169,6 +190,7 @@ export function AdminLayout() {
 
             <Link
               to="/admin/billing"
+              onClick={() => setIsMobileMenuOpen(false)}
               className={`flex items-center rounded-[8px] text-[14px] font-medium text-navy/70 transition-colors hover:bg-secondary hover:text-navy ${isCollapsed ? 'justify-center size-[42px] mx-auto' : 'gap-3 px-3 py-2.5 w-full'}`}
               activeProps={{ className: "!text-primary !bg-primary/10 !font-semibold" }}
               title={isCollapsed ? "Billing" : undefined}
@@ -179,6 +201,7 @@ export function AdminLayout() {
 
             <Link
               to="/admin/settings"
+              onClick={() => setIsMobileMenuOpen(false)}
               className={`flex items-center rounded-[8px] text-[14px] font-medium text-navy/70 transition-colors hover:bg-secondary hover:text-navy ${isCollapsed ? 'justify-center size-[42px] mx-auto' : 'gap-3 px-3 py-2.5 w-full'}`}
               activeProps={{ className: "!text-primary !bg-primary/10" }}
               title={isCollapsed ? "Settings" : undefined}
@@ -190,6 +213,7 @@ export function AdminLayout() {
             <div className="pt-2 mt-2 border-t border-border/50">
               <Link
                 to="/admin/trash"
+                onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center rounded-[8px] text-[14px] font-medium text-navy/70 transition-colors hover:bg-destructive/10 hover:text-destructive ${isCollapsed ? 'justify-center size-[42px] mx-auto' : 'gap-3 px-3 py-2.5 w-full'}`}
                 activeProps={{ className: "!text-destructive !bg-destructive/10 !font-semibold" }}
                 title={isCollapsed ? "Trash" : undefined}
@@ -238,19 +262,27 @@ export function AdminLayout() {
       {/* Main Content */}
       <div className="flex flex-1 flex-col overflow-hidden transition-all duration-300">
         {/* Topbar */}
-        <header className="flex h-[72px] shrink-0 items-center justify-between border-b border-border bg-card px-8">
-          <div className="font-display text-[16px] font-bold text-navy">
-            Welcome back, {userName !== "Loading..." && userName !== "Admin User" ? userName : "Doctor"} 👋
+        <header className="flex h-[72px] shrink-0 items-center justify-between border-b border-border bg-card px-4 md:px-8">
+          <div className="flex items-center gap-3">
+            <button 
+              className="md:hidden p-2 -ml-2 text-navy hover:bg-secondary rounded-lg"
+              onClick={() => setIsMobileMenuOpen(true)}
+            >
+              <Menu size={20} />
+            </button>
+            <div className="font-display text-[14px] md:text-[16px] font-bold text-navy truncate max-w-[120px] sm:max-w-xs md:max-w-none">
+              Welcome, {userName !== "Loading..." && userName !== "Admin User" ? userName : "Doctor"} 👋
+            </div>
           </div>
-          <div className="flex items-center gap-6 relative">
-            <div className="hidden items-center gap-2 rounded-[10px] bg-secondary/30 px-3 py-1.5 shadow-sm ring-1 ring-border/50 sm:flex">
-              <Calendar size={14} className="text-primary/70" />
-              <span className="text-[12px] font-semibold text-muted-foreground">
+          <div className="flex items-center gap-4 md:gap-6 relative">
+            <div className="flex items-center gap-1.5 sm:gap-2 rounded-[8px] sm:rounded-[10px] bg-secondary/30 px-2 sm:px-3 py-1 sm:py-1.5 shadow-sm ring-1 ring-border/50">
+              <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-primary/70" />
+              <span className="text-[10.5px] sm:text-[12px] font-semibold text-muted-foreground whitespace-nowrap">
                 {new Date().toLocaleDateString("en-IN", {
                   weekday: "short",
                   day: "numeric",
                   month: "short",
-                  year: "numeric",
+                  year: "2-digit",
                 })}
               </span>
             </div>
@@ -297,7 +329,7 @@ export function AdminLayout() {
         </header>
 
         {/* Page content */}
-        <main className="relative flex-1 overflow-y-auto p-8 bg-background">
+        <main className="relative flex-1 overflow-y-auto p-4 md:p-8 bg-background">
           {(isExpired || isSuspended) ? (
             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm">
               <div className="mx-auto max-w-md text-center">

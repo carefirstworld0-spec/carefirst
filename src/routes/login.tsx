@@ -75,7 +75,7 @@ function AdminLogin() {
         {/* Background Image */}
         <div 
           className="absolute inset-0 w-full h-full bg-cover bg-center"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1581056771107-24ca5f033842?q=80&w=2940&auto=format&fit=crop')" }}
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1581056771107-24ca5f033842?q=70&w=1200&auto=format&fit=crop')" }}
         />
       </div>
 

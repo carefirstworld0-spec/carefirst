@@ -16,7 +16,7 @@ import {
   Pill,
   FlaskConical,
 
-  
+
   Activity,
   ScrollText,
   Menu,
@@ -26,19 +26,44 @@ import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
 import { ref, get, child, onValue, off } from "firebase/database";
 
+function useTypewriter(text: string, speed: number = 80) {
+  const [displayedText, setDisplayedText] = useState("");
+
+  useEffect(() => {
+    setDisplayedText("");
+    if (!text) return;
+
+    let i = 0;
+    const timer = setInterval(() => {
+      setDisplayedText(text.substring(0, i + 1));
+      i++;
+      if (i >= text.length) {
+        clearInterval(timer);
+      }
+    }, speed);
+
+    return () => clearInterval(timer);
+  }, [text, speed]);
+
+  return displayedText;
+}
+
 export function AdminLayout() {
   const navigate = useNavigate();
 
   const [userName, setUserName] = useState(() =>
     typeof window !== "undefined"
-      ? localStorage.getItem("user_name") || "Loading..."
-      : "Loading...",
+      ? localStorage.getItem("user_name") || ""
+      : "",
   );
   const [clinicName, setClinicName] = useState(() =>
-    typeof window !== "undefined" ? localStorage.getItem("user_clinic") || "" : "",
+    typeof window !== "undefined" ? localStorage.getItem("user_clinic_name") || "" : "",
+  );
+  const [logoUrl, setLogoUrl] = useState(() =>
+    typeof window !== "undefined" ? localStorage.getItem("user_logo") || "" : "",
   );
   const [initials, setInitials] = useState(() => {
-    if (typeof window === "undefined") return "AU";
+    if (typeof window === "undefined") return "";
     const name = localStorage.getItem("user_name");
     if (name) {
       const nameParts = name.trim().split(" ");
@@ -48,8 +73,11 @@ export function AdminLayout() {
         return nameParts[0].substring(0, 2).toUpperCase();
       }
     }
-    return "AU";
+    return "";
   });
+
+  const typedUserName = useTypewriter(userName, 100);
+  const typedClinicName = useTypewriter(clinicName, 100);
 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -84,6 +112,14 @@ export function AdminLayout() {
           }
           if (data.clinic) {
             setClinicName(data.clinic);
+            localStorage.setItem("user_clinic_name", data.clinic);
+          }
+          if (data.logoUrl) {
+            setLogoUrl(data.logoUrl);
+            localStorage.setItem("user_logo", data.logoUrl);
+          } else {
+            setLogoUrl("");
+            localStorage.removeItem("user_logo");
           }
 
           if (data.trialExpires) {
@@ -123,18 +159,12 @@ export function AdminLayout() {
               }
             }
           }
-        } else {
-          setUserName("Admin User");
-          setInitials("AU");
         }
       });
 
       return () => {
         off(userRef);
       };
-    } else {
-      setUserName("Admin User");
-      setInitials("AU");
     }
   }, []);
 
@@ -167,12 +197,27 @@ export function AdminLayout() {
           className={`flex h-[72px] items-center border-b border-border transition-all duration-300 overflow-hidden whitespace-nowrap ${isCollapsed ? "px-0 justify-center" : "px-6 justify-between"}`}
         >
           {!isCollapsed ? (
-            <Link to="/" className="font-display text-xl font-bold text-navy">
-              CareFirst <span className="text-primary">Clinic</span>
+            <Link to="/" className="flex items-center max-w-full overflow-hidden">
+              {logoUrl ? (
+                <img src={logoUrl} alt="Clinic Logo" className="max-h-[40px] max-w-[200px] object-contain" />
+              ) : (
+                <span className="font-display text-lg font-bold text-navy truncate" title={clinicName}>
+                  {typedClinicName}
+                </span>
+              )}
             </Link>
           ) : (
-            <Link to="/" className="font-display text-xl font-bold text-primary">
-              C<span className="text-navy">F</span>
+            <Link to="/" className="flex justify-center w-full">
+              {logoUrl ? (
+                <img src={logoUrl} alt="Logo" className="max-h-8 max-w-[40px] object-contain" />
+              ) : (
+                <span className="font-display text-xl font-bold text-primary">
+                  {clinicName ? clinicName.charAt(0).toUpperCase() : ""}
+                  <span className="text-navy">
+                    {clinicName && clinicName.split(" ").length > 1 ? clinicName.split(" ")[1].charAt(0).toUpperCase() : ""}
+                  </span>
+                </span>
+              )}
             </Link>
           )}
           {isMobileMenuOpen && (
@@ -315,9 +360,9 @@ export function AdminLayout() {
                 {initials}
               </div>
               <div className="min-w-0">
-                <div className="truncate text-[13px] font-semibold text-navy">{userName}</div>
+                <div className="truncate text-[13px] font-semibold text-navy">{typedUserName}</div>
                 <div className="truncate text-[11px] text-muted-foreground">
-                  {clinicName || "Loading..."}
+                  {typedClinicName}
                 </div>
               </div>
             </div>
@@ -352,8 +397,7 @@ export function AdminLayout() {
               <Menu size={20} />
             </button>
             <div className="font-display text-[14px] md:text-[16px] font-bold text-navy truncate max-w-[120px] sm:max-w-xs md:max-w-none">
-              Welcome,{" "}
-              {userName !== "Loading..." && userName !== "Admin User" ? userName : "Doctor"} 👋
+              Welcome, {typedUserName || "..."} 👋
             </div>
           </div>
           <div className="flex items-center gap-4 md:gap-6 relative">
@@ -372,7 +416,7 @@ export function AdminLayout() {
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
                 <div className="text-[13px] font-bold text-navy">
-                  {userName !== "Loading..." ? userName : "Admin User"}
+                  {typedUserName}
                 </div>
                 <div className="text-[11px] text-muted-foreground">Admin</div>
               </div>

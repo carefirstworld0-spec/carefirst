@@ -23,6 +23,7 @@ import { Route as AdminAppointmentsRouteImport } from './routes/admin/appointmen
 import { Route as AdminConsultationRouteImport } from './routes/admin/consultation'
 import { Route as AdminNewTokenRouteImport } from './routes/admin/new-token'
 import { Route as AdminPatientsRouteImport } from './routes/admin/patients'
+import { Route as AdminPrescriptionsRouteImport } from './routes/admin/prescriptions'
 import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
 import { Route as AdminTrashRouteImport } from './routes/admin/trash'
 import { Route as SuperadminIndexRouteImport } from './routes/superadmin/index'
@@ -108,6 +109,11 @@ const AdminNewTokenRoute = AdminNewTokenRouteImport.update({
 const AdminPatientsRoute = AdminPatientsRouteImport.update({
   id: '/patients',
   path: '/patients',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPrescriptionsRoute = AdminPrescriptionsRouteImport.update({
+  id: '/prescriptions',
+  path: '/prescriptions',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminSettingsRoute = AdminSettingsRouteImport.update({
@@ -209,6 +215,7 @@ export interface FileRoutesByFullPath {
   '/admin/consultation': typeof AdminConsultationRouteWithChildren
   '/admin/new-token': typeof AdminNewTokenRoute
   '/admin/patients': typeof AdminPatientsRouteWithChildren
+  '/admin/prescriptions': typeof AdminPrescriptionsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/trash': typeof AdminTrashRoute
   '/superadmin/$': typeof SuperadminSplatRoute
@@ -237,6 +244,7 @@ export interface FileRoutesByTo {
   '/admin/$': typeof AdminSplatRoute
   '/admin/appointments': typeof AdminAppointmentsRoute
   '/admin/new-token': typeof AdminNewTokenRoute
+  '/admin/prescriptions': typeof AdminPrescriptionsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/trash': typeof AdminTrashRoute
   '/superadmin/$': typeof SuperadminSplatRoute
@@ -269,6 +277,7 @@ export interface FileRoutesById {
   '/admin/consultation': typeof AdminConsultationRouteWithChildren
   '/admin/new-token': typeof AdminNewTokenRoute
   '/admin/patients': typeof AdminPatientsRouteWithChildren
+  '/admin/prescriptions': typeof AdminPrescriptionsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/trash': typeof AdminTrashRoute
   '/superadmin/$': typeof SuperadminSplatRoute
@@ -303,6 +312,7 @@ export interface FileRouteTypes {
     | '/admin/consultation'
     | '/admin/new-token'
     | '/admin/patients'
+    | '/admin/prescriptions'
     | '/admin/settings'
     | '/admin/trash'
     | '/superadmin/$'
@@ -331,6 +341,7 @@ export interface FileRouteTypes {
     | '/admin/$'
     | '/admin/appointments'
     | '/admin/new-token'
+    | '/admin/prescriptions'
     | '/admin/settings'
     | '/admin/trash'
     | '/superadmin/$'
@@ -362,6 +373,7 @@ export interface FileRouteTypes {
     | '/admin/consultation'
     | '/admin/new-token'
     | '/admin/patients'
+    | '/admin/prescriptions'
     | '/admin/settings'
     | '/admin/trash'
     | '/superadmin/$'
@@ -491,6 +503,13 @@ declare module '@tanstack/react-router' {
       path: '/patients'
       fullPath: '/admin/patients'
       preLoaderRoute: typeof AdminPatientsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/prescriptions': {
+      id: '/admin/prescriptions'
+      path: '/prescriptions'
+      fullPath: '/admin/prescriptions'
+      preLoaderRoute: typeof AdminPrescriptionsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/settings': {
@@ -661,6 +680,7 @@ interface AdminRouteChildren {
   AdminConsultationRoute: typeof AdminConsultationRouteWithChildren
   AdminNewTokenRoute: typeof AdminNewTokenRoute
   AdminPatientsRoute: typeof AdminPatientsRouteWithChildren
+  AdminPrescriptionsRoute: typeof AdminPrescriptionsRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminTrashRoute: typeof AdminTrashRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -672,6 +692,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminConsultationRoute: AdminConsultationRouteWithChildren,
   AdminNewTokenRoute: AdminNewTokenRoute,
   AdminPatientsRoute: AdminPatientsRouteWithChildren,
+  AdminPrescriptionsRoute: AdminPrescriptionsRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminTrashRoute: AdminTrashRoute,
   AdminIndexRoute: AdminIndexRoute,

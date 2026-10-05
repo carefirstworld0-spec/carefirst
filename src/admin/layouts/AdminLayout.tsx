@@ -52,30 +52,10 @@ function useTypewriter(text: string, speed: number = 80) {
 export function AdminLayout() {
   const navigate = useNavigate();
 
-  const [userName, setUserName] = useState(() =>
-    typeof window !== "undefined"
-      ? localStorage.getItem("user_name") || ""
-      : "",
-  );
-  const [clinicName, setClinicName] = useState(() =>
-    typeof window !== "undefined" ? localStorage.getItem("user_clinic_name") || "" : "",
-  );
-  const [logoUrl, setLogoUrl] = useState(() =>
-    typeof window !== "undefined" ? localStorage.getItem("user_logo") || "" : "",
-  );
-  const [initials, setInitials] = useState(() => {
-    if (typeof window === "undefined") return "";
-    const name = localStorage.getItem("user_name");
-    if (name) {
-      const nameParts = name.trim().split(" ");
-      if (nameParts.length > 1) {
-        return (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase();
-      } else if (nameParts.length === 1 && nameParts[0].length > 0) {
-        return nameParts[0].substring(0, 2).toUpperCase();
-      }
-    }
-    return "";
-  });
+  const [userName, setUserName] = useState("");
+  const [clinicName, setClinicName] = useState("");
+  const [logoUrl, setLogoUrl] = useState("");
+  const [initials, setInitials] = useState("");
 
   const typedUserName = useTypewriter(userName, 100);
   const typedClinicName = useTypewriter(clinicName, 100);
@@ -93,6 +73,23 @@ export function AdminLayout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
+    // Read local storage in effect to ensure SSR & client initial render match
+    const storedName = localStorage.getItem("user_name") || "";
+    const storedClinic = localStorage.getItem("user_clinic_name") || "";
+    const storedLogo = localStorage.getItem("user_logo") || "";
+
+    if (storedName) {
+      setUserName(storedName);
+      const nameParts = storedName.trim().split(" ");
+      if (nameParts.length > 1) {
+        setInitials((nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase());
+      } else if (nameParts.length === 1 && nameParts[0].length > 0) {
+        setInitials(nameParts[0].substring(0, 2).toUpperCase());
+      }
+    }
+    if (storedClinic) setClinicName(storedClinic);
+    if (storedLogo) setLogoUrl(storedLogo);
+
     const uid = localStorage.getItem("user_uid");
     const clinicKey = localStorage.getItem("user_clinic");
 

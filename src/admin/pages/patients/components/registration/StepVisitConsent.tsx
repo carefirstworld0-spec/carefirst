@@ -13,9 +13,10 @@ import {
   ADMISSION_TYPES,
   PAYMENT_CATEGORIES,
   DEPARTMENTS,
+  CONSENT_CHANNELS,
 } from "../../utils/constants";
 import { useDoctors } from "../../hooks/useDoctors";
-import { Stethoscope, ShieldCheck, HeartHandshake } from "lucide-react";
+import { Stethoscope, ShieldCheck, HeartHandshake, PenTool } from "lucide-react";
 
 export function StepVisitConsent({ formData, updateField, errors, clinicKey }: any) {
   const { getDoctorsByDepartment } = useDoctors(clinicKey);
@@ -165,6 +166,18 @@ export function StepVisitConsent({ formData, updateField, errors, clinicKey }: a
         </div>
       )}
 
+      {/* ─── Emergency Fields (Conditional) ─── */}
+      {formData.admissionType === "emergency" && (
+        <div className="bg-red-50/50 p-5 rounded-xl border border-red-100 space-y-4 animate-in slide-in-from-top-2">
+          <h4 className="text-[13px] font-bold text-red-900 uppercase tracking-wider flex items-center gap-2">
+            Emergency Admission
+          </h4>
+          <p className="text-sm text-red-800">
+            Proceed with quick registration. Triage and critical vitals will be recorded in the Emergency Module immediately after registration.
+          </p>
+        </div>
+      )}
+
       {/* ─── Payment & Billing ─── */}
       <div>
         <h3 className="text-lg font-display font-bold text-navy border-b border-border pb-2 mb-4 flex items-center gap-2">
@@ -267,20 +280,35 @@ export function StepVisitConsent({ formData, updateField, errors, clinicKey }: a
               </p>
             </div>
           </label>
-          <label className="flex items-start gap-3 p-3 rounded-lg border border-border bg-card hover:bg-secondary/10 cursor-pointer transition-colors">
-            <input
-              type="checkbox"
-              checked={formData.consentComms}
-              onChange={(e) => updateField("consentComms", e.target.checked)}
-              className="mt-1 rounded border-border text-primary focus:ring-primary"
-            />
+          
+          <div className="p-4 rounded-lg border border-border bg-card space-y-3">
             <div>
               <p className="text-[13px] font-bold text-navy">Consent for Communications</p>
-              <p className="text-[12px] text-muted-foreground mt-0.5">
-                The patient agrees to receive SMS/WhatsApp reminders and digital reports.
+              <p className="text-[12px] text-muted-foreground mt-0.5 mb-3">
+                Select the channels the patient agrees to receive reminders and reports on.
               </p>
             </div>
-          </label>
+            <div className="flex flex-wrap gap-4">
+              {CONSENT_CHANNELS.map(channel => (
+                <label key={channel.id} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData[`consent_${channel.id}`] || false}
+                    onChange={(e) => updateField(`consent_${channel.id}`, e.target.checked)}
+                    className="rounded border-border text-primary focus:ring-primary"
+                  />
+                  <span className="text-[13px] text-navy font-medium">{channel.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="pt-2">
+             <button type="button" className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-dashed border-primary/50 text-primary bg-primary/5 hover:bg-primary/10 transition-colors text-[13px] font-bold">
+               <PenTool size={16} /> Capture Digital Signature
+             </button>
+             <p className="text-[11px] text-muted-foreground mt-2">Optional. Use touch screen or connected signature pad.</p>
+          </div>
         </div>
       </div>
     </div>

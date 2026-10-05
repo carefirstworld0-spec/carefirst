@@ -131,3 +131,21 @@ export const COUNTRY_CODES = [
 
 // ─── Age threshold for minor/guardian logic ───
 export const MINOR_AGE_THRESHOLD = 18;
+
+// ─── Consent Channels ───
+export const CONSENT_CHANNELS = [
+  { id: "sms", label: "SMS" },
+  { id: "whatsapp", label: "WhatsApp" },
+  { id: "email", label: "Email" },
+] as const;
+
+// ─── Referral Sources ───
+export const REFERRAL_SOURCES = [
+  "Self",
+  "Doctor",
+  "Patient",
+  "Social Media",
+  "Google",
+  "Other Clinic",
+  "Other",
+] as const;

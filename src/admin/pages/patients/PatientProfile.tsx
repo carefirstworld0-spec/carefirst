@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "@tanstack/react-router";
 import { db } from "@/lib/firebase";
-import { ref, onValue } from "firebase/database";
+import { ref, onValue, query, orderByChild, equalTo, get } from "firebase/database";
 import {
   ArrowLeft,
   User,
@@ -15,12 +15,34 @@ import {
   Pencil,
   Plus,
   ChevronRight,
+  Pill,
+  Microscope,
+  ShieldCheck,
+  MessageSquare,
+  ClipboardList,
+  CalendarCheck,
+  Timer,
+  Stethoscope,
+  CreditCard,
+  RefreshCcw,
+  Check,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatAge } from "./utils/validation";
+
+import { TabOverview } from "./components/profile/TabOverview";
+import { TabVisits } from "./components/profile/TabVisits";
+import { TabMedical } from "./components/profile/TabMedical";
+import { TabPrescriptions } from "./components/profile/TabPrescriptions";
+import { TabLabs } from "./components/profile/TabLabs";
+import { TabBilling } from "./components/profile/TabBilling";
+import { TabDocuments } from "./components/profile/TabDocuments";
+import { TabInsurance } from "./components/profile/TabInsurance";
+import { TabCommunications } from "./components/profile/TabCommunications";
+import { TabTimeline } from "./components/profile/TabTimeline";
 
 export function PatientProfile() {
   const { patientId } = useParams({ strict: false }) as any;
@@ -29,6 +51,8 @@ export function PatientProfile() {
 
   const [patient, setPatient] = useState<any>(null);
   const [visits, setVisits] = useState<any[]>([]);
+  const [activeAppt, setActiveAppt] = useState<any>(null);
+  const [activeConsult, setActiveConsult] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -58,6 +82,37 @@ export function PatientProfile() {
         setVisits([]);
       }
     });
+
+    const fetchActiveJourney = async () => {
+      try {
+        const apptsRef = query(
+          ref(db, `carefirst/users/${clinicKey}/appointments`),
+          orderByChild("patientId"),
+          equalTo(patientId)
+        );
+        const snap = await get(apptsRef);
+        if (snap.exists()) {
+          const apptsData = snap.val();
+          const apptsList = Object.keys(apptsData).map(k => ({ id: k, ...apptsData[k] }));
+          // Find the most recent appointment (assuming descending sort)
+          apptsList.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+          const latest = apptsList[0];
+          setActiveAppt(latest);
+
+          if (latest && latest.id) {
+            const consultRef = ref(db, `carefirst/users/${clinicKey}/consultations/${latest.id}`);
+            const cSnap = await get(consultRef);
+            if (cSnap.exists()) {
+              setActiveConsult(cSnap.val());
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching active journey:", err);
+      }
+    };
+
+    fetchActiveJourney();
 
     return () => {
       unsubPatient();
@@ -129,6 +184,102 @@ export function PatientProfile() {
           <Button className="h-10 rounded-xl bg-primary text-white" onClick={() => {}}>
             <Plus size={15} className="mr-2" /> New Visit
           </Button>
+        </div>
+      </div>
+
+      {/* ─── Patient Visit Workflow Tracker ─── */}
+      <div className="bg-card rounded-xl border border-border shadow-sm p-4 overflow-hidden">
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h3 className="font-bold text-navy text-[15px]">Current Visit Journey</h3>
+            <p className="text-[12px] text-muted-foreground mt-0.5">Tracking patient workflow for active visit</p>
+          </div>
+          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+            Active Visit
+          </Badge>
+        </div>
+        
+        <div className="relative z-0">
+          {(() => {
+            // Calculate Dynamic Journey Progress
+            let currentStepIdx = 0; // Default: Registered
+            
+            if (activeAppt) {
+              currentStepIdx = 1; // Check-in
+              if (activeAppt.status === "Waiting" || activeAppt.status === "In Consultation" || activeAppt.status === "Completed") {
+                currentStepIdx = 2; // In Queue
+              }
+              if (activeAppt.status === "In Consultation" || activeAppt.status === "Completed") {
+                currentStepIdx = 3; // Consult
+              }
+            }
+            
+            if (activeConsult) {
+              if (activeConsult.status === "completed") {
+                currentStepIdx = 4; // Rx & Lab
+                // If prescriptions or labs exist, move to billing
+                if ((activeConsult.prescription && activeConsult.prescription.length > 0) || 
+                    (activeConsult.investigations && activeConsult.investigations.length > 0)) {
+                  currentStepIdx = 5; // Billing
+                  // Here we could check if billed, then Follow-up (Step 6)
+                } else {
+                  currentStepIdx = 6; // Follow-up (skip billing if no rx/lab)
+                }
+              }
+            }
+
+            const journeySteps = [
+              { id: 'registration', label: 'Registered', icon: ClipboardList, status: currentStepIdx > 0 ? 'completed' : 'active' },
+              { id: 'appointment', label: 'Check-in', icon: CalendarCheck, status: currentStepIdx > 1 ? 'completed' : currentStepIdx === 1 ? 'active' : 'pending' },
+              { id: 'queue', label: 'In Queue', icon: Timer, status: currentStepIdx > 2 ? 'completed' : currentStepIdx === 2 ? 'active' : 'pending' },
+              { id: 'consultation', label: 'Consult', icon: Stethoscope, status: currentStepIdx > 3 ? 'completed' : currentStepIdx === 3 ? 'active' : 'pending' },
+              { id: 'orders', label: 'Rx & Lab', icon: Microscope, status: currentStepIdx > 4 ? 'completed' : currentStepIdx === 4 ? 'active' : 'pending' },
+              { id: 'billing', label: 'Billing', icon: CreditCard, status: currentStepIdx > 5 ? 'completed' : currentStepIdx === 5 ? 'active' : 'pending' },
+              { id: 'followup', label: 'Follow-up', icon: RefreshCcw, status: currentStepIdx === 6 ? 'active' : 'pending' },
+            ];
+
+            const progressPercentage = (currentStepIdx / (journeySteps.length - 1)) * 100;
+
+            return (
+              <>
+                <div className="absolute top-[18px] left-[5%] right-[5%] h-[2px] bg-border -z-10" />
+                <div 
+                  className="absolute top-[18px] left-[5%] h-[2px] bg-primary -z-10 transition-all duration-700 ease-in-out" 
+                  style={{ width: `${progressPercentage}%` }} 
+                />
+                
+                <div className="flex justify-between items-start gap-2 overflow-x-auto pb-2 scrollbar-none snap-x snap-mandatory">
+                  {journeySteps.map((step, idx) => (
+              <div key={step.id} className="flex flex-col items-center min-w-[75px] flex-1 snap-center group">
+                <div 
+                  className={`grid size-9 place-items-center rounded-full border-2 transition-all duration-300 ${
+                    step.status === 'completed' 
+                      ? 'bg-primary border-primary text-white shadow-sm'
+                      : step.status === 'active'
+                        ? 'bg-white border-primary text-primary ring-4 ring-primary/20 scale-110 shadow-sm'
+                        : 'bg-card border-border text-muted-foreground'
+                  }`}
+                >
+                  {step.status === 'completed' ? (
+                    <Check size={16} className="animate-in zoom-in duration-300" />
+                  ) : (
+                    <step.icon size={16} className={step.status === 'active' ? 'animate-pulse' : ''} />
+                  )}
+                </div>
+                <div className="text-center mt-3">
+                  <p className={`text-[10px] font-extrabold uppercase tracking-widest ${
+                    step.status === 'active' ? 'text-primary' : 
+                    step.status === 'completed' ? 'text-navy' : 'text-muted-foreground'
+                  }`}>
+                    {step.label}
+                  </p>
+                </div>
+              </div>
+            ))}
+                </div>
+              </>
+            );
+          })()}
         </div>
       </div>
 
@@ -216,245 +367,140 @@ export function PatientProfile() {
               </>
             )}
           </div>
+
+          {/* Quick Snapshot Card */}
+          <div className="bg-card rounded-xl border border-border p-5 shadow-sm space-y-4">
+            <h3 className="font-bold text-navy text-[14px]">Snapshot</h3>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center text-[13px]">
+                <span className="text-muted-foreground flex items-center gap-1.5"><CalendarDays size={14}/> Last Visit</span>
+                <span className="font-semibold text-navy">
+                  {visits.length > 0 ? new Date(visits[0].date).toLocaleDateString() : "Never"}
+                </span>
+              </div>
+              <div className="flex justify-between items-center text-[13px]">
+                <span className="text-muted-foreground flex items-center gap-1.5"><Stethoscope size={14}/> Primary Dr.</span>
+                <span className="font-semibold text-navy">
+                  {visits.length > 0 ? `Dr. ${visits[0].doctorName || visits[0].doctor}` : "—"}
+                </span>
+              </div>
+              <div className="flex justify-between items-center text-[13px]">
+                <span className="text-muted-foreground flex items-center gap-1.5"><Receipt size={14}/> Balance</span>
+                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                  ₹0
+                </Badge>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* ─── Right Content (Tabs) ─── */}
         <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden min-h-[600px]">
           <Tabs defaultValue="overview" className="w-full">
             <div className="border-b border-border bg-secondary/10 px-2 pt-2 overflow-x-auto">
-              <TabsList className="bg-transparent h-12">
+              <TabsList className="bg-transparent h-12 flex-nowrap w-max min-w-full justify-start">
                 <TabsTrigger
                   value="overview"
-                  className="data-[state=active]:bg-card data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-6 flex gap-2"
+                  className="data-[state=active]:bg-card data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-4 flex gap-2 whitespace-nowrap"
                 >
                   <User size={16} /> Overview
                 </TabsTrigger>
                 <TabsTrigger
-                  value="visits"
-                  className="data-[state=active]:bg-card data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-6 flex gap-2"
+                  value="timeline"
+                  className="data-[state=active]:bg-card data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-4 flex gap-2 whitespace-nowrap"
                 >
-                  <CalendarDays size={16} /> Visits
+                  <Activity size={16} /> Full Timeline
+                </TabsTrigger>
+                <TabsTrigger
+                  value="visits"
+                  className="data-[state=active]:bg-card data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-4 flex gap-2 whitespace-nowrap"
+                >
+                  <CalendarDays size={16} /> Visits Only
                 </TabsTrigger>
                 <TabsTrigger
                   value="medical"
-                  className="data-[state=active]:bg-card data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-6 flex gap-2"
+                  className="data-[state=active]:bg-card data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-4 flex gap-2 whitespace-nowrap"
                 >
                   <Activity size={16} /> Clinical Notes
                 </TabsTrigger>
                 <TabsTrigger
+                  value="prescriptions"
+                  className="data-[state=active]:bg-card data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-4 flex gap-2 whitespace-nowrap"
+                >
+                  <Pill size={16} /> Prescriptions
+                </TabsTrigger>
+                <TabsTrigger
+                  value="labs"
+                  className="data-[state=active]:bg-card data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-4 flex gap-2 whitespace-nowrap"
+                >
+                  <Microscope size={16} /> Lab Reports
+                </TabsTrigger>
+                <TabsTrigger
+                  value="billing"
+                  className="data-[state=active]:bg-card data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-4 flex gap-2 whitespace-nowrap"
+                >
+                  <Receipt size={16} /> Bills/Payments
+                </TabsTrigger>
+                <TabsTrigger
                   value="documents"
-                  className="data-[state=active]:bg-card data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-6 flex gap-2"
+                  className="data-[state=active]:bg-card data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-4 flex gap-2 whitespace-nowrap"
                 >
                   <FileText size={16} /> Documents
                 </TabsTrigger>
                 <TabsTrigger
-                  value="billing"
-                  className="data-[state=active]:bg-card data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-6 flex gap-2"
+                  value="insurance"
+                  className="data-[state=active]:bg-card data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-4 flex gap-2 whitespace-nowrap"
                 >
-                  <Receipt size={16} /> Billing
+                  <ShieldCheck size={16} /> Insurance
+                </TabsTrigger>
+                <TabsTrigger
+                  value="communications"
+                  className="data-[state=active]:bg-card data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-4 flex gap-2 whitespace-nowrap"
+                >
+                  <MessageSquare size={16} /> Communication
                 </TabsTrigger>
               </TabsList>
             </div>
 
-            <TabsContent value="overview" className="p-6 m-0 focus-visible:outline-none space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Contact Full */}
-                <div className="space-y-4">
-                  <h3 className="font-bold text-navy border-b border-border pb-2">
-                    Full Contact Details
-                  </h3>
-                  <div className="space-y-3 text-[13px]">
-                    <div className="grid grid-cols-3">
-                      <span className="text-muted-foreground font-medium">Email:</span>{" "}
-                      <span className="col-span-2 font-medium text-navy">
-                        {contact.email || "—"}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-3">
-                      <span className="text-muted-foreground font-medium">Address:</span>
-                      <span className="col-span-2 font-medium text-navy">
-                        {contact.address?.line1 ? (
-                          <>
-                            {contact.address.line1}
-                            <br />
-                            {contact.address.line2 && (
-                              <>
-                                {contact.address.line2}
-                                <br />
-                              </>
-                            )}
-                            {contact.address.city}, {contact.address.state} -{" "}
-                            {contact.address.pincode}
-                          </>
-                        ) : (
-                          "—"
-                        )}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+            <TabsContent value="overview" className="p-6 m-0 focus-visible:outline-none">
+              <TabOverview patient={patient} visits={visits} />
+            </TabsContent>
 
-                {/* Emergency */}
-                <div className="space-y-4">
-                  <h3 className="font-bold text-navy border-b border-border pb-2">
-                    Emergency Contact
-                  </h3>
-                  {patient.emergency?.name ? (
-                    <div className="space-y-3 text-[13px] bg-red-50/50 border border-red-100 p-4 rounded-lg">
-                      <div className="grid grid-cols-3">
-                        <span className="text-muted-foreground font-medium">Name:</span>{" "}
-                        <span className="col-span-2 font-bold text-navy">
-                          {patient.emergency.name}
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-3">
-                        <span className="text-muted-foreground font-medium">Relation:</span>{" "}
-                        <span className="col-span-2 font-medium text-navy capitalize">
-                          {patient.emergency.relationship}
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-3">
-                        <span className="text-muted-foreground font-medium">Phone:</span>{" "}
-                        <span className="col-span-2 font-medium text-navy">
-                          {patient.emergency.phone}
-                        </span>
-                      </div>
-                    </div>
-                  ) : (
-                    <p className="text-[13px] text-muted-foreground italic">
-                      No emergency contact provided.
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Recent Visits Preview */}
-              <div className="pt-4">
-                <div className="flex justify-between items-center border-b border-border pb-2 mb-4">
-                  <h3 className="font-bold text-navy">Recent Visits</h3>
-                  <Button
-                    variant="link"
-                    className="h-auto p-0 text-primary text-[13px]"
-                    onClick={() =>
-                      document
-                        .querySelector('[value="visits"]')
-                        ?.dispatchEvent(new MouseEvent("click", { bubbles: true }))
-                    }
-                  >
-                    View All
-                  </Button>
-                </div>
-
-                {visits.length > 0 ? (
-                  <div className="space-y-3">
-                    {visits.slice(0, 3).map((visit: any) => (
-                      <div
-                        key={visit.id}
-                        className="flex justify-between items-center p-4 rounded-lg border border-border bg-secondary/5 hover:bg-secondary/10 transition-colors cursor-pointer"
-                      >
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <Badge variant="outline" className="bg-white">
-                              {new Date(visit.date).toLocaleDateString()}
-                            </Badge>
-                            <span className="font-bold text-navy">
-                              {visit.departmentLabel || visit.department}
-                            </span>
-                          </div>
-                          <p className="text-[13px] text-muted-foreground mt-1">
-                            Dr. {visit.doctorName || visit.doctor} •{" "}
-                            {visit.chiefComplaint || "Routine Checkup"}
-                          </p>
-                        </div>
-                        <ChevronRight size={18} className="text-muted-foreground" />
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-[13px] text-muted-foreground italic">
-                    No visits recorded yet.
-                  </p>
-                )}
-              </div>
+            <TabsContent value="timeline" className="p-6 m-0 focus-visible:outline-none">
+              <TabTimeline patientId={patientId} />
             </TabsContent>
 
             <TabsContent value="visits" className="p-6 m-0 focus-visible:outline-none">
-              <h3 className="font-bold text-navy border-b border-border pb-2 mb-4">
-                Visit History
-              </h3>
-              {visits.length > 0 ? (
-                <div className="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-border before:to-transparent">
-                  {visits.map((visit: any) => (
-                    <div
-                      key={visit.id}
-                      className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active"
-                    >
-                      <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-primary text-white shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
-                        <CalendarDays size={16} />
-                      </div>
-                      <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-border bg-card shadow-sm hover:border-primary/30 transition-colors">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="font-bold text-navy">
-                            {new Date(visit.date).toLocaleDateString()}
-                          </span>
-                          <Badge variant="secondary" className="text-[10px] uppercase">
-                            {visit.admissionType}
-                          </Badge>
-                        </div>
-                        <p className="text-[13px] font-medium text-primary">
-                          {visit.departmentLabel || visit.department}
-                        </p>
-                        <p className="text-[13px] text-muted-foreground mb-2">
-                          Dr. {visit.doctorName || visit.doctor}
-                        </p>
-                        {visit.chiefComplaint && (
-                          <div className="bg-secondary/10 p-2 rounded-md text-[12px] text-navy border border-border">
-                            <span className="font-semibold">Reason:</span> {visit.chiefComplaint}
-                          </div>
-                        )}
-                        <Button variant="ghost" size="sm" className="w-full mt-2 h-8 text-[12px]">
-                          View Details
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-10">
-                  <div className="grid size-12 place-items-center rounded-full bg-secondary mx-auto mb-3 text-muted-foreground">
-                    <CalendarDays />
-                  </div>
-                  <p className="text-[14px] font-medium text-navy">No visits yet</p>
-                  <Button variant="outline" className="mt-3 h-8 text-[12px]">
-                    Schedule Visit
-                  </Button>
-                </div>
-              )}
+              <TabVisits visits={visits} />
             </TabsContent>
 
-            {/* Placeholder Tabs */}
-            <TabsContent
-              value="medical"
-              className="p-10 text-center text-muted-foreground m-0 focus-visible:outline-none"
-            >
-              <Activity size={32} className="mx-auto mb-3 opacity-20" />
-              <p>Clinical notes integration coming soon.</p>
+            {/* Other Tabs */}
+            <TabsContent value="medical" className="p-6 m-0 focus-visible:outline-none">
+              <TabMedical patient={patient} patientId={patientId} />
             </TabsContent>
 
-            <TabsContent
-              value="documents"
-              className="p-10 text-center text-muted-foreground m-0 focus-visible:outline-none"
-            >
-              <FileText size={32} className="mx-auto mb-3 opacity-20" />
-              <p>Document upload and lab reports coming soon.</p>
+            <TabsContent value="prescriptions" className="p-6 m-0 focus-visible:outline-none">
+              <TabPrescriptions patientId={patientId} />
             </TabsContent>
 
-            <TabsContent
-              value="billing"
-              className="p-10 text-center text-muted-foreground m-0 focus-visible:outline-none"
-            >
-              <Receipt size={32} className="mx-auto mb-3 opacity-20" />
-              <p>Billing integration coming soon.</p>
+            <TabsContent value="labs" className="p-6 m-0 focus-visible:outline-none">
+              <TabLabs patientId={patientId} />
+            </TabsContent>
+
+            <TabsContent value="billing" className="p-6 m-0 focus-visible:outline-none">
+              <TabBilling patientId={patientId} />
+            </TabsContent>
+
+            <TabsContent value="documents" className="p-6 m-0 focus-visible:outline-none">
+              <TabDocuments patientId={patientId} />
+            </TabsContent>
+
+            <TabsContent value="insurance" className="p-6 m-0 focus-visible:outline-none">
+              <TabInsurance patient={patient} patientId={patientId} />
+            </TabsContent>
+
+            <TabsContent value="communications" className="p-6 m-0 focus-visible:outline-none">
+              <TabCommunications patientId={patientId} />
             </TabsContent>
           </Tabs>
         </div>

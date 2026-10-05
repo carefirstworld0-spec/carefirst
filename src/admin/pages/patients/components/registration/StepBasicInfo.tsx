@@ -1,4 +1,5 @@
 import { Label } from "@/components/ui/label";
+import { Camera, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -7,10 +8,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { GENDERS, MARITAL_STATUS, BLOOD_GROUPS } from "../../utils/constants";
-import { formatAge } from "../../utils/validation";
+import { GENDERS, MARITAL_STATUS, BLOOD_GROUPS, MINOR_AGE_THRESHOLD } from "../../utils/constants";
+import { formatAge, isMinor } from "../../utils/validation";
 
 export function StepBasicInfo({ formData, updateField, errors }: any) {
+  const isPatientMinor = 
+    formData.dobMode === "dob" && formData.dob 
+      ? isMinor(formData.dob, MINOR_AGE_THRESHOLD)
+      : formData.dobMode === "age" && formData.approxAge
+      ? parseInt(formData.approxAge, 10) < MINOR_AGE_THRESHOLD
+      : false;
+
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       <div>
@@ -23,15 +31,24 @@ export function StepBasicInfo({ formData, updateField, errors }: any) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-1.5 md:col-span-2">
           <Label className="text-[13px] font-bold text-navy">
-            Full Name <span className="text-destructive">*</span>
+            Patient Photo & Name <span className="text-destructive">*</span>
           </Label>
-          <Input
-            value={formData.name}
-            onChange={(e) => updateField("name", e.target.value)}
-            placeholder="First and Last Name"
-            className={`h-11 ${errors.name ? "border-red-500 bg-red-50" : "bg-secondary/10"}`}
-            autoFocus
-          />
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-secondary/30 border border-border text-muted-foreground hover:bg-secondary/50 hover:text-navy transition-colors"
+              title="Upload Photo"
+            >
+              <Camera size={20} />
+            </button>
+            <Input
+              value={formData.name}
+              onChange={(e) => updateField("name", e.target.value)}
+              placeholder="First and Last Name"
+              className={`h-11 flex-1 ${errors.name ? "border-red-500 bg-red-50" : "bg-secondary/10"}`}
+              autoFocus
+            />
+          </div>
           {errors.name && <p className="text-[11px] text-red-500 font-medium">{errors.name}</p>}
         </div>
 
@@ -91,6 +108,12 @@ export function StepBasicInfo({ formData, updateField, errors }: any) {
           {errors.dob && <p className="text-[11px] text-red-500 font-medium">{errors.dob}</p>}
           {errors.approxAge && (
             <p className="text-[11px] text-red-500 font-medium">{errors.approxAge}</p>
+          )}
+          {isPatientMinor && (
+            <div className="mt-2 flex items-start gap-1.5 rounded-md bg-amber-50 p-2 text-[11px] text-amber-800 border border-amber-200">
+              <AlertCircle size={14} className="shrink-0 mt-0.5" />
+              <p>Patient is a minor (under {MINOR_AGE_THRESHOLD}). Guardian details will be required.</p>
+            </div>
           )}
         </div>
 

@@ -370,7 +370,13 @@ export function PatientList() {
                               size="icon"
                               className="h-7 w-7 sm:h-8 sm:w-8 text-muted-foreground hover:text-navy"
                               title="Edit"
-                              onClick={(e) => e.stopPropagation()}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate({
+                                  to: "/admin/patients/$patientId/edit",
+                                  params: { patientId: patient.id },
+                                });
+                              }}
                             >
                               <Pencil size={13} className="sm:w-[14px] sm:h-[14px]" />
                             </Button>

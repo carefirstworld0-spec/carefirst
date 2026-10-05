@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { db } from "@/lib/firebase";
-import { ref, set, push, update } from "firebase/database";
+import { ref, set, push, update, serverTimestamp, get } from "firebase/database";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -77,7 +77,9 @@ export type FullRegistrationData = {
   guardianRelation: string;
   guardianMobile: string;
   consentTreatment: boolean;
-  consentComms: boolean;
+  consent_sms: boolean;
+  consent_whatsapp: boolean;
+  consent_email: boolean;
 };
 
 const initialData: FullRegistrationData = {
@@ -124,7 +126,9 @@ const initialData: FullRegistrationData = {
   guardianRelation: "",
   guardianMobile: "",
   consentTreatment: false,
-  consentComms: false,
+  consent_sms: true,
+  consent_whatsapp: true,
+  consent_email: false,
 };
 
 const STEPS = [
@@ -284,10 +288,13 @@ export function FullRegistration() {
         },
         consent: {
           treatment: formData.consentTreatment,
-          communications: formData.consentComms,
+          sms: formData.consent_sms,
+          whatsapp: formData.consent_whatsapp,
+          email: formData.consent_email,
           timestamp: new Date().toISOString(),
         },
         meta: {
+          branch: typeof window !== "undefined" ? localStorage.getItem("user_clinic_name") || "Main Clinic" : "Main Clinic",
           department: formData.department,
           departmentLabel: deptLabel,
           doctor: formData.doctor,
@@ -364,6 +371,98 @@ export function FullRegistration() {
     }
   };
 
+  const handleSendToQueue = async () => {
+    if (!clinicKey || !savedPatientId || !savedUHID) return;
+    try {
+      // Get the current list of appointments for today to generate a token
+      const apptsRef = ref(db, `carefirst/users/${clinicKey}/appointments`);
+      const snapshot = await get(apptsRef);
+      const today = new Date().toISOString().split('T')[0];
+      
+      let tokenNumber = 1;
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const todaysAppts = Object.values(data).filter((a: any) => a.date === today);
+        tokenNumber = todaysAppts.length + 1;
+      }
+      
+      const tokenNo = `T-${tokenNumber.toString().padStart(3, '0')}`;
+      const newApptRef = push(apptsRef);
+      
+      const availableDoctors = getDoctorsByDepartment(formData.department);
+      const doctorName = availableDoctors.find((d) => d.id === formData.doctor)?.name || formData.doctor;
+      const deptLabel = DEPARTMENTS.find((d) => d.id === formData.department)?.label || formData.department;
+
+      await set(newApptRef, {
+        token: tokenNo,
+        uhid: savedUHID,
+        patientId: savedPatientId,
+        name: formData.name.trim(),
+        phone: formData.mobile,
+        age: formData.dobMode === "age" ? formData.approxAge : formatAge(formData.dob),
+        gender: formData.gender,
+        doctorId: formData.doctor,
+        doctorName: doctorName,
+        department: deptLabel,
+        status: "Waiting",
+        date: today, 
+        createdAt: serverTimestamp(),
+      });
+      
+      alert(`Patient added to queue successfully! Token: ${tokenNo}`);
+      navigate({ to: "/admin/consultation" });
+    } catch (err) {
+      console.error("Failed to send to queue:", err);
+      alert("Failed to send to queue. Please try again.");
+    }
+  };
+
+  const handleStartConsultationDirect = async () => {
+    if (!clinicKey || !savedPatientId || !savedUHID) return;
+    try {
+      setSaving(true);
+      const apptsRef = ref(db, `carefirst/users/${clinicKey}/appointments`);
+      const snapshot = await get(apptsRef);
+      const today = new Date().toISOString().split('T')[0];
+      
+      let tokenNumber = 1;
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const todaysAppts = Object.values(data).filter((a: any) => a.date === today);
+        tokenNumber = todaysAppts.length + 1;
+      }
+      
+      const tokenNo = `T-${tokenNumber.toString().padStart(3, '0')}`;
+      const newApptRef = push(apptsRef);
+      
+      const availableDoctors = getDoctorsByDepartment(formData.department);
+      const doctorName = availableDoctors.find((d) => d.id === formData.doctor)?.name || formData.doctor;
+      const deptLabel = DEPARTMENTS.find((d) => d.id === formData.department)?.label || formData.department;
+
+      await set(newApptRef, {
+        token: tokenNo,
+        uhid: savedUHID,
+        patientId: savedPatientId,
+        name: formData.name.trim(),
+        phone: formData.mobile,
+        age: formData.dobMode === "age" ? formData.approxAge : formatAge(formData.dob),
+        gender: formData.gender,
+        doctorId: formData.doctor,
+        doctorName: doctorName,
+        department: deptLabel,
+        status: "Waiting",
+        date: today, 
+        createdAt: serverTimestamp(),
+      });
+      
+      navigate({ to: `/admin/consultation/${newApptRef.key}` });
+    } catch (err) {
+      console.error("Failed to start consultation directly:", err);
+      alert("Failed to start consultation. Please try again.");
+      setSaving(false);
+    }
+  };
+
   if (success) {
     return (
       <div className="flex items-center justify-center min-h-[70vh]">
@@ -408,6 +507,20 @@ export function FullRegistration() {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <Button
+              className="bg-primary text-white rounded-xl h-11"
+              onClick={handleStartConsultationDirect}
+              disabled={saving}
+            >
+              Start Consultation
+            </Button>
+            <Button
+              variant="outline"
+              className="rounded-xl h-11 text-navy border-primary/20 hover:bg-primary/5"
+              onClick={handleSendToQueue}
+            >
+              Send to Queue
+            </Button>
+            <Button
               variant="outline"
               className="rounded-xl h-11"
               onClick={() =>
@@ -420,7 +533,14 @@ export function FullRegistration() {
               <Eye size={16} className="mr-2" /> View Patient
             </Button>
             <Button
-              className="bg-primary text-white rounded-xl h-11"
+              variant="outline"
+              className="rounded-xl h-11 text-navy"
+              onClick={() => alert("Create bill functionality pending")}
+            >
+              Create Bill
+            </Button>
+            <Button
+              className="rounded-xl h-11 col-span-2 bg-secondary text-navy hover:bg-secondary/80"
               onClick={() => {
                 setSuccess(false);
                 setFormData(initialData);
@@ -428,7 +548,7 @@ export function FullRegistration() {
                 generateUHID(clinicKey);
               }}
             >
-              <UserPlus size={16} className="mr-2" /> New Patient
+              <UserPlus size={16} className="mr-2" /> Register Another Patient
             </Button>
           </div>
         </div>

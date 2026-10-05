@@ -21,6 +21,7 @@ import {
   ScrollText,
   Menu,
   X,
+  Stethoscope,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
@@ -274,6 +275,17 @@ export function AdminLayout() {
             >
               <Users size={18} className="shrink-0" />
               {!isCollapsed && <span className="whitespace-nowrap">Patients</span>}
+            </Link>
+
+            <Link
+              to="/admin/consultation"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`flex items-center rounded-[8px] text-[14px] font-medium text-navy/70 transition-colors hover:bg-secondary hover:text-navy ${isCollapsed ? "justify-center size-[42px] mx-auto" : "gap-3 px-3 py-2.5 w-full"}`}
+              activeProps={{ className: "!text-primary !bg-primary/10 !font-semibold" }}
+              title={isCollapsed ? "Consultation & EMR" : undefined}
+            >
+              <Stethoscope size={18} className="shrink-0" />
+              {!isCollapsed && <span className="whitespace-nowrap">Consultation & EMR</span>}
             </Link>
 
             <Link

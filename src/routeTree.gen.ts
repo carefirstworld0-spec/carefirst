@@ -20,6 +20,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminSplatRouteImport } from './routes/admin/$'
 import { Route as AdminAppointmentsRouteImport } from './routes/admin/appointments'
+import { Route as AdminConsultationRouteImport } from './routes/admin/consultation'
 import { Route as AdminNewTokenRouteImport } from './routes/admin/new-token'
 import { Route as AdminPatientsRouteImport } from './routes/admin/patients'
 import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
@@ -29,6 +30,8 @@ import { Route as SuperadminSplatRouteImport } from './routes/superadmin/$'
 import { Route as SuperadminSubscriptionRouteImport } from './routes/superadmin/subscription'
 import { Route as SuperadminWhiteLabelRouteImport } from './routes/superadmin/white-label'
 import { Route as SuperadminLoginRouteImport } from './routes/superadmin_.login'
+import { Route as AdminConsultationIndexRouteImport } from './routes/admin/consultation.index'
+import { Route as AdminConsultationVisitIdRouteImport } from './routes/admin/consultation.$visitId'
 import { Route as AdminPatientsIndexRouteImport } from './routes/admin/patients.index'
 import { Route as AdminPatientsPatientIdRouteImport } from './routes/admin/patients.$patientId'
 import { Route as AdminPatientsNewRouteImport } from './routes/admin/patients.new'
@@ -92,6 +95,11 @@ const AdminAppointmentsRoute = AdminAppointmentsRouteImport.update({
   path: '/appointments',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminConsultationRoute = AdminConsultationRouteImport.update({
+  id: '/consultation',
+  path: '/consultation',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminNewTokenRoute = AdminNewTokenRouteImport.update({
   id: '/new-token',
   path: '/new-token',
@@ -137,6 +145,17 @@ const SuperadminLoginRoute = SuperadminLoginRouteImport.update({
   path: '/superadmin/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminConsultationIndexRoute = AdminConsultationIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminConsultationRoute,
+} as any)
+const AdminConsultationVisitIdRoute =
+  AdminConsultationVisitIdRouteImport.update({
+    id: '/$visitId',
+    path: '/$visitId',
+    getParentRoute: () => AdminConsultationRoute,
+  } as any)
 const AdminPatientsIndexRoute = AdminPatientsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -187,6 +206,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/admin/$': typeof AdminSplatRoute
   '/admin/appointments': typeof AdminAppointmentsRoute
+  '/admin/consultation': typeof AdminConsultationRouteWithChildren
   '/admin/new-token': typeof AdminNewTokenRoute
   '/admin/patients': typeof AdminPatientsRouteWithChildren
   '/admin/settings': typeof AdminSettingsRoute
@@ -197,10 +217,12 @@ export interface FileRoutesByFullPath {
   '/superadmin/login': typeof SuperadminLoginRoute
   '/admin/': typeof AdminIndexRoute
   '/superadmin/': typeof SuperadminIndexRoute
+  '/admin/consultation/$visitId': typeof AdminConsultationVisitIdRoute
   '/admin/patients/$patientId': typeof AdminPatientsPatientIdRouteWithChildren
   '/admin/patients/new': typeof AdminPatientsNewRoute
   '/admin/patients/quick': typeof AdminPatientsQuickRoute
   '/superadmin/subscription/$clinicId': typeof SuperadminSubscriptionClinicIdRoute
+  '/admin/consultation/': typeof AdminConsultationIndexRoute
   '/admin/patients/': typeof AdminPatientsIndexRoute
   '/admin/patients/$patientId/edit': typeof AdminPatientsPatientIdEditRoute
   '/admin/patients/$patientId/': typeof AdminPatientsPatientIdIndexRoute
@@ -223,9 +245,11 @@ export interface FileRoutesByTo {
   '/superadmin/login': typeof SuperadminLoginRoute
   '/admin': typeof AdminIndexRoute
   '/superadmin': typeof SuperadminIndexRoute
+  '/admin/consultation/$visitId': typeof AdminConsultationVisitIdRoute
   '/admin/patients/new': typeof AdminPatientsNewRoute
   '/admin/patients/quick': typeof AdminPatientsQuickRoute
   '/superadmin/subscription/$clinicId': typeof SuperadminSubscriptionClinicIdRoute
+  '/admin/consultation': typeof AdminConsultationIndexRoute
   '/admin/patients': typeof AdminPatientsIndexRoute
   '/admin/patients/$patientId/edit': typeof AdminPatientsPatientIdEditRoute
   '/admin/patients/$patientId': typeof AdminPatientsPatientIdIndexRoute
@@ -242,6 +266,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/admin/$': typeof AdminSplatRoute
   '/admin/appointments': typeof AdminAppointmentsRoute
+  '/admin/consultation': typeof AdminConsultationRouteWithChildren
   '/admin/new-token': typeof AdminNewTokenRoute
   '/admin/patients': typeof AdminPatientsRouteWithChildren
   '/admin/settings': typeof AdminSettingsRoute
@@ -252,10 +277,12 @@ export interface FileRoutesById {
   '/superadmin_/login': typeof SuperadminLoginRoute
   '/admin/': typeof AdminIndexRoute
   '/superadmin/': typeof SuperadminIndexRoute
+  '/admin/consultation/$visitId': typeof AdminConsultationVisitIdRoute
   '/admin/patients/$patientId': typeof AdminPatientsPatientIdRouteWithChildren
   '/admin/patients/new': typeof AdminPatientsNewRoute
   '/admin/patients/quick': typeof AdminPatientsQuickRoute
   '/superadmin/subscription/$clinicId': typeof SuperadminSubscriptionClinicIdRoute
+  '/admin/consultation/': typeof AdminConsultationIndexRoute
   '/admin/patients/': typeof AdminPatientsIndexRoute
   '/admin/patients/$patientId/edit': typeof AdminPatientsPatientIdEditRoute
   '/admin/patients/$patientId/': typeof AdminPatientsPatientIdIndexRoute
@@ -273,6 +300,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/admin/$'
     | '/admin/appointments'
+    | '/admin/consultation'
     | '/admin/new-token'
     | '/admin/patients'
     | '/admin/settings'
@@ -283,10 +311,12 @@ export interface FileRouteTypes {
     | '/superadmin/login'
     | '/admin/'
     | '/superadmin/'
+    | '/admin/consultation/$visitId'
     | '/admin/patients/$patientId'
     | '/admin/patients/new'
     | '/admin/patients/quick'
     | '/superadmin/subscription/$clinicId'
+    | '/admin/consultation/'
     | '/admin/patients/'
     | '/admin/patients/$patientId/edit'
     | '/admin/patients/$patientId/'
@@ -309,9 +339,11 @@ export interface FileRouteTypes {
     | '/superadmin/login'
     | '/admin'
     | '/superadmin'
+    | '/admin/consultation/$visitId'
     | '/admin/patients/new'
     | '/admin/patients/quick'
     | '/superadmin/subscription/$clinicId'
+    | '/admin/consultation'
     | '/admin/patients'
     | '/admin/patients/$patientId/edit'
     | '/admin/patients/$patientId'
@@ -327,6 +359,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/admin/$'
     | '/admin/appointments'
+    | '/admin/consultation'
     | '/admin/new-token'
     | '/admin/patients'
     | '/admin/settings'
@@ -337,10 +370,12 @@ export interface FileRouteTypes {
     | '/superadmin_/login'
     | '/admin/'
     | '/superadmin/'
+    | '/admin/consultation/$visitId'
     | '/admin/patients/$patientId'
     | '/admin/patients/new'
     | '/admin/patients/quick'
     | '/superadmin/subscription/$clinicId'
+    | '/admin/consultation/'
     | '/admin/patients/'
     | '/admin/patients/$patientId/edit'
     | '/admin/patients/$patientId/'
@@ -437,6 +472,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAppointmentsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/consultation': {
+      id: '/admin/consultation'
+      path: '/consultation'
+      fullPath: '/admin/consultation'
+      preLoaderRoute: typeof AdminConsultationRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/new-token': {
       id: '/admin/new-token'
       path: '/new-token'
@@ -500,6 +542,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SuperadminLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/consultation/': {
+      id: '/admin/consultation/'
+      path: '/'
+      fullPath: '/admin/consultation/'
+      preLoaderRoute: typeof AdminConsultationIndexRouteImport
+      parentRoute: typeof AdminConsultationRoute
+    }
+    '/admin/consultation/$visitId': {
+      id: '/admin/consultation/$visitId'
+      path: '/$visitId'
+      fullPath: '/admin/consultation/$visitId'
+      preLoaderRoute: typeof AdminConsultationVisitIdRouteImport
+      parentRoute: typeof AdminConsultationRoute
+    }
     '/admin/patients/': {
       id: '/admin/patients/'
       path: '/'
@@ -552,6 +608,19 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminConsultationRouteChildren {
+  AdminConsultationVisitIdRoute: typeof AdminConsultationVisitIdRoute
+  AdminConsultationIndexRoute: typeof AdminConsultationIndexRoute
+}
+
+const AdminConsultationRouteChildren: AdminConsultationRouteChildren = {
+  AdminConsultationVisitIdRoute: AdminConsultationVisitIdRoute,
+  AdminConsultationIndexRoute: AdminConsultationIndexRoute,
+}
+
+const AdminConsultationRouteWithChildren =
+  AdminConsultationRoute._addFileChildren(AdminConsultationRouteChildren)
+
 interface AdminPatientsPatientIdRouteChildren {
   AdminPatientsPatientIdEditRoute: typeof AdminPatientsPatientIdEditRoute
   AdminPatientsPatientIdIndexRoute: typeof AdminPatientsPatientIdIndexRoute
@@ -589,6 +658,7 @@ const AdminPatientsRouteWithChildren = AdminPatientsRoute._addFileChildren(
 interface AdminRouteChildren {
   AdminSplatRoute: typeof AdminSplatRoute
   AdminAppointmentsRoute: typeof AdminAppointmentsRoute
+  AdminConsultationRoute: typeof AdminConsultationRouteWithChildren
   AdminNewTokenRoute: typeof AdminNewTokenRoute
   AdminPatientsRoute: typeof AdminPatientsRouteWithChildren
   AdminSettingsRoute: typeof AdminSettingsRoute
@@ -599,6 +669,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminSplatRoute: AdminSplatRoute,
   AdminAppointmentsRoute: AdminAppointmentsRoute,
+  AdminConsultationRoute: AdminConsultationRouteWithChildren,
   AdminNewTokenRoute: AdminNewTokenRoute,
   AdminPatientsRoute: AdminPatientsRouteWithChildren,
   AdminSettingsRoute: AdminSettingsRoute,

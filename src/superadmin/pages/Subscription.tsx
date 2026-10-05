@@ -725,14 +725,14 @@ export function Subscription() {
                                 }}
                               />
                               <div className="absolute right-8 top-0 z-50 w-48 rounded-xl border border-border bg-card p-1.5 shadow-lg animate-in fade-in zoom-in-95">
-                                <Link 
+                                <Link
                                   to={`/superadmin/subscription/${user.clinicKey}`}
                                   onClick={() => setActiveDropdown(null)}
                                   className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium text-navy transition-colors hover:bg-secondary"
                                 >
                                   <Eye size={14} className="text-muted-foreground" /> View Details
                                 </Link>
-                                
+
                                 {user.status !== "Suspended" ? (
                                   <button
                                     onClick={() => {

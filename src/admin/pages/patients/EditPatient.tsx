@@ -26,39 +26,43 @@ export function EditPatient() {
         const snap = await get(ref(db, `carefirst/users/${clinicKey}/patients/${patientId}`));
         if (snap.exists()) {
           const data = snap.val();
-          
+
           // Map database structure back to form structure
           const initForm = {
             name: data.identity?.name || "",
             dobMode: data.identity?.dob ? "dob" : "age",
             dob: data.identity?.dob || "",
-            approxAge: data.identity?.age ? data.identity.age.split('Y')[0] : "",
+            approxAge: data.identity?.age ? data.identity.age.split("Y")[0] : "",
             gender: data.identity?.gender || "",
             maritalStatus: data.identity?.maritalStatus || "",
             bloodGroup: data.identity?.bloodGroup || "",
-            
+
             countryCode: data.contact?.countryCode || "+91",
-            mobile: data.contact?.mobile ? data.contact.mobile.replace(data.contact.countryCode || "+91", "").trim() : "",
+            mobile: data.contact?.mobile
+              ? data.contact.mobile.replace(data.contact.countryCode || "+91", "").trim()
+              : "",
             email: data.contact?.email || "",
             addressLine1: data.contact?.address?.line1 || "",
             addressLine2: data.contact?.address?.line2 || "",
             city: data.contact?.address?.city || "",
             state: data.contact?.address?.state || "",
             pincode: data.contact?.address?.pincode || "",
-            
+
             emergencyName: data.emergency?.name || "",
             emergencyRelation: data.emergency?.relationship || "",
             emergencyCountryCode: data.emergency?.countryCode || "+91",
-            emergencyPhone: data.emergency?.phone ? data.emergency.phone.replace(data.emergency.countryCode || "+91", "").trim() : "",
-            
+            emergencyPhone: data.emergency?.phone
+              ? data.emergency.phone.replace(data.emergency.countryCode || "+91", "").trim()
+              : "",
+
             govIdType: data.identification?.type || "",
             govIdNumber: data.identification?.number || "",
-            
+
             allergies: data.medical?.allergies || [],
             conditions: data.medical?.conditions || [],
             medications: data.medical?.medications || [],
           };
-          
+
           setFormData(initForm);
         }
       } catch (err) {
@@ -89,7 +93,7 @@ export function EditPatient() {
     if (formData.dobMode === "age" && !formData.approxAge) errs.approxAge = "Age is required";
     if (!formData.gender) errs.gender = "Gender is required";
     if (!formData.mobile) errs.mobile = "Mobile number is required";
-    
+
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -97,37 +101,42 @@ export function EditPatient() {
   const handleSave = async () => {
     if (!validate() || !clinicKey || !patientId) return;
     setSaving(true);
-    
+
     try {
       const updates: any = {};
-      
+
       // Update main patient record
       updates[`patients/${patientId}/identity/name`] = formData.name.trim();
-      updates[`patients/${patientId}/identity/dob`] = formData.dobMode === "dob" ? formData.dob : "";
-      updates[`patients/${patientId}/identity/age`] = formData.dobMode === "age" ? `${formData.approxAge}Y (approx)` : "";
+      updates[`patients/${patientId}/identity/dob`] =
+        formData.dobMode === "dob" ? formData.dob : "";
+      updates[`patients/${patientId}/identity/age`] =
+        formData.dobMode === "age" ? `${formData.approxAge}Y (approx)` : "";
       updates[`patients/${patientId}/identity/gender`] = formData.gender;
       updates[`patients/${patientId}/identity/maritalStatus`] = formData.maritalStatus;
       updates[`patients/${patientId}/identity/bloodGroup`] = formData.bloodGroup;
-      
+
       updates[`patients/${patientId}/contact/countryCode`] = formData.countryCode;
-      updates[`patients/${patientId}/contact/mobile`] = `${formData.countryCode} ${formData.mobile}`;
+      updates[`patients/${patientId}/contact/mobile`] =
+        `${formData.countryCode} ${formData.mobile}`;
       updates[`patients/${patientId}/contact/email`] = formData.email;
       updates[`patients/${patientId}/contact/address`] = {
         line1: formData.addressLine1,
         line2: formData.addressLine2,
         city: formData.city,
         state: formData.state,
-        pincode: formData.pincode
+        pincode: formData.pincode,
       };
-      
+
       updates[`patients/${patientId}/emergency/name`] = formData.emergencyName;
       updates[`patients/${patientId}/emergency/relationship`] = formData.emergencyRelation;
       updates[`patients/${patientId}/emergency/countryCode`] = formData.emergencyCountryCode;
-      updates[`patients/${patientId}/emergency/phone`] = formData.emergencyPhone ? `${formData.emergencyCountryCode} ${formData.emergencyPhone}` : "";
-      
+      updates[`patients/${patientId}/emergency/phone`] = formData.emergencyPhone
+        ? `${formData.emergencyCountryCode} ${formData.emergencyPhone}`
+        : "";
+
       updates[`patients/${patientId}/identification/type`] = formData.govIdType;
       updates[`patients/${patientId}/identification/number`] = formData.govIdNumber;
-      
+
       updates[`patients/${patientId}/medical/allergies`] = formData.allergies;
       updates[`patients/${patientId}/medical/conditions`] = formData.conditions;
       updates[`patients/${patientId}/medical/medications`] = formData.medications;
@@ -135,12 +144,13 @@ export function EditPatient() {
       // Update patient_index record synchronously
       updates[`patient_index/${patientId}/name`] = formData.name.trim();
       updates[`patient_index/${patientId}/dob`] = formData.dobMode === "dob" ? formData.dob : "";
-      updates[`patient_index/${patientId}/age`] = formData.dobMode === "age" ? `${formData.approxAge}Y (approx)` : "";
+      updates[`patient_index/${patientId}/age`] =
+        formData.dobMode === "age" ? `${formData.approxAge}Y (approx)` : "";
       updates[`patient_index/${patientId}/gender`] = formData.gender;
       updates[`patient_index/${patientId}/mobile`] = `${formData.countryCode} ${formData.mobile}`;
 
       await update(ref(db, `carefirst/users/${clinicKey}`), updates);
-      
+
       navigate({ to: "/admin/patients/$patientId", params: { patientId } });
     } catch (err) {
       console.error("Error saving updates:", err);
@@ -151,26 +161,47 @@ export function EditPatient() {
   };
 
   if (loading) {
-    return <div className="p-8 text-center animate-pulse text-muted-foreground">Loading profile data...</div>;
+    return (
+      <div className="p-8 text-center animate-pulse text-muted-foreground">
+        Loading profile data...
+      </div>
+    );
   }
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-20">
-      
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate({ to: "/admin/patients/$patientId", params: { patientId } })}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate({ to: "/admin/patients/$patientId", params: { patientId } })}
+          >
             <ArrowLeft size={18} />
           </Button>
           <div>
             <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-navy font-display">
               Edit Patient Profile
             </h1>
-            <p className="text-sm text-muted-foreground">Update patient information and medical history.</p>
+            <p className="text-sm text-muted-foreground">
+              Update patient information and medical history.
+            </p>
           </div>
         </div>
-        <Button onClick={handleSave} disabled={saving} className="h-10 rounded-xl bg-primary text-white">
-          {saving ? <><Loader2 size={15} className="mr-2 animate-spin" /> Saving...</> : <><Save size={15} className="mr-2" /> Save Changes</>}
+        <Button
+          onClick={handleSave}
+          disabled={saving}
+          className="h-10 rounded-xl bg-primary text-white"
+        >
+          {saving ? (
+            <>
+              <Loader2 size={15} className="mr-2 animate-spin" /> Saving...
+            </>
+          ) : (
+            <>
+              <Save size={15} className="mr-2" /> Save Changes
+            </>
+          )}
         </Button>
       </div>
 
@@ -182,20 +213,19 @@ export function EditPatient() {
 
       <div className="bg-card rounded-xl border border-border shadow-sm p-6 sm:p-8 space-y-10">
         <StepBasicInfo formData={formData} updateField={updateField} errors={errors} />
-        
+
         <div className="h-px bg-border my-8" />
-        
-        <StepContactMedical 
-          formData={formData} 
-          updateField={updateField} 
-          errors={errors} 
-          matches={[]} 
-          checking={false} 
-          checkDuplicate={() => {}} 
-          clearMatches={() => {}} 
+
+        <StepContactMedical
+          formData={formData}
+          updateField={updateField}
+          errors={errors}
+          matches={[]}
+          checking={false}
+          checkDuplicate={() => {}}
+          clearMatches={() => {}}
         />
       </div>
-
     </div>
   );
 }

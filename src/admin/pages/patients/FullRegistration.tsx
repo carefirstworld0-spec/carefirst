@@ -12,7 +12,7 @@ import {
   Loader2,
   AlertTriangle,
   Eye,
-  UserPlus
+  UserPlus,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -81,9 +81,50 @@ export type FullRegistrationData = {
 };
 
 const initialData: FullRegistrationData = {
-  name: "", dobMode: "dob", dob: "", approxAge: "", gender: "", maritalStatus: "", bloodGroup: "", photoUrl: "",
-  countryCode: "+91", mobile: "", altMobile: "", email: "", addressLine1: "", addressLine2: "", city: "", state: "", pincode: "", emergencyName: "", emergencyRelation: "", emergencyCountryCode: "+91", emergencyPhone: "", govIdType: "", govIdNumber: "", allergies: [], conditions: [], medications: [],
-  visitType: "new", department: "", doctor: "", chiefComplaint: "", referredBy: "", paymentCategory: "cash", insuranceProvider: "", policyNumber: "", corporateCompany: "", govScheme: "", admissionType: "opd", ward: "", bed: "", guardianName: "", guardianRelation: "", guardianMobile: "", consentTreatment: false, consentComms: false
+  name: "",
+  dobMode: "dob",
+  dob: "",
+  approxAge: "",
+  gender: "",
+  maritalStatus: "",
+  bloodGroup: "",
+  photoUrl: "",
+  countryCode: "+91",
+  mobile: "",
+  altMobile: "",
+  email: "",
+  addressLine1: "",
+  addressLine2: "",
+  city: "",
+  state: "",
+  pincode: "",
+  emergencyName: "",
+  emergencyRelation: "",
+  emergencyCountryCode: "+91",
+  emergencyPhone: "",
+  govIdType: "",
+  govIdNumber: "",
+  allergies: [],
+  conditions: [],
+  medications: [],
+  visitType: "new",
+  department: "",
+  doctor: "",
+  chiefComplaint: "",
+  referredBy: "",
+  paymentCategory: "cash",
+  insuranceProvider: "",
+  policyNumber: "",
+  corporateCompany: "",
+  govScheme: "",
+  admissionType: "opd",
+  ward: "",
+  bed: "",
+  guardianName: "",
+  guardianRelation: "",
+  guardianMobile: "",
+  consentTreatment: false,
+  consentComms: false,
 };
 
 const STEPS = [
@@ -95,7 +136,7 @@ const STEPS = [
 export function FullRegistration() {
   const navigate = useNavigate();
   const clinicKey = typeof window !== "undefined" ? localStorage.getItem("user_clinic") || "" : "";
-  
+
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<FullRegistrationData>(initialData);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -115,7 +156,7 @@ export function FullRegistration() {
   }, [clinicKey, generateUHID, success, uhid]);
 
   const updateField = (field: keyof FullRegistrationData, value: any) => {
-    setFormData(prev => {
+    setFormData((prev) => {
       const next = { ...prev, [field]: value };
       if (field === "department") next.doctor = "";
       if (field === "paymentCategory") {
@@ -127,7 +168,7 @@ export function FullRegistration() {
       return next;
     });
     if (errors[field as string]) {
-      setErrors(prev => ({ ...prev, [field as string]: undefined } as any));
+      setErrors((prev) => ({ ...prev, [field as string]: undefined }) as any);
     }
   };
 
@@ -135,7 +176,8 @@ export function FullRegistration() {
     const errs: Record<string, string> = {};
     if (!formData.name.trim()) errs.name = "Patient name is required";
     if (formData.dobMode === "dob" && !formData.dob) errs.dob = "Date of birth is required";
-    if (formData.dobMode === "age" && !formData.approxAge) errs.approxAge = "Approximate age is required";
+    if (formData.dobMode === "age" && !formData.approxAge)
+      errs.approxAge = "Approximate age is required";
     if (!formData.gender) errs.gender = "Gender is required";
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -164,17 +206,17 @@ export function FullRegistration() {
     let isValid = false;
     if (step === 1) isValid = validateStep1();
     if (step === 2) isValid = validateStep2();
-    if (isValid) setStep(s => s + 1);
+    if (isValid) setStep((s) => s + 1);
   };
 
   const handleBack = () => {
-    setStep(s => Math.max(1, s - 1));
+    setStep((s) => Math.max(1, s - 1));
   };
 
   const handleSubmit = async () => {
     if (!validateStep3() || !clinicKey || !uhid) return;
     setSaving(true);
-    
+
     try {
       let age = "";
       let dob = formData.dob;
@@ -186,8 +228,10 @@ export function FullRegistration() {
       }
 
       const availableDoctors = getDoctorsByDepartment(formData.department);
-      const doctorName = availableDoctors.find(d => d.id === formData.doctor)?.name || formData.doctor;
-      const deptLabel = DEPARTMENTS.find(d => d.id === formData.department)?.label || formData.department;
+      const doctorName =
+        availableDoctors.find((d) => d.id === formData.doctor)?.name || formData.doctor;
+      const deptLabel =
+        DEPARTMENTS.find((d) => d.id === formData.department)?.label || formData.department;
 
       const patientId = push(ref(db, `carefirst/users/${clinicKey}/patients`)).key;
       if (!patientId) throw new Error("Failed to create patient key");
@@ -213,35 +257,35 @@ export function FullRegistration() {
             line2: formData.addressLine2,
             city: formData.city,
             state: formData.state,
-            pincode: formData.pincode
-          }
+            pincode: formData.pincode,
+          },
         },
         emergency: {
           name: formData.emergencyName,
           relationship: formData.emergencyRelation,
           countryCode: formData.emergencyCountryCode,
-          phone: `${formData.emergencyCountryCode} ${formData.emergencyPhone}`
+          phone: `${formData.emergencyCountryCode} ${formData.emergencyPhone}`,
         },
         identification: {
           type: formData.govIdType,
-          number: formData.govIdNumber // Will mask on UI, store actual here
+          number: formData.govIdNumber, // Will mask on UI, store actual here
         },
         medical: {
           allergies: formData.allergies,
           conditions: formData.conditions,
-          medications: formData.medications
+          medications: formData.medications,
         },
         insurance: {
           provider: formData.insuranceProvider,
           policyNumber: formData.policyNumber,
           tpa: "",
           corporateCompany: formData.corporateCompany,
-          govScheme: formData.govScheme
+          govScheme: formData.govScheme,
         },
         consent: {
           treatment: formData.consentTreatment,
           communications: formData.consentComms,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         },
         meta: {
           department: formData.department,
@@ -251,7 +295,8 @@ export function FullRegistration() {
           status: "active",
           registrationType: "full",
           createdAt: new Date().toISOString(),
-          createdBy: typeof window !== "undefined" ? localStorage.getItem("user_name") || "Staff" : "Staff",
+          createdBy:
+            typeof window !== "undefined" ? localStorage.getItem("user_name") || "Staff" : "Staff",
           lastVisit: new Date().toISOString(),
         },
       };
@@ -276,7 +321,9 @@ export function FullRegistration() {
       await update(ref(db, `carefirst/users/${clinicKey}`), updates);
 
       // Create Initial Visit
-      const visitId = push(ref(db, `carefirst/users/${clinicKey}/patients/${patientId}/visits`)).key;
+      const visitId = push(
+        ref(db, `carefirst/users/${clinicKey}/patients/${patientId}/visits`),
+      ).key;
       if (visitId) {
         await set(ref(db, `carefirst/users/${clinicKey}/patients/${patientId}/visits/${visitId}`), {
           visitType: formData.visitType,
@@ -290,7 +337,7 @@ export function FullRegistration() {
           bed: formData.bed,
           date: new Date().toISOString().split("T")[0],
           timestamp: new Date().toISOString(),
-          status: "Scheduled"
+          status: "Scheduled",
         });
       }
 
@@ -301,7 +348,8 @@ export function FullRegistration() {
         patientId,
         uhid,
         patientName: formData.name.trim(),
-        performedBy: typeof window !== "undefined" ? localStorage.getItem("user_name") || "Staff" : "Staff",
+        performedBy:
+          typeof window !== "undefined" ? localStorage.getItem("user_name") || "Staff" : "Staff",
         timestamp: new Date().toISOString(),
       });
 
@@ -333,28 +381,53 @@ export function FullRegistration() {
           </div>
           <div className="rounded-xl border border-border bg-card p-4 text-left space-y-2">
             <div className="flex justify-between items-center">
-              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Patient ID</span>
-              <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 font-bold">{savedUHID}</Badge>
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                Patient ID
+              </span>
+              <Badge
+                variant="outline"
+                className="bg-primary/5 text-primary border-primary/20 font-bold"
+              >
+                {savedUHID}
+              </Badge>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Name</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                Name
+              </span>
               <span className="text-sm font-semibold text-navy">{formData.name}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Department</span>
-              <span className="text-sm text-navy">{DEPARTMENTS.find((d) => d.id === formData.department)?.label}</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                Department
+              </span>
+              <span className="text-sm text-navy">
+                {DEPARTMENTS.find((d) => d.id === formData.department)?.label}
+              </span>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <Button variant="outline" className="rounded-xl h-11" onClick={() => navigate({ to: "/admin/patients/$patientId", params: { patientId: savedPatientId } })}>
+            <Button
+              variant="outline"
+              className="rounded-xl h-11"
+              onClick={() =>
+                navigate({
+                  to: "/admin/patients/$patientId",
+                  params: { patientId: savedPatientId },
+                })
+              }
+            >
               <Eye size={16} className="mr-2" /> View Patient
             </Button>
-            <Button className="bg-primary text-white rounded-xl h-11" onClick={() => {
-              setSuccess(false);
-              setFormData(initialData);
-              setStep(1);
-              generateUHID(clinicKey);
-            }}>
+            <Button
+              className="bg-primary text-white rounded-xl h-11"
+              onClick={() => {
+                setSuccess(false);
+                setFormData(initialData);
+                setStep(1);
+                generateUHID(clinicKey);
+              }}
+            >
               <UserPlus size={16} className="mr-2" /> New Patient
             </Button>
           </div>
@@ -368,7 +441,12 @@ export function FullRegistration() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate({ to: "/admin/patients" })} className="shrink-0">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate({ to: "/admin/patients" })}
+            className="shrink-0"
+          >
             <ArrowLeft size={18} />
           </Button>
           <div>
@@ -380,7 +458,11 @@ export function FullRegistration() {
         </div>
         <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-lg shadow-sm">
           <span className="text-xs font-bold text-muted-foreground uppercase">UHID:</span>
-          {uhidLoading ? <Loader2 size={14} className="animate-spin text-primary" /> : <span className="text-sm font-bold text-primary font-mono">{uhid || "—"}</span>}
+          {uhidLoading ? (
+            <Loader2 size={14} className="animate-spin text-primary" />
+          ) : (
+            <span className="text-sm font-bold text-primary font-mono">{uhid || "—"}</span>
+          )}
         </div>
       </div>
 
@@ -396,15 +478,21 @@ export function FullRegistration() {
                 return (
                   <div key={s.id} className="flex items-center flex-1 last:flex-none">
                     <div className="flex flex-col items-center gap-2 relative z-10">
-                      <div className={`grid size-10 place-items-center rounded-full border-2 font-bold transition-colors ${isActive ? "border-primary bg-primary text-white" : isCompleted ? "border-success bg-success text-white" : "border-border bg-secondary text-muted-foreground"}`}>
+                      <div
+                        className={`grid size-10 place-items-center rounded-full border-2 font-bold transition-colors ${isActive ? "border-primary bg-primary text-white" : isCompleted ? "border-success bg-success text-white" : "border-border bg-secondary text-muted-foreground"}`}
+                      >
                         {isCompleted ? <CheckCircle2 size={18} /> : <s.icon size={18} />}
                       </div>
-                      <span className={`text-[11px] font-bold uppercase tracking-wider whitespace-nowrap ${isActive ? "text-primary" : isCompleted ? "text-success" : "text-muted-foreground"}`}>
+                      <span
+                        className={`text-[11px] font-bold uppercase tracking-wider whitespace-nowrap ${isActive ? "text-primary" : isCompleted ? "text-success" : "text-muted-foreground"}`}
+                      >
                         {s.title}
                       </span>
                     </div>
                     {idx < STEPS.length - 1 && (
-                      <div className={`h-[2px] flex-1 mx-4 -mt-6 transition-colors ${isCompleted ? "bg-success" : "bg-border"}`} />
+                      <div
+                        className={`h-[2px] flex-1 mx-4 -mt-6 transition-colors ${isCompleted ? "bg-success" : "bg-border"}`}
+                      />
                     )}
                   </div>
                 );
@@ -419,24 +507,62 @@ export function FullRegistration() {
                 <AlertTriangle size={16} /> {errors.submit}
               </div>
             )}
-            
-            {step === 1 && <StepBasicInfo formData={formData} updateField={updateField} errors={errors} />}
-            {step === 2 && <StepContactMedical formData={formData} updateField={updateField} errors={errors} matches={matches} checking={checking} checkDuplicate={checkDuplicate} clearMatches={clearMatches} />}
-            {step === 3 && <StepVisitConsent formData={formData} updateField={updateField} errors={errors} clinicKey={clinicKey} />}
+
+            {step === 1 && (
+              <StepBasicInfo formData={formData} updateField={updateField} errors={errors} />
+            )}
+            {step === 2 && (
+              <StepContactMedical
+                formData={formData}
+                updateField={updateField}
+                errors={errors}
+                matches={matches}
+                checking={checking}
+                checkDuplicate={checkDuplicate}
+                clearMatches={clearMatches}
+              />
+            )}
+            {step === 3 && (
+              <StepVisitConsent
+                formData={formData}
+                updateField={updateField}
+                errors={errors}
+                clinicKey={clinicKey}
+              />
+            )}
           </div>
 
           {/* Bottom Actions */}
           <div className="flex items-center justify-between pt-2">
-            <Button variant="outline" onClick={step === 1 ? () => navigate({ to: "/admin/patients" }) : handleBack} className="rounded-xl px-6 h-12">
+            <Button
+              variant="outline"
+              onClick={step === 1 ? () => navigate({ to: "/admin/patients" }) : handleBack}
+              className="rounded-xl px-6 h-12"
+            >
               {step === 1 ? "Cancel" : "Back"}
             </Button>
             {step < 3 ? (
-              <Button onClick={handleNext} className="bg-primary text-white rounded-xl px-8 h-12 shadow-md">
+              <Button
+                onClick={handleNext}
+                className="bg-primary text-white rounded-xl px-8 h-12 shadow-md"
+              >
                 Next Step <ChevronRight size={16} className="ml-2" />
               </Button>
             ) : (
-              <Button onClick={handleSubmit} disabled={saving || uhidLoading} className="bg-success hover:bg-success/90 text-white rounded-xl px-8 h-12 shadow-md">
-                {saving ? <><Loader2 size={16} className="mr-2 animate-spin" /> Saving...</> : <><CheckCircle2 size={16} className="mr-2" /> Complete Registration</>}
+              <Button
+                onClick={handleSubmit}
+                disabled={saving || uhidLoading}
+                className="bg-success hover:bg-success/90 text-white rounded-xl px-8 h-12 shadow-md"
+              >
+                {saving ? (
+                  <>
+                    <Loader2 size={16} className="mr-2 animate-spin" /> Saving...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 size={16} className="mr-2" /> Complete Registration
+                  </>
+                )}
               </Button>
             )}
           </div>
@@ -445,21 +571,27 @@ export function FullRegistration() {
         {/* Right: Summary Panel (Desktop Only) */}
         <div className="hidden lg:block">
           <div className="sticky top-6 bg-card border border-border rounded-xl p-5 shadow-sm space-y-5">
-            <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-4">Patient Summary</h4>
+            <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-4">
+              Patient Summary
+            </h4>
             <div className="flex items-center gap-3">
               <div className="grid size-12 place-items-center rounded-full bg-primary/10 text-primary font-bold text-lg">
                 {formData.name ? formData.name.substring(0, 2).toUpperCase() : "?"}
               </div>
               <div>
                 <p className="text-[14px] font-bold text-navy">{formData.name || "New Patient"}</p>
-                <p className="text-[11px] text-muted-foreground font-mono">{uhid || "Generating..."}</p>
+                <p className="text-[11px] text-muted-foreground font-mono">
+                  {uhid || "Generating..."}
+                </p>
               </div>
             </div>
-            
+
             <div className="space-y-3 text-[13px] pt-4 border-t border-border">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Mobile</span>
-                <span className="font-medium text-navy">{formData.mobile ? `${formData.countryCode} ${formData.mobile}` : "—"}</span>
+                <span className="font-medium text-navy">
+                  {formData.mobile ? `${formData.countryCode} ${formData.mobile}` : "—"}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Gender</span>
@@ -468,7 +600,11 @@ export function FullRegistration() {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Age</span>
                 <span className="font-medium text-navy">
-                  {formData.dobMode === "dob" && formData.dob ? formatAge(formData.dob) : formData.approxAge ? `${formData.approxAge}Y` : "—"}
+                  {formData.dobMode === "dob" && formData.dob
+                    ? formatAge(formData.dob)
+                    : formData.approxAge
+                      ? `${formData.approxAge}Y`
+                      : "—"}
                 </span>
               </div>
               <div className="flex justify-between">

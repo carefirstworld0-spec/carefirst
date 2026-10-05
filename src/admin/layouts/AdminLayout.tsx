@@ -15,51 +15,86 @@ import {
   CheckCircle2,
   Pill,
   FlaskConical,
+
+
   Activity,
   ScrollText,
   Menu,
-  X
+  X,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
 import { ref, get, child, onValue, off } from "firebase/database";
 
+function useTypewriter(text: string, speed: number = 80) {
+  const [displayedText, setDisplayedText] = useState("");
+
+  useEffect(() => {
+    setDisplayedText("");
+    if (!text) return;
+
+    let i = 0;
+    const timer = setInterval(() => {
+      setDisplayedText(text.substring(0, i + 1));
+      i++;
+      if (i >= text.length) {
+        clearInterval(timer);
+      }
+    }, speed);
+
+    return () => clearInterval(timer);
+  }, [text, speed]);
+
+  return displayedText;
+}
+
 export function AdminLayout() {
   const navigate = useNavigate();
-  
-  const [userName, setUserName] = useState(() => typeof window !== 'undefined' ? localStorage.getItem("user_name") || "Loading..." : "Loading...");
-  const [clinicName, setClinicName] = useState(() => typeof window !== 'undefined' ? localStorage.getItem("user_clinic") || "" : "");
-  const [initials, setInitials] = useState(() => {
-    if (typeof window === 'undefined') return "AU";
-    const name = localStorage.getItem("user_name");
-    if (name) {
-      const nameParts = name.trim().split(" ");
-      if (nameParts.length > 1) {
-        return (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase();
-      } else if (nameParts.length === 1 && nameParts[0].length > 0) {
-        return nameParts[0].substring(0, 2).toUpperCase();
-      }
-    }
-    return "AU";
-  });
-  
+
+  const [userName, setUserName] = useState("");
+  const [clinicName, setClinicName] = useState("");
+  const [logoUrl, setLogoUrl] = useState("");
+  const [initials, setInitials] = useState("");
+
+  const typedUserName = useTypewriter(userName, 100);
+  const typedClinicName = useTypewriter(clinicName, 100);
+
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isExpired, setIsExpired] = useState(false);
   const [isSuspended, setIsSuspended] = useState(false);
-  const [suspendMessage, setSuspendMessage] = useState("Your account has been suspended by the administrator. Please contact CareFirst support to restore your access.");
+  const [suspendMessage, setSuspendMessage] = useState(
+    "Your account has been suspended by the administrator. Please contact CareFirst support to restore your access.",
+  );
   const [suspendReason, setSuspendReason] = useState("");
   const [suspendDate, setSuspendDate] = useState("");
   const [showActivatedScreen, setShowActivatedScreen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
+    // Read local storage in effect to ensure SSR & client initial render match
+    const storedName = localStorage.getItem("user_name") || "";
+    const storedClinic = localStorage.getItem("user_clinic_name") || "";
+    const storedLogo = localStorage.getItem("user_logo") || "";
+
+    if (storedName) {
+      setUserName(storedName);
+      const nameParts = storedName.trim().split(" ");
+      if (nameParts.length > 1) {
+        setInitials((nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase());
+      } else if (nameParts.length === 1 && nameParts[0].length > 0) {
+        setInitials(nameParts[0].substring(0, 2).toUpperCase());
+      }
+    }
+    if (storedClinic) setClinicName(storedClinic);
+    if (storedLogo) setLogoUrl(storedLogo);
+
     const uid = localStorage.getItem("user_uid");
     const clinicKey = localStorage.getItem("user_clinic");
-    
+
     if (uid && clinicKey) {
       const userRef = ref(db, `carefirst/users/${clinicKey}/signup`);
-      
+
       const unsubscribe = onValue(userRef, (snapshot) => {
         if (snapshot.exists()) {
           const data = snapshot.val();
@@ -74,8 +109,16 @@ export function AdminLayout() {
           }
           if (data.clinic) {
             setClinicName(data.clinic);
+            localStorage.setItem("user_clinic_name", data.clinic);
           }
-          
+          if (data.logoUrl) {
+            setLogoUrl(data.logoUrl);
+            localStorage.setItem("user_logo", data.logoUrl);
+          } else {
+            setLogoUrl("");
+            localStorage.removeItem("user_logo");
+          }
+
           if (data.trialExpires) {
             const expiryDate = new Date(data.trialExpires);
             const now = new Date();
@@ -85,12 +128,21 @@ export function AdminLayout() {
               setIsExpired(false);
             }
           }
-          
+
           if (data.suspended === true) {
             setIsSuspended(true);
             if (data.suspendDescription) setSuspendMessage(data.suspendDescription);
             if (data.suspendReason) setSuspendReason(data.suspendReason);
-            if (data.suspendDate) setSuspendDate(new Date(data.suspendDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }));
+            if (data.suspendDate)
+              setSuspendDate(
+                new Date(data.suspendDate).toLocaleDateString("en-GB", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                }),
+              );
           } else {
             setIsSuspended(false);
             if (data.lastActivatedAt) {
@@ -104,18 +156,12 @@ export function AdminLayout() {
               }
             }
           }
-        } else {
-          setUserName("Admin User");
-          setInitials("AU");
         }
       });
-      
+
       return () => {
         off(userRef);
       };
-    } else {
-      setUserName("Admin User");
-      setInitials("AU");
     }
   }, []);
 
@@ -128,28 +174,47 @@ export function AdminLayout() {
     <div className="flex h-screen overflow-hidden bg-secondary/30 font-sans relative">
       {/* Mobile overlay */}
       {isMobileMenuOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-navy/20 z-30 md:hidden backdrop-blur-sm"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
-      
+
       {/* Sidebar */}
-      <div className={`flex flex-col border-r border-border bg-background transition-all duration-300 fixed inset-y-0 left-0 z-40 md:relative ${isMobileMenuOpen ? 'translate-x-0 w-[260px]' : '-translate-x-full md:translate-x-0'} ${!isMobileMenuOpen && isCollapsed ? 'md:w-[80px]' : 'md:w-[260px]'}`}>
+      <div
+        className={`flex flex-col border-r border-border bg-background transition-all duration-300 fixed inset-y-0 left-0 z-40 md:relative ${isMobileMenuOpen ? "translate-x-0 w-[260px]" : "-translate-x-full md:translate-x-0"} ${!isMobileMenuOpen && isCollapsed ? "md:w-[80px]" : "md:w-[260px]"}`}
+      >
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="absolute -right-3 top-[26px] z-50 hidden lg:flex size-6 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-sm hover:text-navy hover:bg-secondary focus:outline-none transition-transform hover:scale-110"
         >
           {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
         </button>
-        <div className={`flex h-[72px] items-center border-b border-border transition-all duration-300 overflow-hidden whitespace-nowrap ${isCollapsed ? 'px-0 justify-center' : 'px-6 justify-between'}`}>
+        <div
+          className={`flex h-[72px] items-center border-b border-border transition-all duration-300 overflow-hidden whitespace-nowrap ${isCollapsed ? "px-0 justify-center" : "px-6 justify-between"}`}
+        >
           {!isCollapsed ? (
-            <Link to="/" className="font-display text-xl font-bold text-navy">
-              CareFirst <span className="text-primary">Clinic</span>
+            <Link to="/" className="flex items-center max-w-full overflow-hidden">
+              {logoUrl ? (
+                <img src={logoUrl} alt="Clinic Logo" className="max-h-[40px] max-w-[200px] object-contain" />
+              ) : (
+                <span className="font-display text-lg font-bold text-navy truncate" title={clinicName}>
+                  {typedClinicName}
+                </span>
+              )}
             </Link>
           ) : (
-            <Link to="/" className="font-display text-xl font-bold text-primary">
-              C<span className="text-navy">F</span>
+            <Link to="/" className="flex justify-center w-full">
+              {logoUrl ? (
+                <img src={logoUrl} alt="Logo" className="max-h-8 max-w-[40px] object-contain" />
+              ) : (
+                <span className="font-display text-xl font-bold text-primary">
+                  {clinicName ? clinicName.charAt(0).toUpperCase() : ""}
+                  <span className="text-navy">
+                    {clinicName && clinicName.split(" ").length > 1 ? clinicName.split(" ")[1].charAt(0).toUpperCase() : ""}
+                  </span>
+                </span>
+              )}
             </Link>
           )}
           {isMobileMenuOpen && (
@@ -178,7 +243,7 @@ export function AdminLayout() {
               to="/admin"
               exact
               onClick={() => setIsMobileMenuOpen(false)}
-              className={`flex items-center rounded-[8px] text-[14px] font-medium text-navy/70 transition-colors hover:bg-secondary hover:text-navy ${isCollapsed ? 'justify-center size-[42px] mx-auto' : 'gap-3 px-3 py-2.5 w-full'}`}
+              className={`flex items-center rounded-[8px] text-[14px] font-medium text-navy/70 transition-colors hover:bg-secondary hover:text-navy ${isCollapsed ? "justify-center size-[42px] mx-auto" : "gap-3 px-3 py-2.5 w-full"}`}
               activeProps={{ className: "!text-primary !bg-primary/10 !font-semibold" }}
               title={isCollapsed ? "Dashboard" : undefined}
             >
@@ -189,7 +254,7 @@ export function AdminLayout() {
             <Link
               to="/admin/appointments"
               onClick={() => setIsMobileMenuOpen(false)}
-              className={`flex items-center rounded-[8px] text-[14px] font-medium text-navy/70 transition-colors hover:bg-secondary hover:text-navy ${isCollapsed ? 'justify-center size-[42px] mx-auto' : 'gap-3 px-3 py-2.5 w-full'}`}
+              className={`flex items-center rounded-[8px] text-[14px] font-medium text-navy/70 transition-colors hover:bg-secondary hover:text-navy ${isCollapsed ? "justify-center size-[42px] mx-auto" : "gap-3 px-3 py-2.5 w-full"}`}
               activeProps={{ className: "!text-primary !bg-primary/10 !font-semibold" }}
               title={isCollapsed ? "Appointments" : undefined}
             >
@@ -200,7 +265,7 @@ export function AdminLayout() {
             <Link
               to="/admin/patients"
               onClick={() => setIsMobileMenuOpen(false)}
-              className={`flex items-center rounded-[8px] text-[14px] font-medium text-navy/70 transition-colors hover:bg-secondary hover:text-navy ${isCollapsed ? 'justify-center size-[42px] mx-auto' : 'gap-3 px-3 py-2.5 w-full'}`}
+              className={`flex items-center rounded-[8px] text-[14px] font-medium text-navy/70 transition-colors hover:bg-secondary hover:text-navy ${isCollapsed ? "justify-center size-[42px] mx-auto" : "gap-3 px-3 py-2.5 w-full"}`}
               activeProps={{ className: "!text-primary !bg-primary/10 !font-semibold" }}
               title={isCollapsed ? "Patients" : undefined}
             >
@@ -211,7 +276,7 @@ export function AdminLayout() {
             <Link
               to="/admin/billing"
               onClick={() => setIsMobileMenuOpen(false)}
-              className={`flex items-center rounded-[8px] text-[14px] font-medium text-navy/70 transition-colors hover:bg-secondary hover:text-navy ${isCollapsed ? 'justify-center size-[42px] mx-auto' : 'gap-3 px-3 py-2.5 w-full'}`}
+              className={`flex items-center rounded-[8px] text-[14px] font-medium text-navy/70 transition-colors hover:bg-secondary hover:text-navy ${isCollapsed ? "justify-center size-[42px] mx-auto" : "gap-3 px-3 py-2.5 w-full"}`}
               activeProps={{ className: "!text-primary !bg-primary/10 !font-semibold" }}
               title={isCollapsed ? "Billing" : undefined}
             >
@@ -262,7 +327,7 @@ export function AdminLayout() {
             <Link
               to="/admin/settings"
               onClick={() => setIsMobileMenuOpen(false)}
-              className={`flex items-center rounded-[8px] text-[14px] font-medium text-navy/70 transition-colors hover:bg-secondary hover:text-navy ${isCollapsed ? 'justify-center size-[42px] mx-auto' : 'gap-3 px-3 py-2.5 w-full'}`}
+              className={`flex items-center rounded-[8px] text-[14px] font-medium text-navy/70 transition-colors hover:bg-secondary hover:text-navy ${isCollapsed ? "justify-center size-[42px] mx-auto" : "gap-3 px-3 py-2.5 w-full"}`}
               activeProps={{ className: "!text-primary !bg-primary/10" }}
               title={isCollapsed ? "Settings" : undefined}
             >
@@ -274,7 +339,7 @@ export function AdminLayout() {
               <Link
                 to="/admin/trash"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center rounded-[8px] text-[14px] font-medium text-navy/70 transition-colors hover:bg-destructive/10 hover:text-destructive ${isCollapsed ? 'justify-center size-[42px] mx-auto' : 'gap-3 px-3 py-2.5 w-full'}`}
+                className={`flex items-center rounded-[8px] text-[14px] font-medium text-navy/70 transition-colors hover:bg-destructive/10 hover:text-destructive ${isCollapsed ? "justify-center size-[42px] mx-auto" : "gap-3 px-3 py-2.5 w-full"}`}
                 activeProps={{ className: "!text-destructive !bg-destructive/10 !font-semibold" }}
                 title={isCollapsed ? "Trash" : undefined}
               >
@@ -292,11 +357,9 @@ export function AdminLayout() {
                 {initials}
               </div>
               <div className="min-w-0">
-                <div className="truncate text-[13px] font-semibold text-navy">
-                  {userName}
-                </div>
+                <div className="truncate text-[13px] font-semibold text-navy">{typedUserName}</div>
                 <div className="truncate text-[11px] text-muted-foreground">
-                  {clinicName || "Loading..."}
+                  {typedClinicName}
                 </div>
               </div>
             </div>
@@ -306,10 +369,10 @@ export function AdminLayout() {
             </div>
           )}
 
-          <div className={`flex items-center ${isCollapsed ? 'flex-col gap-2' : 'gap-2'}`}>
+          <div className={`flex items-center ${isCollapsed ? "flex-col gap-2" : "gap-2"}`}>
             <button
               onClick={handleLogout}
-              className={`flex items-center justify-center rounded-[8px] text-destructive transition-colors hover:bg-destructive/10 ${isCollapsed ? 'size-10' : 'w-full gap-2 px-3 py-2 text-[13px] font-medium'}`}
+              className={`flex items-center justify-center rounded-[8px] text-destructive transition-colors hover:bg-destructive/10 ${isCollapsed ? "size-10" : "w-full gap-2 px-3 py-2 text-[13px] font-medium"}`}
               title="Logout"
             >
               <LogOut size={16} />
@@ -324,14 +387,14 @@ export function AdminLayout() {
         {/* Topbar */}
         <header className="flex h-[72px] shrink-0 items-center justify-between border-b border-border bg-card px-4 md:px-8">
           <div className="flex items-center gap-3">
-            <button 
+            <button
               className="md:hidden p-2 -ml-2 text-navy hover:bg-secondary rounded-lg"
               onClick={() => setIsMobileMenuOpen(true)}
             >
               <Menu size={20} />
             </button>
             <div className="font-display text-[14px] md:text-[16px] font-bold text-navy truncate max-w-[120px] sm:max-w-xs md:max-w-none">
-              Welcome, {userName !== "Loading..." && userName !== "Admin User" ? userName : "Doctor"} 👋
+              Welcome, {typedUserName || "..."} 👋
             </div>
           </div>
           <div className="flex items-center gap-4 md:gap-6 relative">
@@ -349,63 +412,72 @@ export function AdminLayout() {
 
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
-                <div className="text-[13px] font-bold text-navy">{userName !== "Loading..." ? userName : "Admin User"}</div>
+                <div className="text-[13px] font-bold text-navy">
+                  {typedUserName}
+                </div>
                 <div className="text-[11px] text-muted-foreground">Admin</div>
               </div>
-              <button 
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="grid h-9 w-9 place-items-center rounded-full bg-primary font-bold text-primary-foreground shadow-sm transition-transform hover:scale-105 focus:outline-none"
-            >
-              {initials}
-            </button>
+              <button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="grid h-9 w-9 place-items-center rounded-full bg-primary font-bold text-primary-foreground shadow-sm transition-transform hover:scale-105 focus:outline-none"
+              >
+                {initials}
+              </button>
 
-            {isDropdownOpen && (
-              <>
-                <div 
-                  className="fixed inset-0 z-40" 
-                  onClick={() => setIsDropdownOpen(false)} 
-                />
-                <div className="absolute right-0 top-12 z-50 mt-2 w-48 rounded-xl border border-border bg-card p-2 shadow-lg animate-in fade-in slide-in-from-top-2">
-                  <Link 
-                    to="/admin/settings"
-                    onClick={() => setIsDropdownOpen(false)}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-navy transition-colors hover:bg-secondary"
-                  >
-                    <Settings size={16} />
-                    Profile
-                  </Link>
-                  <button 
-                    onClick={handleLogout}
-                    className="mt-1 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-destructive transition-colors hover:bg-destructive/10"
-                  >
-                    <LogOut size={16} />
-                    Sign out
-                  </button>
-                </div>
-              </>
-            )}
+              {isDropdownOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setIsDropdownOpen(false)} />
+                  <div className="absolute right-0 top-12 z-50 mt-2 w-48 rounded-xl border border-border bg-card p-2 shadow-lg animate-in fade-in slide-in-from-top-2">
+                    <Link
+                      to="/admin/settings"
+                      onClick={() => setIsDropdownOpen(false)}
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-navy transition-colors hover:bg-secondary"
+                    >
+                      <Settings size={16} />
+                      Profile
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="mt-1 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-destructive transition-colors hover:bg-destructive/10"
+                    >
+                      <LogOut size={16} />
+                      Sign out
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </header>
 
         {/* Page content */}
         <main className="relative flex-1 overflow-y-auto p-4 md:p-8 bg-background">
-          {(isExpired || isSuspended) ? (
+          {isExpired || isSuspended ? (
             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm">
               <div className="mx-auto max-w-md text-center">
-                <div className={`mx-auto mb-4 grid size-16 place-items-center rounded-full ${isSuspended ? 'bg-orange/10' : 'bg-destructive/10'}`}>
-                  {isSuspended ? <Ban size={32} className="text-orange" /> : <LogOut size={32} className="text-destructive" />}
+                <div
+                  className={`mx-auto mb-4 grid size-16 place-items-center rounded-full ${isSuspended ? "bg-orange/10" : "bg-destructive/10"}`}
+                >
+                  {isSuspended ? (
+                    <Ban size={32} className="text-orange" />
+                  ) : (
+                    <LogOut size={32} className="text-destructive" />
+                  )}
                 </div>
-                <h2 className="font-display text-2xl font-extrabold text-navy">{isSuspended ? 'Account Suspended' : 'Trial Expired'}</h2>
-                
+                <h2 className="font-display text-2xl font-extrabold text-navy">
+                  {isSuspended ? "Account Suspended" : "Trial Expired"}
+                </h2>
+
                 {isSuspended && suspendReason && (
                   <div className="mt-4 mb-2 inline-block rounded-full bg-orange/10 px-4 py-1.5 text-[13px] font-bold text-orange">
                     Reason: {suspendReason}
                   </div>
                 )}
-                
+
                 <p className="mt-2 text-[14px] text-muted-foreground leading-relaxed">
-                  {isSuspended ? suspendMessage : 'Your 7-day trial period has ended. You can no longer operate the admin panel until you upgrade your subscription.'}
+                  {isSuspended
+                    ? suspendMessage
+                    : "Your 7-day trial period has ended. You can no longer operate the admin panel until you upgrade your subscription."}
                 </p>
 
                 {isSuspended && suspendDate && (
@@ -429,7 +501,10 @@ export function AdminLayout() {
               <div className="mx-auto max-w-md text-center">
                 <div className="mx-auto mb-4 relative flex size-20 items-center justify-center rounded-full bg-success/10">
                   <div className="absolute inset-0 rounded-full border-4 border-success/30 animate-[spin_3s_linear_infinite]" />
-                  <CheckCircle2 size={36} className="text-success animate-in zoom-in duration-500 delay-150" />
+                  <CheckCircle2
+                    size={36}
+                    className="text-success animate-in zoom-in duration-500 delay-150"
+                  />
                 </div>
                 <h2 className="font-display text-2xl font-extrabold text-navy animate-in fade-in slide-in-from-bottom-2 duration-500 delay-300">
                   Account Activated!

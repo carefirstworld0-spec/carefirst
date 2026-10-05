@@ -210,3 +210,30 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Printable Prescription Pad Styles */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .printable-prescription-pad,
+  .printable-prescription-pad * {
+    visibility: visible;
+  }
+  .printable-prescription-pad {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 24px !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
+

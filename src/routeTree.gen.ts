@@ -22,6 +22,7 @@ import { Route as AdminSplatRouteImport } from './routes/admin/$'
 import { Route as AdminAppointmentsRouteImport } from './routes/admin/appointments'
 import { Route as AdminNewTokenRouteImport } from './routes/admin/new-token'
 import { Route as AdminPatientsRouteImport } from './routes/admin/patients'
+import { Route as AdminPrescriptionsRouteImport } from './routes/admin/prescriptions'
 import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
 import { Route as AdminTrashRouteImport } from './routes/admin/trash'
 import { Route as SuperadminIndexRouteImport } from './routes/superadmin/index'
@@ -34,6 +35,7 @@ import { Route as AdminPatientsPatientIdRouteImport } from './routes/admin/patie
 import { Route as AdminPatientsNewRouteImport } from './routes/admin/patients.new'
 import { Route as AdminPatientsQuickRouteImport } from './routes/admin/patients.quick'
 import { Route as SuperadminSubscriptionClinicIdRouteImport } from './routes/superadmin/subscription.$clinicId'
+import { Route as AdminPatientsPatientIdIndexRouteImport } from './routes/admin/patients.$patientId.index'
 import { Route as AdminPatientsPatientIdEditRouteImport } from './routes/admin/patients.$patientId.edit'
 
 const IndexRoute = IndexRouteImport.update({
@@ -101,6 +103,11 @@ const AdminPatientsRoute = AdminPatientsRouteImport.update({
   path: '/patients',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminPrescriptionsRoute = AdminPrescriptionsRouteImport.update({
+  id: '/prescriptions',
+  path: '/prescriptions',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminSettingsRoute = AdminSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -162,6 +169,12 @@ const SuperadminSubscriptionClinicIdRoute =
     path: '/$clinicId',
     getParentRoute: () => SuperadminSubscriptionRoute,
   } as any)
+const AdminPatientsPatientIdIndexRoute =
+  AdminPatientsPatientIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AdminPatientsPatientIdRoute,
+  } as any)
 const AdminPatientsPatientIdEditRoute =
   AdminPatientsPatientIdEditRouteImport.update({
     id: '/edit',
@@ -182,6 +195,7 @@ export interface FileRoutesByFullPath {
   '/admin/appointments': typeof AdminAppointmentsRoute
   '/admin/new-token': typeof AdminNewTokenRoute
   '/admin/patients': typeof AdminPatientsRouteWithChildren
+  '/admin/prescriptions': typeof AdminPrescriptionsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/trash': typeof AdminTrashRoute
   '/superadmin/$': typeof SuperadminSplatRoute
@@ -196,6 +210,7 @@ export interface FileRoutesByFullPath {
   '/superadmin/subscription/$clinicId': typeof SuperadminSubscriptionClinicIdRoute
   '/admin/patients/': typeof AdminPatientsIndexRoute
   '/admin/patients/$patientId/edit': typeof AdminPatientsPatientIdEditRoute
+  '/admin/patients/$patientId/': typeof AdminPatientsPatientIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -207,6 +222,7 @@ export interface FileRoutesByTo {
   '/admin/$': typeof AdminSplatRoute
   '/admin/appointments': typeof AdminAppointmentsRoute
   '/admin/new-token': typeof AdminNewTokenRoute
+  '/admin/prescriptions': typeof AdminPrescriptionsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/trash': typeof AdminTrashRoute
   '/superadmin/$': typeof SuperadminSplatRoute
@@ -215,12 +231,12 @@ export interface FileRoutesByTo {
   '/superadmin/login': typeof SuperadminLoginRoute
   '/admin': typeof AdminIndexRoute
   '/superadmin': typeof SuperadminIndexRoute
-  '/admin/patients/$patientId': typeof AdminPatientsPatientIdRouteWithChildren
   '/admin/patients/new': typeof AdminPatientsNewRoute
   '/admin/patients/quick': typeof AdminPatientsQuickRoute
   '/superadmin/subscription/$clinicId': typeof SuperadminSubscriptionClinicIdRoute
   '/admin/patients': typeof AdminPatientsIndexRoute
   '/admin/patients/$patientId/edit': typeof AdminPatientsPatientIdEditRoute
+  '/admin/patients/$patientId': typeof AdminPatientsPatientIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -236,6 +252,7 @@ export interface FileRoutesById {
   '/admin/appointments': typeof AdminAppointmentsRoute
   '/admin/new-token': typeof AdminNewTokenRoute
   '/admin/patients': typeof AdminPatientsRouteWithChildren
+  '/admin/prescriptions': typeof AdminPrescriptionsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/trash': typeof AdminTrashRoute
   '/superadmin/$': typeof SuperadminSplatRoute
@@ -250,6 +267,7 @@ export interface FileRoutesById {
   '/superadmin/subscription/$clinicId': typeof SuperadminSubscriptionClinicIdRoute
   '/admin/patients/': typeof AdminPatientsIndexRoute
   '/admin/patients/$patientId/edit': typeof AdminPatientsPatientIdEditRoute
+  '/admin/patients/$patientId/': typeof AdminPatientsPatientIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -266,6 +284,7 @@ export interface FileRouteTypes {
     | '/admin/appointments'
     | '/admin/new-token'
     | '/admin/patients'
+    | '/admin/prescriptions'
     | '/admin/settings'
     | '/admin/trash'
     | '/superadmin/$'
@@ -280,6 +299,7 @@ export interface FileRouteTypes {
     | '/superadmin/subscription/$clinicId'
     | '/admin/patients/'
     | '/admin/patients/$patientId/edit'
+    | '/admin/patients/$patientId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -291,6 +311,7 @@ export interface FileRouteTypes {
     | '/admin/$'
     | '/admin/appointments'
     | '/admin/new-token'
+    | '/admin/prescriptions'
     | '/admin/settings'
     | '/admin/trash'
     | '/superadmin/$'
@@ -299,12 +320,12 @@ export interface FileRouteTypes {
     | '/superadmin/login'
     | '/admin'
     | '/superadmin'
-    | '/admin/patients/$patientId'
     | '/admin/patients/new'
     | '/admin/patients/quick'
     | '/superadmin/subscription/$clinicId'
     | '/admin/patients'
     | '/admin/patients/$patientId/edit'
+    | '/admin/patients/$patientId'
   id:
     | '__root__'
     | '/'
@@ -319,6 +340,7 @@ export interface FileRouteTypes {
     | '/admin/appointments'
     | '/admin/new-token'
     | '/admin/patients'
+    | '/admin/prescriptions'
     | '/admin/settings'
     | '/admin/trash'
     | '/superadmin/$'
@@ -333,6 +355,7 @@ export interface FileRouteTypes {
     | '/superadmin/subscription/$clinicId'
     | '/admin/patients/'
     | '/admin/patients/$patientId/edit'
+    | '/admin/patients/$patientId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -440,6 +463,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPatientsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/prescriptions': {
+      id: '/admin/prescriptions'
+      path: '/prescriptions'
+      fullPath: '/admin/prescriptions'
+      preLoaderRoute: typeof AdminPrescriptionsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/settings': {
       id: '/admin/settings'
       path: '/settings'
@@ -524,6 +554,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SuperadminSubscriptionClinicIdRouteImport
       parentRoute: typeof SuperadminSubscriptionRoute
     }
+    '/admin/patients/$patientId/': {
+      id: '/admin/patients/$patientId/'
+      path: '/'
+      fullPath: '/admin/patients/$patientId/'
+      preLoaderRoute: typeof AdminPatientsPatientIdIndexRouteImport
+      parentRoute: typeof AdminPatientsPatientIdRoute
+    }
     '/admin/patients/$patientId/edit': {
       id: '/admin/patients/$patientId/edit'
       path: '/edit'
@@ -536,11 +573,13 @@ declare module '@tanstack/react-router' {
 
 interface AdminPatientsPatientIdRouteChildren {
   AdminPatientsPatientIdEditRoute: typeof AdminPatientsPatientIdEditRoute
+  AdminPatientsPatientIdIndexRoute: typeof AdminPatientsPatientIdIndexRoute
 }
 
 const AdminPatientsPatientIdRouteChildren: AdminPatientsPatientIdRouteChildren =
   {
     AdminPatientsPatientIdEditRoute: AdminPatientsPatientIdEditRoute,
+    AdminPatientsPatientIdIndexRoute: AdminPatientsPatientIdIndexRoute,
   }
 
 const AdminPatientsPatientIdRouteWithChildren =
@@ -571,6 +610,7 @@ interface AdminRouteChildren {
   AdminAppointmentsRoute: typeof AdminAppointmentsRoute
   AdminNewTokenRoute: typeof AdminNewTokenRoute
   AdminPatientsRoute: typeof AdminPatientsRouteWithChildren
+  AdminPrescriptionsRoute: typeof AdminPrescriptionsRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminTrashRoute: typeof AdminTrashRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -581,6 +621,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAppointmentsRoute: AdminAppointmentsRoute,
   AdminNewTokenRoute: AdminNewTokenRoute,
   AdminPatientsRoute: AdminPatientsRouteWithChildren,
+  AdminPrescriptionsRoute: AdminPrescriptionsRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminTrashRoute: AdminTrashRoute,
   AdminIndexRoute: AdminIndexRoute,
